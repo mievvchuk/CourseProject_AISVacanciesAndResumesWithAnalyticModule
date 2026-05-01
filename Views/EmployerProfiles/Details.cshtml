@@ -1,0 +1,37 @@
+@model EmployerProfileDetailsViewModel
+
+@{
+    ViewData["Title"] = "Профіль роботодавця";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
+                        {
+                            <img src="@Model.LogoPath" alt="@Model.CompanyName" class="img-thumbnail border" style="width: 88px; height: 88px; object-fit: cover;" />
+                        }
+                        <div>
+                            <h2 class="h4 mb-1">@Model.CompanyName</h2>
+                            <div class="text-muted">@Model.FullName - @Model.Email</div>
+                        </div>
+                    </div>
+                    <a asp-action="Edit" class="btn btn-primary">Редагувати</a>
+                </div>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Опис</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+                    <dt class="col-sm-4">Розмір компанії</dt>
+                    <dd class="col-sm-8">@Model.CompanySize</dd>
+                    <dt class="col-sm-4">Сайт</dt>
+                    <dd class="col-sm-8">@Model.Website</dd>
+                    <dt class="col-sm-4">Місто</dt>
+                    <dd class="col-sm-8">@Model.City</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
