@@ -1,0 +1,199 @@
+@model AisVacanciesAndResumes.ViewModels.Admin.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Панель адміністратора";
+    var analytics = Model.Analytics;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h2 class="h4 mb-1">Зведення системи</h2>
+        <div class="text-secondary">Користувачі, вакансії, резюме, заявки та основні показники ринку праці.</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Export" asp-action="Analytics" class="btn btn-outline-primary">
+            <i class="bi bi-filetype-csv me-1"></i> CSV
+        </a>
+        <a asp-controller="Export" asp-action="AnalyticsPdf" class="btn btn-outline-danger">
+            <i class="bi bi-filetype-pdf me-1"></i> PDF
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Users" class="small-box text-bg-primary text-decoration-none">
+            <div class="inner">
+                <h3>@Model.UserCount</h3>
+                <p>Користувачі</p>
+            </div>
+            <i class="small-box-icon bi bi-people"></i>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Vacancies" class="small-box text-bg-success text-decoration-none">
+            <div class="inner">
+                <h3>@Model.VacancyCount</h3>
+                <p>Вакансії</p>
+            </div>
+            <i class="small-box-icon bi bi-briefcase"></i>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Resumes" class="small-box text-bg-warning text-decoration-none">
+            <div class="inner">
+                <h3>@Model.ResumeCount</h3>
+                <p>Резюме</p>
+            </div>
+            <i class="small-box-icon bi bi-file-earmark-person"></i>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="ModerationLog" class="small-box text-bg-danger text-decoration-none">
+            <div class="inner">
+                <h3>@Model.ModerationLogCount</h3>
+                <p>Події модерації</p>
+            </div>
+            <i class="small-box-icon bi bi-journal-check"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon text-bg-info"><i class="bi bi-send"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Заявки</span>
+                <span class="info-box-number">@analytics.ApplicationCount</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon text-bg-success"><i class="bi bi-person-check"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Кандидати</span>
+                <span class="info-box-number">@analytics.CandidateCount</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon text-bg-warning"><i class="bi bi-building"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Роботодавці</span>
+                <span class="info-box-number">@analytics.EmployerCount</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon text-bg-secondary"><i class="bi bi-percent"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Середній метчинг</span>
+                <span class="info-box-number">@analytics.AverageMatchPercentage%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card card-outline card-primary h-100">
+            <div class="card-header">
+                <h3 class="card-title">Вакансії за категоріями</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card card-outline card-success h-100">
+            <div class="card-header">
+                <h3 class="card-title">Типи зайнятості</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="employmentChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card card-outline card-warning h-100">
+            <div class="card-header">
+                <h3 class="card-title">Досвід у резюме</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="resumeExperienceChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card card-outline card-info h-100">
+            <div class="card-header">
+                <h3 class="card-title">Популярні навички</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="skillsChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (() => {
+            const renderChart = (id, type, labels, data, colors) => {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+
+                new Chart(canvas, {
+                    type,
+                    data: {
+                        labels,
+                        datasets: [{
+                            data,
+                            backgroundColor: colors,
+                            borderRadius: type === 'bar' ? 8 : 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: type !== 'bar' } },
+                        scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { precision: 0 } } } : {}
+                    }
+                });
+            };
+
+            renderChart(
+                'categoryChart',
+                'bar',
+                @Json.Serialize(analytics.VacanciesByCategory.Select(x => x.CategoryName)),
+                @Json.Serialize(analytics.VacanciesByCategory.Select(x => x.Count)),
+                ['#0d6efd', '#20c997', '#ffc107', '#dc3545', '#6f42c1', '#0dcaf0']);
+
+            renderChart(
+                'employmentChart',
+                'doughnut',
+                @Json.Serialize(analytics.VacancyEmploymentTypeDistribution.Select(x => x.EmploymentTypeName)),
+                @Json.Serialize(analytics.VacancyEmploymentTypeDistribution.Select(x => x.Count)),
+                ['#198754', '#0d6efd', '#ffc107', '#dc3545', '#6c757d']);
+
+            renderChart(
+                'resumeExperienceChart',
+                'bar',
+                @Json.Serialize(analytics.ResumeExperienceDistribution.Select(x => x.ExperienceLevelName)),
+                @Json.Serialize(analytics.ResumeExperienceDistribution.Select(x => x.Count)),
+                ['#ffc107', '#fd7e14', '#20c997', '#0d6efd']);
+
+            renderChart(
+                'skillsChart',
+                'bar',
+                @Json.Serialize(analytics.PopularSkills.Select(x => x.SkillName)),
+                @Json.Serialize(analytics.PopularSkills.Select(x => x.UsageCount)),
+                ['#0dcaf0', '#0d6efd', '#6610f2', '#d63384', '#198754']);
+        })();
+    </script>
+}
