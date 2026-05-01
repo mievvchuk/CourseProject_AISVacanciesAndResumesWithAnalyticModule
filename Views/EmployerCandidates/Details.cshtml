@@ -1,0 +1,88 @@
+@model ResumeDetailsViewModel
+
+@{
+    ViewData["Title"] = "Деталі резюме";
+}
+
+<div class="row">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+                    <div>
+                        <h2 class="h3 mb-1">@Model.DesiredPosition</h2>
+                        <div class="text-secondary">@Model.FullName @(!string.IsNullOrWhiteSpace(Model.City) ? $"• {Model.City}" : string.Empty)</div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (!string.IsNullOrWhiteSpace(Model.CandidateUserId))
+                        {
+                            <a asp-controller="Messages"
+                               asp-action="Create"
+                               asp-route-receiverId="@Model.CandidateUserId"
+                               class="btn btn-primary">
+                                <i class="ti ti-message-circle me-1"></i>
+                                Написати кандидату
+                            </a>
+                        }
+                        <a asp-action="Search" class="btn btn-outline-secondary">Назад до пошуку</a>
+                    </div>
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Назва резюме</dt>
+                    <dd class="col-sm-8">@Model.Title</dd>
+
+                    <dt class="col-sm-4">Категорія</dt>
+                    <dd class="col-sm-8">@Model.CategoryName</dd>
+
+                    <dt class="col-sm-4">Короткий опис</dt>
+                    <dd class="col-sm-8">@Model.Summary</dd>
+
+                    <dt class="col-sm-4">Освіта</dt>
+                    <dd class="col-sm-8">@Model.Education</dd>
+
+                    <dt class="col-sm-4">Досвід</dt>
+                    <dd class="col-sm-8">@Model.Experience</dd>
+
+                    <dt class="col-sm-4">Навички</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.SkillNames.Any())
+                        {
+                            <div class="mb-2">
+                                @foreach (var skill in Model.SkillNames)
+                                {
+                                    <span class="badge bg-blue-lt me-1 mb-1">@skill</span>
+                                }
+                            </div>
+                        }
+                        <div>@Model.SkillsDescription</div>
+                    </dd>
+
+                    <dt class="col-sm-4">Тип зайнятості</dt>
+                    <dd class="col-sm-8">@Model.EmploymentType</dd>
+
+                    <dt class="col-sm-4">Рівень досвіду</dt>
+                    <dd class="col-sm-8">@Model.ExperienceLevel (@Model.ExperienceYears років)</dd>
+
+                    <dt class="col-sm-4">Рівень освіти</dt>
+                    <dd class="col-sm-8">@Model.EducationLevel</dd>
+
+                    <dt class="col-sm-4">Бажана зарплата</dt>
+                    <dd class="col-sm-8">@(Model.DesiredSalary.HasValue ? $"{Model.DesiredSalary:N0} грн" : "Не вказано")</dd>
+
+                    <dt class="col-sm-4">Файл резюме</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                        {
+                            <a href="@Model.FilePath" target="_blank">@Model.OriginalFileName</a>
+                        }
+                        else
+                        {
+                            <span class="text-secondary">Файл не завантажено</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

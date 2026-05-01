@@ -1,0 +1,134 @@
+@model ResumeFormViewModel
+
+@{
+    ViewData["Title"] = "Створення резюме";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title mb-1">Створення резюме</h2>
+                    <div class="text-secondary">
+                        Прикріпіть PDF/DOCX і натисніть "Зберегти". Система спробує автоматично заповнити дані з файлу.
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (ViewData["ParseMessage"] is string parseMessage)
+                {
+                    <div class="alert alert-info" role="alert">@parseMessage</div>
+                }
+
+                <form asp-action="Create" method="post" enctype="multipart/form-data" class="resume-form" data-replace-fields-from-file="false">
+                    <input asp-for="ReplaceFieldsFromFile" type="hidden" value="false" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="Title" class="form-label">Назва резюме</label>
+                            <input asp-for="Title" class="form-control" placeholder="Наприклад: Резюме Frontend Developer" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="CategoryId" class="form-label">Категорія</label>
+                            <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select"></select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="ResumeFile" class="form-label">Файл резюме PDF/DOCX</label>
+                            <input asp-for="ResumeFile" class="form-control" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                            <span asp-validation-for="ResumeFile" class="text-danger"></span>
+                            <div class="resume-parse-status form-hint mt-1"></div>
+                            <div class="form-hint">Після вибору файлу дані можуть автоматично підставитися у поля форми.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DesiredPosition" class="form-label">Бажана посада</label>
+                            <input asp-for="DesiredPosition" class="form-control" />
+                            <span asp-validation-for="DesiredPosition" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="DesiredSalary" class="form-label">Бажана зарплата</label>
+                            <input asp-for="DesiredSalary" class="form-control" />
+                            <span asp-validation-for="DesiredSalary" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="ExperienceYears" class="form-label">Роки досвіду</label>
+                            <input asp-for="ExperienceYears" class="form-control" />
+                            <span asp-validation-for="ExperienceYears" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="EmploymentType" class="form-label">Тип зайнятості</label>
+                            <select asp-for="EmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select"></select>
+                            <span asp-validation-for="EmploymentType" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ExperienceLevel" class="form-label">Рівень досвіду</label>
+                            <select asp-for="ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select"></select>
+                            <span asp-validation-for="ExperienceLevel" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="EducationLevel" class="form-label">Рівень освіти</label>
+                            <select asp-for="EducationLevel" asp-items="Html.GetEnumSelectList<EducationLevel>()" class="form-select"></select>
+                            <span asp-validation-for="EducationLevel" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Summary" class="form-label">Короткий опис</label>
+                            <textarea asp-for="Summary" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Summary" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Education" class="form-label">Освіта</label>
+                            <textarea asp-for="Education" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Education" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Experience" class="form-label">Досвід</label>
+                            <textarea asp-for="Experience" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Experience" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="SkillsDescription" class="form-label">Навички</label>
+                            <textarea asp-for="SkillsDescription" class="form-control" rows="3" placeholder="Наприклад: C#, ASP.NET Core, SQL, англійська"></textarea>
+                            <span asp-validation-for="SkillsDescription" class="text-danger"></span>
+                        </div>
+
+                        @if (Model.ParsedSkillNames.Any())
+                        {
+                            <div class="col-12">
+                                <div class="alert alert-success mb-0">
+                                    <strong>Знайдені навички:</strong> @string.Join(", ", Model.ParsedSkillNames)
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-12">
+                            <label class="form-check">
+                                <input asp-for="IsPublished" class="form-check-input" />
+                                <span class="form-check-label">Опублікувати резюме для роботодавців</span>
+                            </label>
+                            <div class="form-hint">Якщо прапорець вимкнений, резюме буде збережено як чернетка.</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ti ti-device-floppy me-1"></i>Зберегти
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Назад</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/resume-parser.js" asp-append-version="true"></script>
+}

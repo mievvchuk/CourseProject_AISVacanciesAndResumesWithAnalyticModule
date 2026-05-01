@@ -1,0 +1,152 @@
+@model ResumeSearchViewModel
+
+@{
+    ViewData["Title"] = "Кандидати";
+}
+
+<section class="employer-candidates-page">
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Кандидати</h1>
+        <p class="text-secondary mb-0">Знайдіть резюме кандидатів за посадою, містом, досвідом і навичками.</p>
+    </div>
+
+    <form method="get" class="card candidate-filter-card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-4 col-md-6">
+                    <label asp-for="Filter.DesiredPosition" class="form-label"></label>
+                    <input asp-for="Filter.DesiredPosition" class="form-control" placeholder="Наприклад: Junior Developer" />
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <label asp-for="Filter.City" class="form-label"></label>
+                    <input asp-for="Filter.City" class="form-control" placeholder="Місто кандидата" />
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <label asp-for="Filter.CategoryId" class="form-label"></label>
+                    <select asp-for="Filter.CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                        <option value="">Усі категорії</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label asp-for="Filter.EmploymentType" class="form-label"></label>
+                    <select asp-for="Filter.EmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select">
+                        <option value="">Будь-який тип</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label asp-for="Filter.ExperienceLevel" class="form-label"></label>
+                    <select asp-for="Filter.ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select">
+                        <option value="">Будь-який рівень</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label asp-for="Filter.EducationLevel" class="form-label"></label>
+                    <select asp-for="Filter.EducationLevel" asp-items="Html.GetEnumSelectList<EducationLevel>()" class="form-select">
+                        <option value="">Будь-яка освіта</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label asp-for="Filter.Skills" class="form-label"></label>
+                    <input asp-for="Filter.Skills" class="form-control" placeholder="C#, SQL, React" />
+                </div>
+            </div>
+            <input asp-for="Filter.PageSize" type="hidden" />
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="ti ti-search me-1"></i>
+                    Знайти
+                </button>
+                <a asp-action="Search" class="btn btn-outline-secondary">
+                    <i class="ti ti-x me-1"></i>
+                    Очистити
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h4 mb-0">Знайдено кандидатів: @Model.TotalItems</h2>
+    </div>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="application-empty card shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon bg-primary-lt text-primary mb-3">
+                    <i class="ti ti-users-off"></i>
+                </div>
+                <h3 class="h4 mb-2">Кандидатів не знайдено</h3>
+                <p class="text-secondary mb-0">Спробуйте змінити фільтри або очистити пошук.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="candidate-card-grid">
+            @foreach (var item in Model.Items)
+            {
+                <article class="card candidate-card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="candidate-card-head">
+                            <div>
+                                <h3>@item.FullName</h3>
+                                <p>@item.DesiredPosition</p>
+                            </div>
+                            <span class="badge bg-primary-lt text-primary">@item.ExperienceLevel.GetDisplayName()</span>
+                        </div>
+
+                        <div class="candidate-meta">
+                            <span><i class="ti ti-map-pin"></i>@(string.IsNullOrWhiteSpace(item.City) ? "Місто не вказано" : item.City)</span>
+                            <span><i class="ti ti-school"></i>@item.EducationLevel.GetDisplayName()</span>
+                            <span><i class="ti ti-briefcase"></i>@item.EmploymentType.GetDisplayName()</span>
+                            <span><i class="ti ti-currency-hryvnia"></i>@(item.DesiredSalary.HasValue ? $"{item.DesiredSalary:N0} грн" : "Зарплату не вказано")</span>
+                        </div>
+
+                        @if (item.Skills.Any())
+                        {
+                            <div class="candidate-skills">
+                                @foreach (var skill in item.Skills.Take(5))
+                                {
+                                    <span class="badge bg-muted-lt text-secondary border">@skill</span>
+                                }
+                            </div>
+                        }
+
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">
+                            <i class="ti ti-eye me-1"></i>
+                            Переглянути резюме
+                        </a>
+                    </div>
+                </article>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-3">
+                <ul class="pagination">
+                    @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
+                    {
+                        <li class="page-item @(pageNumber == Model.Filter.Page ? "active" : string.Empty)">
+                            <a class="page-link"
+                               asp-action="Search"
+                               asp-route-desiredPosition="@Model.Filter.DesiredPosition"
+                               asp-route-categoryId="@Model.Filter.CategoryId"
+                               asp-route-city="@Model.Filter.City"
+                               asp-route-employmentType="@Model.Filter.EmploymentType"
+                               asp-route-experienceLevel="@Model.Filter.ExperienceLevel"
+                               asp-route-educationLevel="@Model.Filter.EducationLevel"
+                               asp-route-desiredSalaryFrom="@Model.Filter.DesiredSalaryFrom"
+                               asp-route-desiredSalaryTo="@Model.Filter.DesiredSalaryTo"
+                               asp-route-skills="@Model.Filter.Skills"
+                               asp-route-page="@pageNumber"
+                               asp-route-pageSize="@Model.Filter.PageSize">
+                                @pageNumber
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+</section>
