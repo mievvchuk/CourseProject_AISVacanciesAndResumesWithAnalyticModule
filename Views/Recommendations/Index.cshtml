@@ -1,0 +1,150 @@
+@model AisVacanciesAndResumes.ViewModels.Recommendations.RecommendationIndexViewModel
+
+@{
+    ViewData["Title"] = "Рекомендації";
+}
+
+@functions {
+    private static string FormatSalary(decimal from, decimal to)
+    {
+        if (from <= 0 && to <= 0)
+        {
+            return "Зарплату не вказано";
+        }
+
+        if (from > 0 && to > 0)
+        {
+            return $"{from:N0} - {to:N0} грн";
+        }
+
+        return from > 0 ? $"від {from:N0} грн" : $"до {to:N0} грн";
+    }
+
+    private static string GetMatchLabel(int match)
+    {
+        if (match >= 80)
+        {
+            return "Сильний збіг";
+        }
+
+        if (match >= 60)
+        {
+            return "Добра відповідність";
+        }
+
+        return "Можна розглянути";
+    }
+}
+
+<section class="recommendations-page">
+    <div class="recommendations-hero">
+        <div>
+            <h1 class="h3 mb-1">Рекомендації</h1>
+            <p class="text-secondary mb-0">Добірка вакансій, які найкраще підходять до ваших резюме.</p>
+        </div>
+        <a asp-controller="Vacancies" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="ti ti-list-search me-1"></i>
+            Усі вакансії
+        </a>
+    </div>
+
+    @if (!Model.HasResumes)
+    {
+        <div class="recommendation-empty card shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon bg-primary-lt text-primary mb-3">
+                    <i class="ti ti-file-cv"></i>
+                </div>
+                <h2 class="h4 mb-2">Рекомендації ще недоступні</h2>
+                <p class="text-secondary mb-4">Створіть хоча б одне резюме, щоб система могла підібрати вакансії під ваш досвід і навички.</p>
+                <a asp-controller="Resumes" asp-action="Create" class="btn btn-primary">Створити резюме</a>
+            </div>
+        </div>
+    }
+    else if (Model.Items.Count == 0)
+    {
+        <div class="recommendation-empty card shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon bg-secondary-lt text-secondary mb-3">
+                    <i class="ti ti-briefcase-off"></i>
+                </div>
+                <h2 class="h4 mb-2">Поки немає рекомендацій</h2>
+                <p class="text-secondary mb-4">Зараз немає активних вакансій, які можна показати у добірці.</p>
+                <a asp-controller="Vacancies" asp-action="Index" class="btn btn-outline-primary">Переглянути вакансії</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="recommendation-summary">
+            <div class="summary-card">
+                <span class="text-secondary">Проаналізовано резюме</span>
+                <strong>@Model.ResumeCount</strong>
+            </div>
+            <div class="summary-card">
+                <span class="text-secondary">Знайдено рекомендацій</span>
+                <strong>@Model.Items.Count</strong>
+            </div>
+            <div class="summary-card">
+                <span class="text-secondary">Найкращий збіг</span>
+                <strong>@Model.Items.Max(x => x.MatchPercentage)%</strong>
+            </div>
+        </div>
+
+        <div class="recommendation-list">
+            @foreach (var item in Model.Items)
+            {
+                <article class="card recommendation-card">
+                    <div class="card-body">
+                        <div class="recommendation-match" style="--match-value: @item.MatchPercentage%;">
+                            <strong>@item.MatchPercentage%</strong>
+                            <span>@GetMatchLabel(item.MatchPercentage)</span>
+                        </div>
+
+                        <div class="recommendation-main">
+                            <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
+                                <div>
+                                    <h2 class="recommendation-title">@item.VacancyTitle</h2>
+                                    <div class="text-secondary">@item.CompanyName</div>
+                                </div>
+                                @if (item.HasApplied)
+                                {
+                                    <span class="badge bg-green-lt text-green">Заявку подано</span>
+                                }
+                            </div>
+
+                            <div class="recommendation-meta">
+                                <span><i class="ti ti-map-pin"></i>@item.City</span>
+                                <span><i class="ti ti-cash"></i>@FormatSalary(item.SalaryFrom, item.SalaryTo)</span>
+                                <span><i class="ti ti-briefcase"></i>@item.EmploymentType.GetDisplayName()</span>
+                                <span><i class="ti ti-chart-bar"></i>@item.ExperienceLevel.GetDisplayName()</span>
+                            </div>
+
+                            <div class="recommendation-reason">
+                                <i class="ti ti-sparkles"></i>
+                                <span>Найкраще підходить до резюме “@item.ResumeTitle” у категорії “@item.CategoryName”.</span>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-actions">
+                            <a asp-controller="Vacancies" asp-action="Details" asp-route-id="@item.VacancyId" class="btn btn-outline-primary">
+                                Деталі
+                            </a>
+                            @if (!item.HasApplied)
+                            {
+                                <form asp-controller="Applications" asp-action="Apply" method="post">
+                                    <input type="hidden" name="resumeId" value="@item.ResumeId" />
+                                    <input type="hidden" name="vacancyId" value="@item.VacancyId" />
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="ti ti-send me-1"></i>
+                                        Подати заявку
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
