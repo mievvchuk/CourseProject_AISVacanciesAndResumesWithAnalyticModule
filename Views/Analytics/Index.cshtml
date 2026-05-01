@@ -1,0 +1,250 @@
+@model AnalyticsDashboardViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Аналітика";
+    var categoryLabelsJson = JsonSerializer.Serialize(Model.VacanciesByCategory.Select(x => x.CategoryName));
+    var categoryValuesJson = JsonSerializer.Serialize(Model.VacanciesByCategory.Select(x => x.Count));
+    var employmentLabelsJson = JsonSerializer.Serialize(Model.VacancyEmploymentTypeDistribution.Select(x => x.EmploymentTypeName));
+    var employmentValuesJson = JsonSerializer.Serialize(Model.VacancyEmploymentTypeDistribution.Select(x => x.Count));
+    var resumeExperienceLabelsJson = JsonSerializer.Serialize(Model.ResumeExperienceDistribution.Select(x => x.ExperienceLevelName));
+    var resumeExperienceValuesJson = JsonSerializer.Serialize(Model.ResumeExperienceDistribution.Select(x => x.Count));
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <div class="feature-icon bg-primary-lt text-primary"><i class="ti ti-chart-donut-2"></i></div>
+    <div>
+        <h2 class="h3 mb-0">Аналітична панель</h2>
+        <div class="text-secondary">Ключові показники системи вакансій, резюме, заявок і відповідності кандидатів.</div>
+    </div>
+    <div class="ms-auto d-flex flex-wrap gap-2">
+        <a asp-controller="Export" asp-action="Analytics" class="btn btn-outline-secondary">
+            <i class="ti ti-file-export me-1"></i>
+            Експорт CSV
+        </a>
+        <a asp-controller="Export" asp-action="AnalyticsPdf" class="btn btn-outline-primary">
+            <i class="ti ti-file-type-pdf me-1"></i>
+            Експорт PDF
+        </a>
+    </div>
+</div>
+
+@if (!Model.IsAdminView)
+{
+    <div class="alert alert-info">
+        Ви переглядаєте аналітику за власними вакансіями, заявками та резюме кандидатів, які відгукнулися.
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Користувачі</div>
+                <div class="display-6">@Model.UserCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Вакансії</div>
+                <div class="display-6">@Model.VacancyCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Резюме</div>
+                <div class="display-6">@Model.ResumeCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Заявки</div>
+                <div class="display-6">@Model.ApplicationCount</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Середня зарплата</div>
+                <div class="display-6">@Model.AverageSalary.ToString("0.##")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Середня відповідність</div>
+                <div class="display-6">@Model.AverageMatchPercentage.ToString("0.##")%</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Кандидати</div>
+                <div class="display-6">@Model.CandidateCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 stats-card">
+            <div class="card-body">
+                <div class="text-muted">Роботодавці</div>
+                <div class="display-6">@Model.EmployerCount</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Вакансії за категоріями</h3>
+                <div style="height: 260px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Вакансії за типом зайнятості</h3>
+                <div style="height: 260px;">
+                    <canvas id="employmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Резюме за рівнем досвіду</h3>
+                <div style="height: 260px;">
+                    <canvas id="resumeExperienceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Популярні навички</h3>
+                @if (!Model.PopularSkills.Any())
+                {
+                    <div class="alert alert-info mb-0">Даних про навички немає.</div>
+                }
+                else
+                {
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Навичка</th>
+                                <th>Кількість використань</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.PopularSkills)
+                            {
+                                <tr>
+                                    <td>@item.SkillName</td>
+                                    <td>@item.UsageCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Кандидати за рівнем досвіду</h3>
+                @if (!Model.CandidateExperienceDistribution.Any())
+                {
+                    <div class="alert alert-info mb-0">Даних про досвід кандидатів немає.</div>
+                }
+                else
+                {
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Рівень</th>
+                                <th>Кількість</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CandidateExperienceDistribution)
+                            {
+                                <tr>
+                                    <td>@item.ExperienceLevelName</td>
+                                    <td>@item.Count</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const categoryLabels = @Html.Raw(categoryLabelsJson);
+        const categoryValues = @Html.Raw(categoryValuesJson);
+        const employmentLabels = @Html.Raw(employmentLabelsJson);
+        const employmentValues = @Html.Raw(employmentValuesJson);
+        const resumeExperienceLabels = @Html.Raw(resumeExperienceLabelsJson);
+        const resumeExperienceValues = @Html.Raw(resumeExperienceValuesJson);
+
+        const renderChart = (elementId, type, labels, values, colors) => {
+            const element = document.getElementById(elementId);
+            if (!element || labels.length === 0) {
+                return;
+            }
+
+            new Chart(element, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        label: elementId,
+                        backgroundColor: colors,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: type !== "bar"
+                        }
+                    }
+                }
+            });
+        };
+
+        renderChart("categoryChart", "bar", categoryLabels, categoryValues, "#206bc4");
+        renderChart("employmentChart", "pie", employmentLabels, employmentValues, ["#206bc4", "#2fb344", "#f59f00", "#d63939"]);
+        renderChart("resumeExperienceChart", "doughnut", resumeExperienceLabels, resumeExperienceValues, ["#6c7ae0", "#2fb344", "#f59f00", "#d63939"]);
+    </script>
+}
