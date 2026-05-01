@@ -1,0 +1,36 @@
+@model AisVacanciesAndResumes.ViewModels.Portfolio.PortfolioItemDeleteViewModel
+
+@{
+    ViewData["Title"] = "Видалення проєкту";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 text-danger mb-4">Видалення проєкту портфоліо</h2>
+                <p>Ви впевнені, що хочете видалити цей проєкт?</p>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Назва</dt>
+                    <dd class="col-sm-8">@Model.Title</dd>
+
+                    <dt class="col-sm-4">Опис</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+
+                    <dt class="col-sm-4">Посилання</dt>
+                    <dd class="col-sm-8">@Model.Url</dd>
+
+                    <dt class="col-sm-4">Зображення</dt>
+                    <dd class="col-sm-8">@Model.ImagePath</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
