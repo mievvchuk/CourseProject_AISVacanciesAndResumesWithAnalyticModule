@@ -1,0 +1,61 @@
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+
+# Visual Studio / Rider / VS Code local state
+.vs/
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Local configuration and secrets
+*.env
+*.pfx
+*.publishsettings
+*.pubxml
+*.azurePubxml
+
+# Local dependency/cache folders
+.nuget/
+.tools/
+.appdata/
+node_modules/
+packages/
+
+# Runtime data and generated artifacts
+App_Data/DataProtectionKeys/
+wwwroot/uploads/
+artifacts/
+.artifacts/
+run-output.log
+run-error.log
+*.log
+*.binlog
+*.trx
+TestResults/
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Local template previews and downloaded admin templates
+_tabler_preview/
+
+# Database/runtime files
+*.mdf
+*.ldf
+*.ndf
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
