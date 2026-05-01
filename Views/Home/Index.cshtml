@@ -1,0 +1,113 @@
+@{
+    ViewData["Title"] = "Головна";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+}
+
+@if (isAuthenticated && User.IsInRole("Candidate"))
+{
+    <div class="row row-deck row-cards">
+        <div class="col-12">
+            <div class="card card-lg border-0 hero-card">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="display-5 mb-3">Кабінет кандидата</h1>
+                    <p class="fs-4 text-secondary mb-4">Керуйте резюме, відстежуйте заявки та переглядайте рекомендації вакансій.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-primary btn-lg" asp-controller="Resumes" asp-action="Index"><i class="ti ti-file-text me-2"></i>Мої резюме</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Recommendations" asp-action="Index"><i class="ti ti-stars me-2"></i>Рекомендації</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Applications" asp-action="MyApplications"><i class="ti ti-send me-2"></i>Мої заявки</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Portfolio" asp-action="Index"><i class="ti ti-layout-grid me-2"></i>Портфоліо</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Notifications" asp-action="Index"><i class="ti ti-bell me-2"></i>Сповіщення</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (isAuthenticated && User.IsInRole("Employer"))
+{
+    <div class="row row-deck row-cards">
+        <div class="col-12">
+            <div class="card card-lg border-0 hero-card">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="display-5 mb-3">Кабінет роботодавця</h1>
+                    <p class="fs-4 text-secondary mb-4">Створюйте вакансії, переглядайте заявки кандидатів і аналізуйте результати підбору.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-primary btn-lg" asp-controller="Vacancies" asp-action="My"><i class="ti ti-briefcase me-2"></i>Мої вакансії</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Vacancies" asp-action="Create"><i class="ti ti-circle-plus me-2"></i>Створити вакансію</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Applications" asp-action="EmployerApplications"><i class="ti ti-inbox me-2"></i>Заявки кандидатів</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="EmployerCandidates" asp-action="Search"><i class="ti ti-users-group me-2"></i>Пошук кандидатів</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Analytics" asp-action="Index"><i class="ti ti-chart-bar me-2"></i>Аналітика</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (isAuthenticated && User.IsInRole("Admin"))
+{
+    <div class="row row-deck row-cards">
+        <div class="col-12">
+            <div class="card card-lg border-0 hero-card">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="display-5 mb-3">Адміністративна панель</h1>
+                    <p class="fs-4 text-secondary mb-4">Модеруйте вакансії й резюме, керуйте користувачами та переглядайте журнал дій.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-primary btn-lg" asp-controller="Admin" asp-action="Dashboard"><i class="ti ti-shield-lock me-2"></i>Адмін-панель</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Admin" asp-action="Vacancies"><i class="ti ti-briefcase me-2"></i>Модерація вакансій</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Admin" asp-action="Users"><i class="ti ti-users me-2"></i>Користувачі</a>
+                        <a class="btn btn-outline-primary btn-lg" asp-controller="Admin" asp-action="ModerationLog"><i class="ti ti-history me-2"></i>Журнал дій</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row row-deck row-cards">
+        <div class="col-12">
+            <div class="card card-lg border-0 hero-card">
+                <div class="card-body p-4 p-md-5">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-7">
+                            <h1 class="display-5 mb-3">АІС вакансій та резюме</h1>
+                            <p class="fs-4 text-secondary mb-4">
+                                Інформаційна система для пошуку роботи, підбору персоналу, подання заявок і аналізу ринку праці.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-primary btn-lg" asp-controller="Vacancies" asp-action="Index">
+                                    <i class="ti ti-search me-2"></i>Переглянути вакансії
+                                </a>
+                                <a class="btn btn-outline-primary btn-lg" asp-controller="Account" asp-action="Register">
+                                    <i class="ti ti-user-plus me-2"></i>Створити акаунт
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="card bg-primary-lt border-0">
+                                        <div class="card-body">
+                                            <div class="feature-icon bg-primary text-white mb-3"><i class="ti ti-user-circle"></i></div>
+                                            <div class="h3 mb-2">Для кандидатів</div>
+                                            <p class="mb-0 text-secondary">Створення резюме, парсинг PDF/DOCX, заявки та рекомендації вакансій.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="card bg-green-lt border-0">
+                                        <div class="card-body">
+                                            <div class="feature-icon bg-green text-white mb-3"><i class="ti ti-building-skyscraper"></i></div>
+                                            <div class="h3 mb-2">Для роботодавців</div>
+                                            <p class="mb-0 text-secondary">Вакансії, заявки кандидатів, пошук резюме й аналітика підбору.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
