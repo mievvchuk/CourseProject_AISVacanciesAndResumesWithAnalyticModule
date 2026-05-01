@@ -1,0 +1,60 @@
+@model VacancyFormViewModel
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select"></select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Requirements" class="form-label"></label>
+        <textarea asp-for="Requirements" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Requirements" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SalaryFrom" class="form-label"></label>
+        <input asp-for="SalaryFrom" class="form-control" />
+        <span asp-validation-for="SalaryFrom" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SalaryTo" class="form-label"></label>
+        <input asp-for="SalaryTo" class="form-control" />
+        <span asp-validation-for="SalaryTo" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="EmploymentType" class="form-label"></label>
+        <select asp-for="EmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select"></select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ExperienceLevel" class="form-label"></label>
+        <select asp-for="ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select"></select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Location" class="form-label"></label>
+        <input asp-for="Location" class="form-control" placeholder="Наприклад: Київ або віддалено" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ClosingDate" class="form-label"></label>
+        <input asp-for="ClosingDate" class="form-control" type="date" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="SelectedSkillIds" class="form-label"></label>
+        <select asp-for="SelectedSkillIds" asp-items="Model.SkillOptions" class="form-select" multiple size="7"></select>
+        <div class="form-hint">Можна обрати кілька готових навичок.</div>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="SkillsText" class="form-label"></label>
+        <textarea asp-for="SkillsText" class="form-control" rows="7" placeholder="Наприклад: C#, PostgreSQL, комунікація"></textarea>
+        <div class="form-hint">Якщо навички немає у списку, впишіть її тут.</div>
+    </div>
+</div>
