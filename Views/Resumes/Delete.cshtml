@@ -1,0 +1,48 @@
+@model ResumeFormViewModel
+
+@{
+    ViewData["Title"] = "Архівування резюме";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 text-danger mb-4">Архівування резюме</h2>
+                <p>Ви впевнені, що хочете заархівувати це резюме?</p>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Назва</dt>
+                    <dd class="col-sm-8">@Model.Title</dd>
+
+                    <dt class="col-sm-4">Категорія</dt>
+                    <dd class="col-sm-8">@Model.CategoryName</dd>
+
+                    <dt class="col-sm-4">Тип зайнятості</dt>
+                    <dd class="col-sm-8">@Model.EmploymentType</dd>
+
+                    <dt class="col-sm-4">Статус</dt>
+                    <dd class="col-sm-8">@Model.Status.GetDisplayName()</dd>
+
+                    <dt class="col-sm-4">Файл</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                        {
+                            <a href="@Model.FilePath" target="_blank">@Model.OriginalFileName</a>
+                        }
+                        else
+                        {
+                            <span>Файл не завантажено</span>
+                        }
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">Архівувати</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
