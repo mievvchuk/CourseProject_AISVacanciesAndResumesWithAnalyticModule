@@ -1,0 +1,14 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Помилка";
+}
+
+<h1 class="text-danger">Помилка.</h1>
+<h2 class="text-danger">Під час обробки запиту сталася помилка.</h2>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>ID запиту:</strong> <code>@Model.RequestId</code>
+    </p>
+}
