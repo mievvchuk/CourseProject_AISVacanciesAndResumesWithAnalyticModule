@@ -1,0 +1,219 @@
+@model RegisterViewModel
+
+@{
+    ViewData["Title"] = "Реєстрація";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-11">
+        <div class="row g-4">
+            <div class="col-md-5">
+                <div class="card h-100 border-0 register-side-panel">
+                    <div class="card-body p-4 p-lg-5 text-white">
+                        <div class="feature-icon bg-white text-success mb-4"><i class="ti ti-user-plus"></i></div>
+                        <div class="text-uppercase small fw-bold mb-2 opacity-75">Створення акаунта</div>
+                        <h2 class="h1 mb-3">Почніть користуватися платформою за кілька хвилин</h2>
+                        <p class="mb-0 opacity-75">
+                            Оберіть роль, створіть акаунт, і система автоматично виконає вхід.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="feature-icon bg-green-lt text-green"><i class="ti ti-id"></i></div>
+                            <div>
+                                <h2 class="h3 mb-0">Реєстрація</h2>
+                                <div class="text-secondary">Створіть акаунт кандидата або роботодавця.</div>
+                            </div>
+                        </div>
+
+                        <form asp-action="Register" method="post" id="registerForm" novalidate>
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="FullName" class="form-label"></label>
+                                <input asp-for="FullName" class="form-control" autocomplete="name" />
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" class="form-control" autocomplete="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Role" class="form-label"></label>
+                                <select asp-for="Role" class="form-select">
+                                    <option value="">Оберіть роль</option>
+                                    <option value="@UserRoleType.Candidate">Кандидат</option>
+                                    <option value="@UserRoleType.Employer">Роботодавець</option>
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="Password" class="form-control" id="passwordInput" autocomplete="new-password" />
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle-password="#passwordInput" aria-label="Показати пароль">
+                                        <i class="ti ti-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="progress mt-2" style="height: 0.45rem;">
+                                    <div id="passwordStrengthBar" class="progress-bar bg-red" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div id="passwordStrengthText" class="form-hint">Введіть пароль, щоб побачити його складність.</div>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="ConfirmPassword" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="ConfirmPassword" class="form-control" id="confirmPasswordInput" autocomplete="new-password" />
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle-password="#confirmPasswordInput" aria-label="Показати пароль">
+                                        <i class="ti ti-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100" id="registerSubmit" disabled>
+                                <i class="ti ti-check me-1"></i>
+                                Зареєструватися
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const form = document.querySelector('#registerForm');
+            const submitButton = document.querySelector('#registerSubmit');
+            const passwordInput = document.querySelector('#passwordInput');
+            const confirmPasswordInput = document.querySelector('#confirmPasswordInput');
+            const strengthBar = document.querySelector('#passwordStrengthBar');
+            const strengthText = document.querySelector('#passwordStrengthText');
+
+            const labels = [
+                { text: 'Слабкий пароль', className: 'bg-red', width: 25 },
+                { text: 'Середній пароль', className: 'bg-yellow', width: 55 },
+                { text: 'Добрий пароль', className: 'bg-blue', width: 80 },
+                { text: 'Надійний пароль', className: 'bg-green', width: 100 }
+            ];
+
+            const fields = form ? Array.from(form.querySelectorAll('input, select')) : [];
+            const touchedFields = new Set();
+
+            function calculateScore(value) {
+                let score = 0;
+                if (value.length >= 6) score++;
+                if (value.length >= 8) score++;
+                if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
+                if (/\d/.test(value) || /[^A-Za-zА-Яа-яІіЇїЄєҐґ0-9]/.test(value)) score++;
+                return Math.max(0, Math.min(score, 4));
+            }
+
+            function updatePasswordStrength() {
+                if (!passwordInput || !strengthBar || !strengthText) return;
+
+                const value = passwordInput.value;
+                if (!value) {
+                    strengthBar.style.width = '0%';
+                    strengthBar.className = 'progress-bar bg-red';
+                    strengthText.textContent = 'Введіть пароль, щоб побачити його складність.';
+                    return;
+                }
+
+                const result = labels[Math.max(calculateScore(value) - 1, 0)];
+                strengthBar.style.width = `${result.width}%`;
+                strengthBar.className = `progress-bar ${result.className}`;
+                strengthText.textContent = result.text;
+            }
+
+            function updateFieldState(field) {
+                if (!field || field.type === 'hidden') return;
+
+                const shouldShowState = touchedFields.has(field.name);
+                if (!shouldShowState) {
+                    field.classList.remove('is-invalid', 'is-valid');
+                    return;
+                }
+
+                const isValid = window.jQuery ? window.jQuery(field).valid() : field.checkValidity();
+                field.classList.toggle('is-invalid', !isValid && shouldShowState);
+                field.classList.toggle('is-valid', isValid && shouldShowState);
+            }
+
+            function isFormReady() {
+                const fullName = form?.querySelector('[name="FullName"]')?.value.trim() ?? '';
+                const email = form?.querySelector('[name="Email"]')?.value.trim() ?? '';
+                const role = form?.querySelector('[name="Role"]')?.value ?? '';
+                const password = passwordInput?.value ?? '';
+                const confirmPassword = confirmPasswordInput?.value ?? '';
+                const emailIsValid = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email);
+                const passwordHasAllowedChars = /^[\x21-\x7E]+$/.test(password);
+
+                return fullName.length >= 2 &&
+                    emailIsValid &&
+                    role.length > 0 &&
+                    password.length >= 6 &&
+                    passwordHasAllowedChars &&
+                    confirmPassword === password;
+            }
+
+            function validateForm() {
+                if (!form) return;
+
+                if (window.jQuery) {
+                    window.jQuery.validator.unobtrusive.parse(form);
+                }
+
+                fields.forEach(updateFieldState);
+                if (submitButton) {
+                    submitButton.disabled = !isFormReady();
+                }
+            }
+
+            fields.forEach(field => {
+                field.addEventListener('input', () => {
+                    touchedFields.add(field.name);
+                    updatePasswordStrength();
+                    if (field === passwordInput && confirmPasswordInput?.value) {
+                        touchedFields.add(confirmPasswordInput.name);
+                        updateFieldState(confirmPasswordInput);
+                    }
+                    validateForm();
+                });
+
+                field.addEventListener('change', () => {
+                    touchedFields.add(field.name);
+                    validateForm();
+                });
+            });
+
+            document.querySelectorAll('[data-toggle-password]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const input = document.querySelector(button.dataset.togglePassword);
+                    if (!input) return;
+
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    const icon = button.querySelector('i');
+                    icon?.classList.toggle('ti-eye');
+                    icon?.classList.toggle('ti-eye-off');
+                });
+            });
+
+            validateForm();
+        })();
+    </script>
+}
