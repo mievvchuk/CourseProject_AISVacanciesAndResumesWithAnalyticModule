@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37203.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AisVacanciesAndResumes.Tests", "AisVacanciesAndResumes.Tests.csproj", "{D772E752-89D9-894F-CD4E-EE2402BF86FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D772E752-89D9-894F-CD4E-EE2402BF86FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D772E752-89D9-894F-CD4E-EE2402BF86FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D772E752-89D9-894F-CD4E-EE2402BF86FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D772E752-89D9-894F-CD4E-EE2402BF86FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D645F98-5E25-4D30-B8C4-BD5E0C9FBC97}
+	EndGlobalSection
+EndGlobal
