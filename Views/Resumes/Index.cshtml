@@ -1,0 +1,111 @@
+@model List<ResumeListItemViewModel>
+
+@{
+    ViewData["Title"] = "Мої резюме";
+}
+
+@functions {
+    private static string FormatSalary(decimal? salary)
+    {
+        return salary.HasValue && salary.Value > 0
+            ? $"{salary.Value:N0} грн"
+            : "Зарплату не вказано";
+    }
+
+    private static string GetStatusClass(ResumeStatus status)
+    {
+        return status switch
+        {
+            ResumeStatus.Published => "bg-green-lt text-green",
+            ResumeStatus.Draft => "bg-yellow-lt text-yellow",
+            ResumeStatus.Archived => "bg-secondary-lt text-secondary",
+            _ => "bg-secondary-lt text-secondary"
+        };
+    }
+}
+
+<section class="my-resumes-page">
+    <div class="my-resumes-toolbar">
+        <div>
+            <h1 class="h3 mb-1">Мої резюме</h1>
+            <p class="text-secondary mb-0">Керуйте резюме для різних вакансій.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus me-1"></i>
+            Створити резюме
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="resume-empty card shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon bg-primary-lt text-primary mb-3">
+                    <i class="ti ti-file-cv"></i>
+                </div>
+                <h2 class="h4 mb-2">Резюме немає</h2>
+                <p class="text-secondary mb-4">Створіть перше резюме, щоб подавати заявки й отримувати рекомендації.</p>
+                <a asp-action="Create" class="btn btn-primary">Створити резюме</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="resume-card-grid">
+            @foreach (var item in Model)
+            {
+                <article class="card resume-card @(item.Status == ResumeStatus.Published ? "resume-card-active" : string.Empty)">
+                    <div class="card-body">
+                        <div class="resume-card-head">
+                            <div>
+                                <h2>
+                                    @item.Title
+                                    @if (item.Status == ResumeStatus.Published)
+                                    {
+                                        <i class="ti ti-star-filled text-primary" title="Активне резюме"></i>
+                                    }
+                                </h2>
+                                <p>@(string.IsNullOrWhiteSpace(item.DesiredPosition) ? item.CategoryName : item.DesiredPosition)</p>
+                                <span class="badge @GetStatusClass(item.Status)">@item.Status.GetDisplayName()</span>
+                            </div>
+                        </div>
+
+                        <div class="resume-card-info">
+                            <span><i class="ti ti-map-pin"></i>@(string.IsNullOrWhiteSpace(item.City) ? "Місто не вказано" : item.City)</span>
+                            <span><i class="ti ti-currency-hryvnia"></i>@FormatSalary(item.DesiredSalary)</span>
+                            <span><i class="ti ti-briefcase"></i>@item.ExperienceYears+ років досвіду</span>
+                            <span><i class="ti ti-school"></i>@item.EducationLevel.GetDisplayName()</span>
+                            <span><i class="ti ti-clock"></i>@item.EmploymentType.GetDisplayName()</span>
+                        </div>
+
+                        @if (item.Skills.Count > 0)
+                        {
+                            <div class="resume-card-skills">
+                                @foreach (var skill in item.Skills.Where(x => !string.IsNullOrWhiteSpace(x)).Take(4))
+                                {
+                                    <span class="badge bg-muted-lt text-secondary border">@skill</span>
+                                }
+                            </div>
+                        }
+
+                        <div class="resume-card-updated">Оновлено: @item.UpdatedAt.ToString("dd.MM.yyyy")</div>
+
+                        <div class="resume-card-actions">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">
+                                <i class="ti ti-eye me-1"></i>
+                                Переглянути
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">
+                                <i class="ti ti-edit me-1"></i>
+                                Редагувати
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger resume-delete-btn" aria-label="Видалити @item.Title">
+                                <i class="ti ti-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
