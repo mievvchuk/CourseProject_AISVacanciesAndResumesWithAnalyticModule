@@ -1,0 +1,178 @@
+@model VacancyDetailsViewModel
+
+@{
+    ViewData["Title"] = "Деталі вакансії";
+    var location = !string.IsNullOrWhiteSpace(Model.Location) ? Model.Location : Model.City;
+}
+
+@functions {
+    private static string FormatSalary(decimal from, decimal to)
+    {
+        if (from <= 0 && to <= 0)
+        {
+            return "Зарплату не вказано";
+        }
+
+        if (from > 0 && to > 0)
+        {
+            return $"{from:N0} - {to:N0} грн";
+        }
+
+        return from > 0 ? $"від {from:N0} грн" : $"до {to:N0} грн";
+    }
+}
+
+<section class="vacancy-details-page vacancy-details-page-wide">
+    <a asp-action="Index" class="vacancy-back-link">
+        <i class="ti ti-arrow-left"></i>
+        Повернутися до списку вакансій
+    </a>
+
+    <section class="card vacancy-overview-card shadow-sm border-0">
+        <div class="card-body">
+            <div class="vacancy-overview-top">
+                <div>
+                    <h1 class="vacancy-details-title">@Model.Title</h1>
+                    <div class="vacancy-overview-company">
+                        <i class="ti ti-building"></i>
+                        <span>@Model.CompanyName</span>
+                    </div>
+                </div>
+
+                @if (Model.CanManage)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="ti ti-edit me-1"></i>
+                        Редагувати
+                    </a>
+                }
+            </div>
+
+            <div class="vacancy-overview-grid">
+                <div class="vacancy-overview-item">
+                    <i class="ti ti-map-pin"></i>
+                    <span>@location</span>
+                </div>
+                <div class="vacancy-overview-item">
+                    <i class="ti ti-currency-hryvnia"></i>
+                    <span>@FormatSalary(Model.SalaryFrom, Model.SalaryTo)</span>
+                </div>
+                <div class="vacancy-overview-item">
+                    <i class="ti ti-briefcase"></i>
+                    <span>@Model.EmploymentType.GetDisplayName()</span>
+                </div>
+                <div class="vacancy-overview-item">
+                    <i class="ti ti-calendar-stats"></i>
+                    <span>Досвід: @Model.ExperienceLevel.GetDisplayName()</span>
+                </div>
+            </div>
+
+            <div class="vacancy-overview-footer">
+                <span class="badge bg-green-lt text-green">@Model.Status.GetDisplayName()</span>
+                <span class="text-secondary">Опубліковано: @Model.PublishedAt.ToString("dd.MM.yyyy")</span>
+                @if (Model.ClosingDate.HasValue)
+                {
+                    <span class="text-secondary">Актуальна до: @Model.ClosingDate.Value.ToString("dd.MM.yyyy")</span>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="card vacancy-section shadow-sm border-0">
+        <div class="card-body">
+            <h2>Опис вакансії</h2>
+            <p>@Model.Description</p>
+        </div>
+    </section>
+
+    <section class="card vacancy-section shadow-sm border-0">
+        <div class="card-body">
+            <h2>Вимоги</h2>
+            <p>@Model.Requirements</p>
+        </div>
+    </section>
+
+    <section class="card vacancy-section shadow-sm border-0">
+        <div class="card-body">
+            <h2>Навички</h2>
+            @if (Model.SkillNames.Count == 0)
+            {
+                <p class="text-secondary mb-0">Навички не вказано.</p>
+            }
+            else
+            {
+                <div class="vacancy-details-skills">
+                    @foreach (var skill in Model.SkillNames)
+                    {
+                        <span class="badge bg-muted-lt text-secondary border">@skill</span>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="card vacancy-section vacancy-apply-card shadow-sm border-0">
+        <div class="card-body">
+            <div class="vacancy-apply-card-head">
+                <div>
+                    <h2>Подати заявку</h2>
+                    <p class="text-secondary mb-0">Оберіть резюме і, за бажанням, додайте короткий супровідний лист.</p>
+                </div>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <p class="text-secondary mb-0">Увійдіть як кандидат, щоб подати заявку на вакансію.</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
+                </div>
+            }
+            else if (User.IsInRole("Candidate"))
+            {
+                @if (Model.HasApplied)
+                {
+                    <div class="alert alert-info mb-0">Ви вже подали заявку на цю вакансію.</div>
+                }
+                else if (Model.ResumeOptions.Count == 0)
+                {
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <p class="text-secondary mb-0">Спочатку створіть резюме, щоб роботодавець міг переглянути ваш досвід.</p>
+                        <a asp-controller="Resumes" asp-action="Create" class="btn btn-primary">
+                            <i class="ti ti-file-plus me-1"></i>
+                            Створити резюме
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <form asp-controller="Applications" asp-action="Apply" method="post" class="vacancy-details-apply-form">
+                        <div>
+                            <label class="form-label" for="resumeId">Резюме</label>
+                            <select id="resumeId" name="resumeId" class="form-select">
+                                @foreach (var resume in Model.ResumeOptions)
+                                {
+                                    <option value="@resume.Value">@resume.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="coverLetter">Супровідний лист</label>
+                            <textarea id="coverLetter" name="coverLetter" class="form-control" rows="4" placeholder="Коротко поясніть, чому вас зацікавила вакансія"></textarea>
+                        </div>
+                        <input type="hidden" name="vacancyId" value="@Model.Id" />
+                        <div class="vacancy-details-apply-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-send me-1"></i>
+                                Подати заявку
+                            </button>
+                        </div>
+                    </form>
+                }
+            }
+            else
+            {
+                <p class="text-secondary mb-0">Подача заявки доступна для кандидатів.</p>
+            }
+        </div>
+    </section>
+</section>

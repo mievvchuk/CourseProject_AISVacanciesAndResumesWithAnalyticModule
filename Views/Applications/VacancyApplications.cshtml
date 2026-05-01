@@ -1,0 +1,79 @@
+@model List<AisVacanciesAndResumes.ViewModels.Applications.ApplicationListItemViewModel>
+
+@{
+    ViewData["Title"] = "Заявки на вакансію";
+    var vacancyId = ViewBag.VacancyId as int? ?? 0;
+}
+
+@functions {
+    private static string GetStatusClass(ApplicationStatus status)
+    {
+        return status switch
+        {
+            ApplicationStatus.New => "bg-primary-lt text-primary",
+            ApplicationStatus.Reviewed => "bg-cyan-lt text-cyan",
+            ApplicationStatus.Accepted => "bg-green-lt text-green",
+            ApplicationStatus.Rejected => "bg-red-lt text-red",
+            _ => "bg-secondary-lt text-secondary"
+        };
+    }
+}
+
+<section class="vacancy-applications-page">
+    <a asp-controller="Vacancies" asp-action="Details" asp-route-id="@vacancyId" class="application-back-link mb-2">
+        <i class="ti ti-arrow-left"></i>
+        Повернутися до вакансії
+    </a>
+
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Заявки на вакансію</h1>
+        <p class="text-secondary mb-0">Переглядайте кандидатів і змінюйте статуси їхніх заявок.</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="application-empty card shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon bg-primary-lt text-primary mb-3">
+                    <i class="ti ti-users-off"></i>
+                </div>
+                <h2 class="h4 mb-2">Заявок на цю вакансію немає</h2>
+                <p class="text-secondary mb-0">Коли кандидати подадуть заявки, вони з'являться тут.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="application-list">
+            @foreach (var item in Model)
+            {
+                <article class="card application-card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="application-card-header">
+                            <div>
+                                <h2>@item.CandidateFullName</h2>
+                                <div class="application-meta">
+                                    <span><i class="ti ti-file-text"></i>@item.ResumeTitle</span>
+                                    <span><i class="ti ti-percentage"></i>@item.MatchingPercent% відповідності</span>
+                                    <span><i class="ti ti-calendar"></i>@item.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                </div>
+                            </div>
+                            <span class="badge @GetStatusClass(item.Status)">@item.Status.GetDisplayName()</span>
+                        </div>
+
+                        <div class="application-actions">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">
+                                <i class="ti ti-eye me-1"></i>
+                                Деталі та статус
+                            </a>
+                            <a asp-controller="EmployerCandidates" asp-action="Details" asp-route-id="@item.ResumeId" class="btn btn-outline-secondary">
+                                <i class="ti ti-file-text me-1"></i>
+                                Резюме
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

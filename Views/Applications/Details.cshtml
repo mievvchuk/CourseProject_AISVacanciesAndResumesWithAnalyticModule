@@ -1,0 +1,230 @@
+@model AisVacanciesAndResumes.ViewModels.Applications.ApplicationViewModel
+
+@{
+    ViewData["Title"] = "Деталі заявки";
+    var matchPercent = Math.Clamp(Model.MatchingPercent, 0, 100);
+    var statuses = Enum.GetValues<ApplicationStatus>().ToList();
+}
+
+@functions {
+    private static string GetStatusClass(ApplicationStatus status)
+    {
+        return status switch
+        {
+            ApplicationStatus.New => "bg-primary-lt text-primary",
+            ApplicationStatus.Reviewed => "bg-cyan-lt text-cyan",
+            ApplicationStatus.Accepted => "bg-green-lt text-green",
+            ApplicationStatus.Rejected => "bg-red-lt text-red",
+            _ => "bg-secondary-lt text-secondary"
+        };
+    }
+
+    private static string GetStatusMessage(ApplicationStatus status)
+    {
+        return status switch
+        {
+            ApplicationStatus.New => "Заявку надіслано роботодавцю.",
+            ApplicationStatus.Reviewed => "Заявку переглянуто. Очікується рішення роботодавця.",
+            ApplicationStatus.Accepted => "Заявку прийнято. Очікуйте подальший контакт.",
+            ApplicationStatus.Rejected => "Заявку відхилено.",
+            _ => "Статус заявки оновлено."
+        };
+    }
+
+    private static bool IsTimelineDone(ApplicationStatus current, ApplicationStatus status)
+    {
+        return status switch
+        {
+            ApplicationStatus.New => true,
+            ApplicationStatus.Reviewed => current is ApplicationStatus.Reviewed or ApplicationStatus.Accepted or ApplicationStatus.Rejected,
+            ApplicationStatus.Accepted => current == ApplicationStatus.Accepted,
+            ApplicationStatus.Rejected => current == ApplicationStatus.Rejected,
+            _ => false
+        };
+    }
+}
+
+<section class="application-details-page">
+    @if (Model.CanUpdateStatus)
+    {
+        <a asp-action="VacancyApplications" asp-route-vacancyId="@Model.VacancyId" class="application-back-link">
+            <i class="ti ti-arrow-left"></i>
+            Повернутися до заявок вакансії
+        </a>
+    }
+    else
+    {
+        <a asp-action="MyApplications" class="application-back-link">
+            <i class="ti ti-arrow-left"></i>
+            Повернутися до моїх заявок
+        </a>
+    }
+
+    <section class="card application-details-hero shadow-sm border-0">
+        <div class="card-body">
+            <div class="application-details-hero-head">
+                <div>
+                    <h1>Деталі заявки</h1>
+                    <p>@Model.VacancyTitle</p>
+                </div>
+                <span class="badge @GetStatusClass(Model.Status)">@Model.Status.GetDisplayName()</span>
+            </div>
+
+            <div class="application-details-grid">
+                <div class="application-details-item">
+                    <i class="ti ti-building"></i>
+                    <div>
+                        <span>Компанія</span>
+                        <strong>@Model.CompanyName</strong>
+                    </div>
+                </div>
+                <div class="application-details-item">
+                    <i class="ti ti-file-text"></i>
+                    <div>
+                        <span>Резюме</span>
+                        <strong>@Model.ResumeTitle</strong>
+                    </div>
+                </div>
+                <div class="application-details-item">
+                    <i class="ti ti-user"></i>
+                    <div>
+                        <span>Кандидат</span>
+                        <strong>@Model.CandidateFullName</strong>
+                    </div>
+                </div>
+                <div class="application-details-item">
+                    <i class="ti ti-calendar"></i>
+                    <div>
+                        <span>Дата подання</span>
+                        <strong>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="application-details-layout">
+        <div class="application-details-main">
+            <section class="card application-details-card shadow-sm border-0">
+                <div class="card-body">
+                    <h2>Статус заявки</h2>
+                    <div class="application-timeline">
+                        @foreach (var status in statuses)
+                        {
+                            var isActive = status == Model.Status;
+                            var isDone = IsTimelineDone(Model.Status, status);
+                            <div class="application-timeline-item @(isDone ? "is-done" : string.Empty) @(isActive ? "is-active" : string.Empty)">
+                                <div class="application-timeline-dot">
+                                    <i class="ti @(isDone ? "ti-check" : "ti-circle")"></i>
+                                </div>
+                                <div>
+                                    <strong>@status.GetDisplayName()</strong>
+                                    @if (isActive)
+                                    {
+                                        <span>@GetStatusMessage(status)</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="card application-details-card shadow-sm border-0">
+                <div class="card-body">
+                    <h2>Супровідний лист</h2>
+                    @if (string.IsNullOrWhiteSpace(Model.CoverLetter))
+                    {
+                        <p class="text-secondary mb-0">Супровідний лист не додано.</p>
+                    }
+                    else
+                    {
+                        <p>@Model.CoverLetter</p>
+                    }
+                </div>
+            </section>
+
+            @if (Model.CanUpdateStatus)
+            {
+                <section class="card application-details-card shadow-sm border-0">
+                    <div class="card-body">
+                        <h2>Рішення по заявці</h2>
+                        @if (Model.Status is ApplicationStatus.Accepted or ApplicationStatus.Rejected)
+                        {
+                            <p class="text-secondary mb-0">Фінальне рішення вже встановлено: @Model.Status.GetDisplayName().</p>
+                        }
+                        else
+                        {
+                            <div class="application-decision-actions">
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <input type="hidden" name="status" value="@ApplicationStatus.Accepted" />
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="ti ti-check me-1"></i>
+                                        Прийняти
+                                    </button>
+                                </form>
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <input type="hidden" name="status" value="@ApplicationStatus.Rejected" />
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="ti ti-x me-1"></i>
+                                        Відхилити
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+
+        <aside class="application-details-side">
+            <section class="card application-details-card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <div class="text-secondary text-uppercase small mb-2">Відповідність</div>
+                    <div class="match-ring mx-auto mb-3" style="--match-value: @matchPercent%;">
+                        <strong>@matchPercent%</strong>
+                    </div>
+                    <p class="text-secondary mb-0">Показує, наскільки резюме збігається з вимогами вакансії.</p>
+                </div>
+            </section>
+
+            <section class="card application-details-card shadow-sm border-0">
+                <div class="card-body">
+                    <h2>Швидкі дії</h2>
+                    <div class="application-quick-actions">
+                        <a asp-controller="Vacancies" asp-action="Details" asp-route-id="@Model.VacancyId" class="btn btn-outline-primary">
+                            <i class="ti ti-external-link me-1"></i>
+                            Вакансія
+                        </a>
+                        @if (Model.CanUpdateStatus)
+                        {
+                            <a asp-controller="EmployerCandidates" asp-action="Details" asp-route-id="@Model.ResumeId" class="btn btn-outline-secondary">
+                                <i class="ti ti-file-text me-1"></i>
+                                Резюме
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Resumes" asp-action="Details" asp-route-id="@Model.ResumeId" class="btn btn-outline-secondary">
+                                <i class="ti ti-file-text me-1"></i>
+                                Резюме
+                            </a>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="card application-details-card shadow-sm border-0">
+                <div class="card-body">
+                    <h2>Контакт</h2>
+                    <div class="application-contact">
+                        <strong>@Model.CandidateFullName</strong>
+                        <span>@Model.CandidateEmail</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</section>

@@ -1,0 +1,36 @@
+@model AisVacanciesAndResumes.ViewModels.SavedSearches.SavedSearchDeleteViewModel
+
+@{
+    ViewData["Title"] = "Видалення збереженого пошуку";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 text-danger mb-4">Видалення збереженого пошуку</h2>
+                <p>Ви впевнені, що хочете видалити цей збережений пошук?</p>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Запит</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Query) ? "Будь-який" : Model.Query)</dd>
+
+                    <dt class="col-sm-4">Місто</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.City) ? "Будь-яке" : Model.City)</dd>
+
+                    <dt class="col-sm-4">Зайнятість</dt>
+                    <dd class="col-sm-8">@(Model.EmploymentType?.ToString() ?? "Будь-яка")</dd>
+
+                    <dt class="col-sm-4">Досвід</dt>
+                    <dd class="col-sm-8">@(Model.ExperienceLevel?.ToString() ?? "Будь-який")</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

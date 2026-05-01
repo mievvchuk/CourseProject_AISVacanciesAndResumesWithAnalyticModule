@@ -1,0 +1,95 @@
+@model VacancyIndexViewModel
+
+@{
+    ViewData["Title"] = "Вакансії";
+}
+
+<div class="vacancies-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
+        <div>
+            <h2 class="h3 mb-1">Вакансії</h2>
+            <div class="text-secondary">Каталог активних вакансій, доступних для перегляду та подання заявок.</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="Export" asp-action="Vacancies" asp-route-title="@Model.Filter.Title" asp-route-city="@Model.Filter.City" asp-route-categoryId="@Model.Filter.CategoryId" asp-route-employmentType="@Model.Filter.EmploymentType" asp-route-experienceLevel="@Model.Filter.ExperienceLevel" class="btn btn-outline-secondary">
+                <i class="ti ti-file-export me-1"></i>CSV
+            </a>
+            <a asp-controller="Export" asp-action="VacanciesPdf" asp-route-title="@Model.Filter.Title" asp-route-city="@Model.Filter.City" asp-route-categoryId="@Model.Filter.CategoryId" asp-route-employmentType="@Model.Filter.EmploymentType" asp-route-experienceLevel="@Model.Filter.ExperienceLevel" class="btn btn-outline-secondary">
+                <i class="ti ti-file-type-pdf me-1"></i>PDF
+            </a>
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Employer"))
+            {
+                <a asp-action="My" class="btn btn-outline-primary"><i class="ti ti-briefcase me-1"></i>Мої вакансії</a>
+                <a asp-action="Create" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Створити вакансію</a>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 vacancy-filter-card mb-3">
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-xl-4 col-lg-6">
+                        <label asp-for="Filter.Title" class="form-label">Пошук</label>
+                        <div class="input-icon">
+                            <span class="input-icon-addon"><i class="ti ti-search"></i></span>
+                            <input asp-for="Filter.Title" name="Title" class="form-control" placeholder="Назва або ключові слова" />
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-lg-3 col-md-6">
+                        <label asp-for="Filter.City" class="form-label">Місто</label>
+                        <input asp-for="Filter.City" name="City" class="form-control" placeholder="Усі міста" />
+                    </div>
+                    <div class="col-xl-2 col-lg-3 col-md-6">
+                        <label asp-for="Filter.CategoryId" class="form-label">Категорія</label>
+                        <select asp-for="Filter.CategoryId" name="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                            <option value="">Усі категорії</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-3 col-md-6">
+                        <label asp-for="Filter.EmploymentType" class="form-label">Тип зайнятості</label>
+                        <select asp-for="Filter.EmploymentType" name="EmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select">
+                            <option value="">Будь-який</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-3 col-md-6">
+                        <label asp-for="Filter.ExperienceLevel" class="form-label">Рівень досвіду</label>
+                        <select asp-for="Filter.ExperienceLevel" name="ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select">
+                            <option value="">Будь-який</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary"><i class="ti ti-search me-1"></i>Знайти</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary"><i class="ti ti-x me-1"></i>Очистити</a>
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Candidate"))
+                    {
+                        <a asp-controller="SavedSearches" asp-action="Create" asp-route-query="@Model.Filter.Title" asp-route-city="@Model.Filter.City" asp-route-categoryId="@Model.Filter.CategoryId" asp-route-employmentType="@Model.Filter.EmploymentType" asp-route-experienceLevel="@Model.Filter.ExperienceLevel" class="btn btn-outline-primary">
+                            <i class="ti ti-bookmark-plus me-1"></i>Зберегти пошук
+                        </a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <div class="feature-icon bg-primary-lt text-primary mx-auto mb-3"><i class="ti ti-briefcase-off"></i></div>
+                <h3 class="h4 mb-2">Вакансій не знайдено</h3>
+                <p class="text-secondary mb-0">Спробуйте змінити фільтри або очистити пошук.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="vacancy-list">
+            @foreach (var item in Model.Items)
+            {
+                <partial name="_VacancyListCard" model="item" />
+            }
+        </div>
+    }
+</div>

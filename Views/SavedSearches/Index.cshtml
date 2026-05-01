@@ -1,0 +1,108 @@
+@model List<AisVacanciesAndResumes.ViewModels.SavedSearches.SavedSearchListItemViewModel>
+
+@{
+    ViewData["Title"] = "Збережені пошуки";
+}
+
+@functions {
+    private static string ValueOrDefault(string value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
+
+    private static IReadOnlyList<string> GetTags(AisVacanciesAndResumes.ViewModels.SavedSearches.SavedSearchListItemViewModel item)
+    {
+        var tags = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(item.Query))
+        {
+            tags.AddRange(item.Query
+                .Split([' ', ',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(x => x.Length > 1)
+                .Take(3));
+        }
+
+        if (!string.IsNullOrWhiteSpace(item.CategoryName))
+        {
+            tags.Add(item.CategoryName);
+        }
+
+        if (tags.Count == 0)
+        {
+            tags.Add("Усі вакансії");
+        }
+
+        return tags.Distinct(StringComparer.OrdinalIgnoreCase).Take(4).ToList();
+    }
+}
+
+<section class="saved-searches-page">
+    <div class="saved-searches-toolbar">
+        <div>
+            <h1 class="h3 mb-1">Збережені пошуки</h1>
+            <p class="text-secondary mb-0">Швидко повертайтесь до фільтрів, які використовуєте найчастіше.</p>
+        </div>
+        <a asp-controller="SavedSearches" asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus me-1"></i>
+            Додати пошук
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="saved-search-empty card shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon bg-primary-lt text-primary mb-3">
+                    <i class="ti ti-bookmark"></i>
+                </div>
+                <h2 class="h4 mb-2">Збережених пошуків немає</h2>
+                <p class="text-secondary mb-4">Збережіть пошук на сторінці вакансій, щоб швидко повертатися до потрібних пропозицій.</p>
+                <a asp-controller="Vacancies" asp-action="Index" class="btn btn-primary">Перейти до вакансій</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="saved-search-grid">
+            @foreach (var item in Model)
+            {
+                var tags = GetTags(item);
+                <article class="card saved-search-card">
+                    <div class="card-body">
+                        <div class="saved-search-card-header">
+                            <div>
+                                <h2>@ValueOrDefault(item.Query, "Будь-які вакансії")</h2>
+                                <div class="text-secondary">Створено: @item.CreatedAt.ToString("dd.MM.yyyy")</div>
+                            </div>
+                            <i class="ti ti-bell saved-search-bell" title="Збережений пошук"></i>
+                        </div>
+
+                        <div class="saved-search-tags">
+                            @foreach (var tag in tags)
+                            {
+                                <span class="badge bg-primary-lt text-primary">@tag</span>
+                            }
+                        </div>
+
+                        <div class="saved-search-meta">
+                            <span><i class="ti ti-map-pin"></i>@ValueOrDefault(item.City, "Будь-яке місто")</span>
+                            <span><i class="ti ti-briefcase"></i>@(item.EmploymentType.HasValue ? item.EmploymentType.Value.GetDisplayName() : "Будь-яка зайнятість")</span>
+                            <span><i class="ti ti-building"></i>@ValueOrDefault(item.CategoryName, "Будь-яка категорія")</span>
+                            <span><i class="ti ti-star-filled"></i>@(item.ExperienceLevel.HasValue ? item.ExperienceLevel.Value.GetDisplayName() : "Будь-який досвід")</span>
+                        </div>
+
+                        <div class="saved-search-actions">
+                            <a asp-action="Open" asp-route-id="@item.Id" class="btn btn-primary">
+                                Відкрити
+                                <i class="ti ti-arrow-right ms-1"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger saved-search-delete" aria-label="Видалити пошук">
+                                <i class="ti ti-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
