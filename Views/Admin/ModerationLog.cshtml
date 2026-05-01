@@ -1,0 +1,77 @@
+@model List<AisVacanciesAndResumes.ViewModels.Admin.ModerationLogListItemViewModel>
+
+@{
+    ViewData["Title"] = "Журнал модерації";
+
+    static string ActionName(ModerationActionType action)
+    {
+        return action switch
+        {
+            ModerationActionType.Created => "Створено",
+            ModerationActionType.Updated => "Оновлено",
+            ModerationActionType.Approved => "Схвалено",
+            ModerationActionType.Rejected => "Відхилено",
+            ModerationActionType.Archived => "Архівовано",
+            ModerationActionType.Deactivated => "Деактивовано",
+            _ => action.ToString()
+        };
+    }
+
+    static string EntityName(string name)
+    {
+        return name switch
+        {
+            "Vacancy" => "Вакансія",
+            "Resume" => "Резюме",
+            "User" => "Користувач",
+            "Application" => "Заявка",
+            _ => name
+        };
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Історія дій адміністратора</h3>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="admin-empty-state">
+                <i class="bi bi-journal-check"></i>
+                <h2>Записів журналу немає</h2>
+                <p>Після модерації користувачів, вакансій або резюме дії з'являться тут.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Адміністратор</th>
+                            <th>Сутність</th>
+                            <th>ID</th>
+                            <th>Дія</th>
+                            <th>Примітка</th>
+                            <th>Створено</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.AdminName</td>
+                                <td>@EntityName(item.EntityName)</td>
+                                <td>@item.EntityId</td>
+                                <td><span class="badge text-bg-light">@ActionName(item.ActionType)</span></td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Note) ? "Без примітки" : item.Note)</td>
+                                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

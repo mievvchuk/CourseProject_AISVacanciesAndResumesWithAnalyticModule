@@ -1,0 +1,40 @@
+@model AisVacanciesAndResumes.ViewModels.Messages.MessageDetailsViewModel
+
+@{
+    ViewData["Title"] = "Деталі повідомлення";
+}
+
+<div class="row">
+    <div class="col-md-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="h4 mb-1">@Model.Subject</h2>
+                        <div class="text-muted">@Model.SentAt.ToString("dd.MM.yyyy HH:mm")</div>
+                    </div>
+                    <a asp-action="Create" asp-route-receiverId="@Model.ReplyUserId" class="btn btn-outline-primary">Відповісти</a>
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-3">Від кого</dt>
+                    <dd class="col-sm-9">@Model.SenderName (@Model.SenderEmail)</dd>
+
+                    <dt class="col-sm-3">Кому</dt>
+                    <dd class="col-sm-9">@Model.ReceiverName (@Model.ReceiverEmail)</dd>
+
+                    <dt class="col-sm-3">Статус</dt>
+                    <dd class="col-sm-9">@(Model.IsRead ? "Прочитано" : "Нове")</dd>
+
+                    <dt class="col-sm-3">Повідомлення</dt>
+                    <dd class="col-sm-9" style="white-space: pre-line;">@Model.Content</dd>
+                </dl>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Create" asp-route-receiverId="@Model.ReplyUserId" class="btn btn-primary">Відповісти</a>
+                    <a asp-action="@(Model.IsInboxMessage ? "Inbox" : "Sent")" class="btn btn-outline-secondary">Назад</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
