@@ -1,0 +1,77 @@
+@model ResumeDetailsViewModel
+
+@{
+    ViewData["Title"] = "Деталі резюме";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="h4 mb-1">@Model.Title</h2>
+                        <div class="text-muted">@Model.FullName</div>
+                    </div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Категорія</dt>
+                    <dd class="col-sm-8">@Model.CategoryName</dd>
+
+                    <dt class="col-sm-4">Короткий опис</dt>
+                    <dd class="col-sm-8">@Model.Summary</dd>
+
+                    <dt class="col-sm-4">Бажана посада</dt>
+                    <dd class="col-sm-8">@Model.DesiredPosition</dd>
+
+                    <dt class="col-sm-4">Освіта</dt>
+                    <dd class="col-sm-8">@Model.Education</dd>
+
+                    <dt class="col-sm-4">Опис досвіду</dt>
+                    <dd class="col-sm-8">@Model.Experience</dd>
+
+                    <dt class="col-sm-4">Опис навичок</dt>
+                    <dd class="col-sm-8">@Model.SkillsDescription</dd>
+
+                    <dt class="col-sm-4">Тип зайнятості</dt>
+                    <dd class="col-sm-8">@Model.EmploymentType</dd>
+
+                    <dt class="col-sm-4">Досвід</dt>
+                    <dd class="col-sm-8">@Model.ExperienceLevel (@Model.ExperienceYears років)</dd>
+
+                    <dt class="col-sm-4">Рівень освіти</dt>
+                    <dd class="col-sm-8">@Model.EducationLevel</dd>
+
+                    <dt class="col-sm-4">Бажана зарплата</dt>
+                    <dd class="col-sm-8">@Model.DesiredSalary</dd>
+
+                    <dt class="col-sm-4">Статус</dt>
+                    <dd class="col-sm-8">@Model.Status.GetDisplayName()</dd>
+
+                    <dt class="col-sm-4">Опубліковано</dt>
+                    <dd class="col-sm-8">@(Model.IsPublished ? "Так" : "Ні")</dd>
+
+                    <dt class="col-sm-4">Навички</dt>
+                    <dd class="col-sm-8">@string.Join(", ", Model.SkillNames)</dd>
+
+                    <dt class="col-sm-4">Завантажений файл</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                        {
+                            <a href="@Model.FilePath" target="_blank">@Model.OriginalFileName</a>
+                            <div class="text-muted small">
+                                @Model.ContentType, @Model.FileSize байт, завантажено @Model.UploadedAt
+                            </div>
+                        }
+                        else
+                        {
+                            <span>Файл не завантажено</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
