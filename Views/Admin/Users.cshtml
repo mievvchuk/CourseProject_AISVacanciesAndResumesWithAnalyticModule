@@ -1,0 +1,81 @@
+@model List<AisVacanciesAndResumes.ViewModels.Admin.AdminUserListItemViewModel>
+
+@{
+    ViewData["Title"] = "Користувачі";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Керування користувачами</h3>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="admin-empty-state">
+                <i class="bi bi-people"></i>
+                <h2>Користувачів немає</h2>
+                <p>Після реєстрації користувачі з'являться у цьому списку.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ПІБ</th>
+                            <th>Email</th>
+                            <th>Роль</th>
+                            <th>Стан</th>
+                            <th>Створено</th>
+                            <th class="text-end">Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.FullName</td>
+                                <td>@item.Email</td>
+                                <td><span class="badge text-bg-light">@item.RoleName</span></td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge text-bg-success">Активний</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary">Деактивований</span>
+                                    }
+                                </td>
+                                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td class="text-end">
+                                    @if (item.IsActive)
+                                    {
+                                        <form asp-action="DeactivateUser" method="post" class="admin-inline-action" onsubmit="return confirm('Деактивувати користувача?');">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="text" name="comment" class="form-control form-control-sm" placeholder="Коментар" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-person-x me-1"></i>Деактивувати
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="ActivateUser" method="post" class="admin-inline-action" onsubmit="return confirm('Активувати користувача?');">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="text" name="comment" class="form-control form-control-sm" placeholder="Коментар" />
+                                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-person-check me-1"></i>Активувати
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

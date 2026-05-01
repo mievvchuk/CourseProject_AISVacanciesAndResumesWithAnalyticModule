@@ -1,0 +1,62 @@
+@model VacancyListItemViewModel
+@{
+    var parent = ViewData.ModelExplorer.Container?.Model as VacancyIndexViewModel;
+}
+
+<div class="card vacancy-card vacancy-list-card shadow-sm border-0">
+    <div class="card-body">
+        <div class="vacancy-row">
+            <div class="vacancy-main">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                    <h3 class="h4 mb-0">@Model.Title</h3>
+                    <span class="badge bg-green-lt text-green">@Model.Status.GetDisplayName()</span>
+                </div>
+                <div class="text-secondary mb-3"><i class="ti ti-building me-1"></i>@Model.CompanyName</div>
+                <div class="vacancy-meta">
+                    <span><i class="ti ti-map-pin"></i>@Model.City</span>
+                    <span><i class="ti ti-cash"></i>@Model.SalaryFrom - @Model.SalaryTo грн</span>
+                    <span><i class="ti ti-briefcase"></i>@Model.EmploymentType.GetDisplayName()</span>
+                    <span><i class="ti ti-chart-bar"></i>Досвід: @Model.ExperienceLevel.GetDisplayName()</span>
+                </div>
+                @if (Model.Skills.Any())
+                {
+                    <div class="vacancy-skills">
+                        @foreach (var skill in Model.Skills.Take(8))
+                        {
+                            <span class="badge bg-secondary-lt">@skill</span>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="vacancy-actions">
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Деталі</a>
+                @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Candidate"))
+                {
+                    var resumeOptions = (ViewData["ResumeOptions"] as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new();
+                    @if (Model.HasApplied)
+                    {
+                        <button type="button" class="btn btn-outline-secondary" disabled><i class="ti ti-check me-1"></i>Заявку подано</button>
+                    }
+                    else if (resumeOptions.Count == 0)
+                    {
+                        <a asp-controller="Resumes" asp-action="Create" class="btn btn-primary"><i class="ti ti-file-plus me-1"></i>Створити резюме</a>
+                    }
+                    else
+                    {
+                        <form asp-controller="Applications" asp-action="Apply" method="post" class="vacancy-apply-form">
+                            <select name="resumeId" class="form-select" aria-label="Резюме для заявки">
+                                @foreach (var resume in resumeOptions)
+                                {
+                                    <option value="@resume.Value">@resume.Text</option>
+                                }
+                            </select>
+                            <input name="coverLetter" class="form-control" placeholder="Супровідний лист" />
+                            <input type="hidden" name="vacancyId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-success"><i class="ti ti-send me-1"></i>Подати заявку</button>
+                        </form>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

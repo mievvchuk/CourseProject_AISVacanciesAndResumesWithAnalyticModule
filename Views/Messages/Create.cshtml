@@ -1,0 +1,49 @@
+@model AisVacanciesAndResumes.ViewModels.Messages.MessageCreateViewModel
+
+@{
+    ViewData["Title"] = "Нове повідомлення";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Надіслати повідомлення</h2>
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="ReceiverId" class="form-label">Отримувач</label>
+                        @if (Model.IsReceiverLocked)
+                        {
+                            <input type="hidden" asp-for="ReceiverId" />
+                            <input class="form-control" value="@Model.ReceiverName" readonly />
+                        }
+                        else
+                        {
+                            <select asp-for="ReceiverId" asp-items="Model.ReceiverOptions" class="form-select">
+                                <option value="">Оберіть отримувача</option>
+                            </select>
+                        }
+                        <span asp-validation-for="ReceiverId" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Subject" class="form-label">Тема</label>
+                        <input asp-for="Subject" class="form-control" />
+                        <span asp-validation-for="Subject" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">Текст повідомлення</label>
+                        <textarea asp-for="Content" class="form-control" rows="7"></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Надіслати</button>
+                    <a asp-action="Inbox" class="btn btn-outline-secondary">Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

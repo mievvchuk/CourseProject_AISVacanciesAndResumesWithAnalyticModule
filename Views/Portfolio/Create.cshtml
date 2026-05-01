@@ -1,0 +1,45 @@
+@model AisVacanciesAndResumes.ViewModels.Portfolio.PortfolioItemFormViewModel
+
+@{
+    ViewData["Title"] = "Додавання проєкту";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Додати проєкт у портфоліо</h2>
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Назва</label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Опис</label>
+                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Url" class="form-label">Посилання</label>
+                        <input asp-for="Url" class="form-control" />
+                        <span asp-validation-for="Url" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ImagePath" class="form-label">Шлях до зображення</label>
+                        <input asp-for="ImagePath" class="form-control" />
+                        <div class="form-text">Вкажіть URL або локальний шлях до зображення.</div>
+                        <span asp-validation-for="ImagePath" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Зберегти</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,66 @@
+@model CandidateProfileFormViewModel
+
+@{
+    ViewData["Title"] = "Створення профілю кандидата";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Створення профілю кандидата</h2>
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="PhotoFile" class="form-label">Фото профілю</label>
+                        <input asp-for="PhotoFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                        <span asp-validation-for="PhotoFile" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Headline" class="form-label">Заголовок профілю</label>
+                        <input asp-for="Headline" class="form-control" />
+                        <span asp-validation-for="Headline" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Summary" class="form-label">Короткий опис</label>
+                        <textarea asp-for="Summary" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Summary" class="text-danger"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="City" class="form-label">Місто</label>
+                            <input asp-for="City" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="ExperienceYears" class="form-label">Роки досвіду</label>
+                            <input asp-for="ExperienceYears" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="DesiredSalary" class="form-label">Бажана зарплата</label>
+                            <input asp-for="DesiredSalary" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ExperienceLevel" class="form-label">Рівень досвіду</label>
+                            <select asp-for="ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EducationLevel" class="form-label">Рівень освіти</label>
+                            <select asp-for="EducationLevel" asp-items="Html.GetEnumSelectList<EducationLevel>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DesiredEmploymentType" class="form-label">Бажаний тип зайнятості</label>
+                            <select asp-for="DesiredEmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select"></select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Створити профіль</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

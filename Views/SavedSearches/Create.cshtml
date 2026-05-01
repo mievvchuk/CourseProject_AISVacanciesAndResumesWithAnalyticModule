@@ -1,0 +1,45 @@
+@model AisVacanciesAndResumes.ViewModels.SavedSearches.SavedSearchFormViewModel
+
+@{
+    ViewData["Title"] = "Збереження пошуку";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Зберегти поточний пошук вакансій</h2>
+                <form asp-action="Create" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Query" class="form-label">Запит</label>
+                        <input asp-for="Query" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="City" class="form-label">Місто</label>
+                        <input asp-for="City" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label">Категорія</label>
+                        <input asp-for="CategoryId" class="form-control" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EmploymentType" class="form-label">Тип зайнятості</label>
+                            <select asp-for="EmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select">
+                                <option value="">Будь-який</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ExperienceLevel" class="form-label">Рівень досвіду</label>
+                            <select asp-for="ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select">
+                                <option value="">Будь-який</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Зберегти пошук</button>
+                    <a asp-controller="Vacancies" asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

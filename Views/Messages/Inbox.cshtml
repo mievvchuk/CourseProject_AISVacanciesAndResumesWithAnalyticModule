@@ -1,0 +1,50 @@
+@model List<AisVacanciesAndResumes.ViewModels.Messages.MessageListItemViewModel>
+
+@{
+    ViewData["Title"] = "Вхідні повідомлення";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">Вхідні повідомлення</h2>
+    <div class="d-flex gap-2">
+        <a asp-action="Sent" class="btn btn-outline-secondary">Надіслані</a>
+        <a asp-action="Create" class="btn btn-primary">Нове повідомлення</a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Вхідних повідомлень немає.</div>
+}
+else
+{
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Тема</th>
+                    <th>Від кого</th>
+                    <th>Статус</th>
+                    <th>Надіслано</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="@(item.IsRead ? string.Empty : "table-warning")">
+                        <td>@item.Subject</td>
+                        <td>@item.OtherUserName</td>
+                        <td>@(item.IsRead ? "Прочитано" : "Нове")</td>
+                        <td>@item.SentAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Відкрити</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            </table>
+        </div>
+    </div>
+}
