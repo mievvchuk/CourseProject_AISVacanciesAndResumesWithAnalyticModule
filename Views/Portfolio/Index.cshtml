@@ -1,0 +1,141 @@
+@model List<AisVacanciesAndResumes.ViewModels.Portfolio.PortfolioItemListItemViewModel>
+
+@{
+    ViewData["Title"] = "Портфоліо";
+}
+
+@functions {
+    private static IReadOnlyList<string> GetPortfolioTags(AisVacanciesAndResumes.ViewModels.Portfolio.PortfolioItemListItemViewModel item)
+    {
+        var source = $"{item.Title} {item.Description} {item.Url}".ToLowerInvariant();
+        var tags = new List<string>();
+
+        AddTag(source, tags, "ASP.NET Core", "asp.net", "aspnet", ".net", "c#");
+        AddTag(source, tags, "React", "react");
+        AddTag(source, tags, "Node.js", "node");
+        AddTag(source, tags, "TypeScript", "typescript", "ts ");
+        AddTag(source, tags, "JavaScript", "javascript", " js");
+        AddTag(source, tags, "Tailwind CSS", "tailwind");
+        AddTag(source, tags, "Bootstrap", "bootstrap");
+        AddTag(source, tags, "MongoDB", "mongodb");
+        AddTag(source, tags, "PostgreSQL", "postgres", "postgresql");
+        AddTag(source, tags, "Docker", "docker");
+        AddTag(source, tags, "API", "api");
+        AddTag(source, tags, "UI/UX", "ui", "ux", "figma");
+
+        if (tags.Count == 0)
+        {
+            tags.Add("Проект");
+        }
+
+        return tags.Take(5).ToList();
+    }
+
+    private static void AddTag(string source, ICollection<string> tags, string label, params string[] markers)
+    {
+        if (tags.Contains(label))
+        {
+            return;
+        }
+
+        if (markers.Any(source.Contains))
+        {
+            tags.Add(label);
+        }
+    }
+
+    private static string FormatPortfolioUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return string.Empty;
+        }
+
+        var cleanUrl = url
+            .Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .TrimEnd('/');
+
+        return cleanUrl.Length > 42 ? $"{cleanUrl[..39]}..." : cleanUrl;
+    }
+}
+
+<section class="portfolio-page">
+    <div class="portfolio-toolbar">
+        <div>
+            <h1 class="h3 mb-1">Портфоліо</h1>
+            <p class="text-secondary mb-0">Додайте проекти, які підтверджують ваш досвід і навички.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus me-1"></i>
+            Додати проект
+        </a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info shadow-sm mb-0">
+            У портфоліо ще немає проектів.
+        </div>
+    }
+    else
+    {
+        <div class="portfolio-grid">
+            @foreach (var item in Model)
+            {
+                var tags = GetPortfolioTags(item);
+                <article class="card portfolio-card">
+                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                    {
+                        <img src="@item.ImagePath" class="portfolio-image" alt="@item.Title" />
+                    }
+                    else
+                    {
+                        <div class="portfolio-image portfolio-image-placeholder">
+                            <i class="ti ti-briefcase"></i>
+                        </div>
+                    }
+
+                    <div class="card-body portfolio-card-body">
+                        <div class="portfolio-content">
+                            <h2 class="portfolio-title">@item.Title</h2>
+                            <p class="portfolio-description">@item.Description</p>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Url))
+                            {
+                                <a href="@item.Url" target="_blank" rel="noopener noreferrer" class="portfolio-link">
+                                    <i class="ti ti-link"></i>
+                                    <span>@FormatPortfolioUrl(item.Url)</span>
+                                </a>
+                            }
+
+                            <div class="portfolio-tags">
+                                @foreach (var tag in tags)
+                                {
+                                    <span class="badge bg-muted-lt text-secondary border">@tag</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="portfolio-actions">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">
+                                <i class="ti ti-edit me-1"></i>
+                                Редагувати
+                            </a>
+                            @if (!string.IsNullOrWhiteSpace(item.Url))
+                            {
+                                <a href="@item.Url" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                                    <i class="ti ti-external-link me-1"></i>
+                                    Відкрити
+                                </a>
+                            }
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger portfolio-delete-btn" aria-label="Видалити @item.Title">
+                                <i class="ti ti-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
