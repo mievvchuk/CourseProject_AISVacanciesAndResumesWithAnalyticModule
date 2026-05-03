@@ -63,11 +63,11 @@
                             @greeting, @displayName
                         </div>
 
-                        <a class="btn btn-icon btn-ghost-secondary position-relative" asp-controller="Messages" asp-action="Inbox" title="Повідомлення" data-live-message-link>
+                        <a class="btn btn-icon btn-ghost-secondary position-relative" asp-controller="Messages" asp-action="Inbox" title="Повідомлення">
                             <i class="ti ti-mail fs-2"></i>
                             @if (unreadMessageCount > 0)
                             {
-                                <span class="badge bg-red text-white badge-notification" data-live-message-count>@unreadMessageCount</span>
+                                <span class="badge bg-red text-white badge-notification">@unreadMessageCount</span>
                             }
                         </a>
 
@@ -193,11 +193,6 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
-    @if (isAuthenticated)
-    {
-        <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@9.0.6/dist/browser/signalr.min.js"></script>
-        <script src="~/js/messages-realtime.js" asp-append-version="true"></script>
-    }
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
