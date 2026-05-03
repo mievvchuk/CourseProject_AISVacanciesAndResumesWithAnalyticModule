@@ -86,4 +86,90 @@ public class AdminServiceTests
         Assert.True(approved.IsPublished);
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ApproveResumeAsync("admin-1", 2, null));
     }
+
+    [Fact]
+    public async Task GetVacanciesAsync_FiltersBySearchAndStatus()
+    {
+        await using var context = TestDbContextFactory.Create();
+        context.Categories.Add(new Category { Id = 1, Name = "Розробка ПЗ" });
+        context.EmployerProfiles.Add(new EmployerProfile { Id = 1, UserId = "employer-1", CompanyName = "TechCorp", City = "Kyiv" });
+        context.Vacancies.AddRange(
+            new Vacancy
+            {
+                Id = 1,
+                EmployerProfileId = 1,
+                CategoryId = 1,
+                Title = "Junior .NET Developer",
+                Status = VacancyStatus.UnderModeration,
+                IsActive = false
+            },
+            new Vacancy
+            {
+                Id = 2,
+                EmployerProfileId = 1,
+                CategoryId = 1,
+                Title = "QA Engineer",
+                Status = VacancyStatus.Published,
+                IsActive = true
+            });
+        await context.SaveChangesAsync();
+
+        var service = new AdminService(context, userManager: null!);
+
+        var result = await service.GetVacanciesAsync(new()
+        {
+            Search = ".net",
+            Status = VacancyStatus.UnderModeration
+        });
+
+        Assert.Single(result.Items);
+        Assert.Equal("Junior .NET Developer", result.Items[0].Title);
+    }
+
+    [Fact]
+    public async Task GetResumesAsync_FiltersByCandidateAndStatus()
+    {
+        await using var context = TestDbContextFactory.Create();
+        context.Categories.Add(new Category { Id = 1, Name = "Розробка ПЗ" });
+        context.Users.Add(new User { Id = "candidate-1", FullName = "Mykhailo Candidate", UserName = "candidate-1" });
+        context.CandidateProfiles.Add(new CandidateProfile
+        {
+            Id = 1,
+            UserId = "candidate-1",
+            Headline = "Developer",
+            Summary = "Summary",
+            City = "Kyiv"
+        });
+        context.Resumes.AddRange(
+            new Resume
+            {
+                Id = 1,
+                CandidateProfileId = 1,
+                CategoryId = 1,
+                Title = "Frontend Resume",
+                Status = ResumeStatus.UnderModeration,
+                IsPublished = false
+            },
+            new Resume
+            {
+                Id = 2,
+                CandidateProfileId = 1,
+                CategoryId = 1,
+                Title = "Archived Resume",
+                Status = ResumeStatus.Archived,
+                IsPublished = false
+            });
+        await context.SaveChangesAsync();
+
+        var service = new AdminService(context, userManager: null!);
+
+        var result = await service.GetResumesAsync(new()
+        {
+            Search = "mykhailo",
+            Status = ResumeStatus.UnderModeration
+        });
+
+        Assert.Single(result.Items);
+        Assert.Equal("Frontend Resume", result.Items[0].Title);
+    }
 }

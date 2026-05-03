@@ -23,6 +23,19 @@ public class AdminResumeListItemViewModel
     public DateTime CreatedAt { get; set; }
 }
 
+public class AdminResumeFilterViewModel
+{
+    public string? Search { get; set; }
+    public ResumeStatus? Status { get; set; }
+    public bool? IsPublished { get; set; }
+}
+
+public class AdminResumeIndexViewModel
+{
+    public AdminResumeFilterViewModel Filter { get; set; } = new();
+    public List<AdminResumeListItemViewModel> Items { get; set; } = new();
+}
+
 public class AdminUserListItemViewModel
 {
     public string Id { get; set; } = string.Empty;
@@ -31,6 +44,19 @@ public class AdminUserListItemViewModel
     public string RoleName { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
+}
+
+public class AdminUserFilterViewModel
+{
+    public string? Search { get; set; }
+    public string? RoleName { get; set; }
+    public bool? IsActive { get; set; }
+}
+
+public class AdminUserIndexViewModel
+{
+    public AdminUserFilterViewModel Filter { get; set; } = new();
+    public List<AdminUserListItemViewModel> Items { get; set; } = new();
 }
 
 public class AdminVacancyListItemViewModel
@@ -42,6 +68,19 @@ public class AdminVacancyListItemViewModel
     public VacancyStatus Status { get; set; }
     public bool IsActive { get; set; }
     public DateTime PublishedAt { get; set; }
+}
+
+public class AdminVacancyFilterViewModel
+{
+    public string? Search { get; set; }
+    public VacancyStatus? Status { get; set; }
+    public bool? IsActive { get; set; }
+}
+
+public class AdminVacancyIndexViewModel
+{
+    public AdminVacancyFilterViewModel Filter { get; set; } = new();
+    public List<AdminVacancyListItemViewModel> Items { get; set; } = new();
 }
 
 public class ModerationLogListItemViewModel

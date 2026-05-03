@@ -1,15 +1,51 @@
-@model List<AisVacanciesAndResumes.ViewModels.Admin.AdminUserListItemViewModel>
+@model AisVacanciesAndResumes.ViewModels.Admin.AdminUserIndexViewModel
 
 @{
     ViewData["Title"] = "Користувачі";
 }
 
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Керування користувачами</h3>
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h3 class="card-title mb-1">Керування користувачами</h3>
+            <div class="text-secondary">Знайдено: @Model.Items.Count</div>
+        </div>
+    </div>
+    <div class="card-body border-bottom">
+        <form asp-action="Users" method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="admin-user-search">Пошук</label>
+                <input id="admin-user-search" name="Search" value="@Model.Filter.Search" class="form-control" placeholder="ПІБ або електронна пошта" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="admin-user-role">Роль</label>
+                <select id="admin-user-role" name="RoleName" class="form-select">
+                    <option value="">Усі ролі</option>
+                    <option value="Candidate" selected="@(Model.Filter.RoleName == "Candidate")">Кандидат</option>
+                    <option value="Employer" selected="@(Model.Filter.RoleName == "Employer")">Роботодавець</option>
+                    <option value="Admin" selected="@(Model.Filter.RoleName == "Admin")">Адміністратор</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="admin-user-active">Стан</label>
+                <select id="admin-user-active" name="IsActive" class="form-select">
+                    <option value="">Усі</option>
+                    <option value="true" selected="@(Model.Filter.IsActive == true)">Активні</option>
+                    <option value="false" selected="@(Model.Filter.IsActive == false)">Деактивовані</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-search me-1"></i>Знайти
+                </button>
+                <a asp-action="Users" class="btn btn-outline-secondary" title="Очистити">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
     </div>
     <div class="card-body p-0">
-        @if (!Model.Any())
+        @if (!Model.Items.Any())
         {
             <div class="admin-empty-state">
                 <i class="bi bi-people"></i>
@@ -32,7 +68,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.Items)
                         {
                             <tr>
                                 <td class="fw-semibold">@item.FullName</td>
