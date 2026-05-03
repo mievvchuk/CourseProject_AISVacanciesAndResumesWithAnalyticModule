@@ -53,6 +53,7 @@ public class ResumeService : IResumeService
                 Skills = x.ResumeSkills.Select(rs => rs.Skill != null ? rs.Skill.Name : string.Empty).ToList()
             })
             .OrderByDescending(x => x.Status == ResumeStatus.Published)
+            .ThenByDescending(x => x.Status == ResumeStatus.UnderModeration)
             .ThenByDescending(x => x.UpdatedAt)
             .ToListAsync();
     }
@@ -61,7 +62,10 @@ public class ResumeService : IResumeService
     {
         return await _context.Resumes
             .AsNoTracking()
-            .Where(x => x.CandidateProfile != null && x.CandidateProfile.UserId == userId)
+            .Where(x => x.CandidateProfile != null &&
+                x.CandidateProfile.UserId == userId &&
+                x.IsPublished &&
+                x.Status == ResumeStatus.Published)
             .OrderBy(x => x.Title)
             .Select(x => new SelectListItem(x.Title, x.Id.ToString()))
             .ToListAsync();
@@ -227,7 +231,7 @@ public class ResumeService : IResumeService
             ExperienceLevel = resume.ExperienceLevel,
             EducationLevel = resume.EducationLevel,
             DesiredSalary = resume.DesiredSalary,
-            IsPublished = resume.IsPublished,
+            IsPublished = resume.Status is ResumeStatus.Published or ResumeStatus.UnderModeration,
             Status = resume.Status,
             FilePath = resume.FilePath,
             OriginalFileName = resume.OriginalFileName,
@@ -309,8 +313,8 @@ public class ResumeService : IResumeService
             ExperienceLevel = model.ExperienceLevel,
             EducationLevel = model.EducationLevel,
             DesiredSalary = model.DesiredSalary,
-            IsPublished = model.IsPublished,
-            Status = model.IsPublished ? ResumeStatus.Published : ResumeStatus.Draft
+            IsPublished = false,
+            Status = model.IsPublished ? ResumeStatus.UnderModeration : ResumeStatus.Draft
         };
 
         await SaveResumeFileAsync(resume, model.ResumeFile);
@@ -341,8 +345,8 @@ public class ResumeService : IResumeService
         resume.ExperienceLevel = model.ExperienceLevel;
         resume.EducationLevel = model.EducationLevel;
         resume.DesiredSalary = model.DesiredSalary;
-        resume.IsPublished = model.IsPublished;
-        resume.Status = model.IsPublished ? ResumeStatus.Published : ResumeStatus.Draft;
+        resume.IsPublished = false;
+        resume.Status = model.IsPublished ? ResumeStatus.UnderModeration : ResumeStatus.Draft;
         resume.UpdatedAt = DateTime.UtcNow;
 
         await SaveResumeFileAsync(resume, model.ResumeFile);

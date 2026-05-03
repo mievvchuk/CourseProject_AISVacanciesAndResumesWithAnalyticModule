@@ -28,6 +28,11 @@ public class ApplicationWorkflowService : IApplicationWorkflowService
             throw new InvalidOperationException("Резюме не знайдено або воно не належить поточному кандидату.");
         }
 
+        if (!resume.IsPublished || resume.Status != ResumeStatus.Published)
+        {
+            throw new InvalidOperationException("Подати заявку можна тільки з резюме, яке схвалене адміністратором і доступне роботодавцям.");
+        }
+
         var vacancy = await _context.Vacancies
             .Include(x => x.EmployerProfile)
             .FirstOrDefaultAsync(x => x.Id == vacancyId);

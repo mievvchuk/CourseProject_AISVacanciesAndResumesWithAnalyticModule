@@ -14,7 +14,15 @@ public class ApplicationWorkflowServiceTests
         await using var context = TestDbContextFactory.Create();
         context.CandidateProfiles.Add(new CandidateProfile { Id = 1, UserId = "candidate-1" });
         context.EmployerProfiles.Add(new EmployerProfile { Id = 1, UserId = "employer-1", CompanyName = "Company" });
-        context.Resumes.Add(new Resume { Id = 1, CandidateProfileId = 1, CategoryId = 1, Title = "Resume" });
+        context.Resumes.Add(new Resume
+        {
+            Id = 1,
+            CandidateProfileId = 1,
+            CategoryId = 1,
+            Title = "Resume",
+            Status = ResumeStatus.Published,
+            IsPublished = true
+        });
         context.Vacancies.Add(new Vacancy { Id = 1, EmployerProfileId = 1, CategoryId = 1, Title = "Vacancy", SalaryFrom = 1000, SalaryTo = 2000, IsActive = true, Status = VacancyStatus.Published });
         await context.SaveChangesAsync();
 
@@ -29,6 +37,40 @@ public class ApplicationWorkflowServiceTests
         Assert.Equal(ApplicationStatus.New, application.Status);
         Assert.Contains(notifications, x => x.UserId == "candidate-1");
         Assert.Contains(notifications, x => x.UserId == "employer-1");
+    }
+
+    [Fact]
+    public async Task ApplyAsync_RejectsResumeThatIsStillUnderModeration()
+    {
+        await using var context = TestDbContextFactory.Create();
+        context.CandidateProfiles.Add(new CandidateProfile { Id = 1, UserId = "candidate-1" });
+        context.EmployerProfiles.Add(new EmployerProfile { Id = 1, UserId = "employer-1", CompanyName = "Company" });
+        context.Resumes.Add(new Resume
+        {
+            Id = 1,
+            CandidateProfileId = 1,
+            CategoryId = 1,
+            Title = "Resume",
+            Status = ResumeStatus.UnderModeration,
+            IsPublished = false
+        });
+        context.Vacancies.Add(new Vacancy
+        {
+            Id = 1,
+            EmployerProfileId = 1,
+            CategoryId = 1,
+            Title = "Vacancy",
+            SalaryFrom = 1000,
+            SalaryTo = 2000,
+            IsActive = true,
+            Status = VacancyStatus.Published
+        });
+        await context.SaveChangesAsync();
+
+        var service = new ApplicationWorkflowService(context, new StubMatchingService(75));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.ApplyAsync(1, 1, "candidate-1", "My cover letter"));
     }
 
     [Fact]

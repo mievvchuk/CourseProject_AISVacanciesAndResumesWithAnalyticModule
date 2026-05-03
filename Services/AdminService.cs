@@ -82,7 +82,8 @@ public class AdminService : IAdminService
             .Include(x => x.Category)
             .Include(x => x.CandidateProfile)
             .ThenInclude(x => x!.User)
-            .OrderByDescending(x => x.CreatedAt)
+            .OrderByDescending(x => x.Status == ResumeStatus.UnderModeration)
+            .ThenByDescending(x => x.CreatedAt)
             .Select(x => new AdminResumeListItemViewModel
             {
                 Id = x.Id,
@@ -187,6 +188,11 @@ public class AdminService : IAdminService
             .Include(x => x.CandidateProfile)
             .FirstAsync(x => x.Id == resumeId);
 
+        if (resume.Status != ResumeStatus.UnderModeration)
+        {
+            throw new InvalidOperationException("Приймати можна тільки резюме, які очікують модерації.");
+        }
+
         resume.Status = ResumeStatus.Published;
         resume.IsPublished = true;
         resume.UpdatedAt = DateTime.UtcNow;
@@ -217,7 +223,12 @@ public class AdminService : IAdminService
             .Include(x => x.CandidateProfile)
             .FirstAsync(x => x.Id == resumeId);
 
-        resume.Status = ResumeStatus.Archived;
+        if (resume.Status != ResumeStatus.UnderModeration)
+        {
+            throw new InvalidOperationException("Відхиляти можна тільки резюме, які очікують модерації.");
+        }
+
+        resume.Status = ResumeStatus.Rejected;
         resume.IsPublished = false;
         resume.UpdatedAt = DateTime.UtcNow;
 
