@@ -42,4 +42,48 @@ public class AdminServiceTests
         Assert.True(approved.IsActive);
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ApproveVacancyAsync("admin-1", 2, null));
     }
+
+    [Fact]
+    public async Task ApproveResumeAsync_AllowsOnlyUnderModerationResumes()
+    {
+        await using var context = TestDbContextFactory.Create();
+        context.Categories.Add(new Category { Id = 1, Name = "Розробка ПЗ" });
+        context.CandidateProfiles.Add(new CandidateProfile
+        {
+            Id = 1,
+            UserId = "candidate-1",
+            Headline = "Developer",
+            Summary = "Summary",
+            City = "Kyiv"
+        });
+        context.Resumes.AddRange(
+            new Resume
+            {
+                Id = 1,
+                CandidateProfileId = 1,
+                CategoryId = 1,
+                Title = "На модерації",
+                Status = ResumeStatus.UnderModeration,
+                IsPublished = false
+            },
+            new Resume
+            {
+                Id = 2,
+                CandidateProfileId = 1,
+                CategoryId = 1,
+                Title = "Активне",
+                Status = ResumeStatus.Published,
+                IsPublished = true
+            });
+        await context.SaveChangesAsync();
+
+        var service = new AdminService(context, userManager: null!);
+
+        await service.ApproveResumeAsync("admin-1", 1, null);
+        var approved = await context.Resumes.FindAsync(1);
+
+        Assert.Equal(ResumeStatus.Published, approved!.Status);
+        Assert.True(approved.IsPublished);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ApproveResumeAsync("admin-1", 2, null));
+    }
 }

@@ -64,6 +64,38 @@ public class ResumeServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_WithPublishRequest_SendsResumeToModeration()
+    {
+        await using var context = TestDbContextFactory.Create();
+        context.Categories.Add(new Category { Id = 1, Name = "Development" });
+        context.CandidateProfiles.Add(new CandidateProfile
+        {
+            Id = 1,
+            UserId = "candidate-1",
+            Headline = "Candidate",
+            Summary = "Summary",
+            City = "Kyiv"
+        });
+        await context.SaveChangesAsync();
+
+        var service = new ResumeService(context, CreateEnvironment());
+
+        await service.CreateAsync("candidate-1", new ResumeFormViewModel
+        {
+            CategoryId = 1,
+            Title = "My Resume",
+            DesiredPosition = ".NET Developer",
+            Summary = "Summary",
+            SkillsDescription = "C#, SQL",
+            IsPublished = true
+        });
+
+        var resume = await context.Resumes.SingleAsync();
+        Assert.Equal(ResumeStatus.UnderModeration, resume.Status);
+        Assert.False(resume.IsPublished);
+    }
+
+    [Fact]
     public async Task SearchPublishedResumesAsync_FiltersPublishedResumesForEmployer()
     {
         await using var context = TestDbContextFactory.Create();
@@ -121,6 +153,16 @@ public class ResumeServiceTests
                 DesiredPosition = "Analyst",
                 Status = ResumeStatus.Archived,
                 IsPublished = true
+            },
+            new Resume
+            {
+                Id = 5,
+                CandidateProfileId = 1,
+                CategoryId = 1,
+                Title = "Moderation Resume",
+                DesiredPosition = "Analyst",
+                Status = ResumeStatus.UnderModeration,
+                IsPublished = false
             });
         await context.SaveChangesAsync();
 

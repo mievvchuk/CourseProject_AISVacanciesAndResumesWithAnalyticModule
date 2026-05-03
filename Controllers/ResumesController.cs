@@ -77,7 +77,9 @@ public class ResumesController : Controller
             return View(model);
         }
 
-        TempData["StatusMessage"] = "Резюме збережено.";
+        TempData["StatusMessage"] = model.IsPublished
+            ? "Резюме збережено та відправлено на модерацію."
+            : "Резюме збережено як чернетку.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -164,7 +166,9 @@ public class ResumesController : Controller
             return View(model);
         }
 
-        TempData["StatusMessage"] = "Резюме оновлено.";
+        TempData["StatusMessage"] = model.IsPublished
+            ? "Резюме оновлено та повторно відправлено на модерацію."
+            : "Резюме оновлено як чернетку.";
         return RedirectToAction(nameof(Index));
     }
 

@@ -17,6 +17,8 @@
         return status switch
         {
             ResumeStatus.Published => "bg-green-lt text-green",
+            ResumeStatus.UnderModeration => "bg-blue-lt text-blue",
+            ResumeStatus.Rejected => "bg-red-lt text-red",
             ResumeStatus.Draft => "bg-yellow-lt text-yellow",
             ResumeStatus.Archived => "bg-secondary-lt text-secondary",
             _ => "bg-secondary-lt text-secondary"
