@@ -1,5 +1,4 @@
 using AisVacanciesAndResumes.Data;
-using AisVacanciesAndResumes.Hubs;
 using AisVacanciesAndResumes.Models;
 using AisVacanciesAndResumes.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -27,7 +26,6 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys")));
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -121,7 +119,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllers();
-app.MapHub<MessageHub>("/hubs/messages");
 
 using (var scope = app.Services.CreateScope())
 {

@@ -1,8 +1,6 @@
 using AisVacanciesAndResumes.Data;
-using AisVacanciesAndResumes.Hubs;
 using AisVacanciesAndResumes.Models;
 using AisVacanciesAndResumes.ViewModels.Messages;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,12 +9,10 @@ namespace AisVacanciesAndResumes.Services;
 public class MessageService : IMessageService
 {
     private readonly ApplicationDbContext _context;
-    private readonly IHubContext<MessageHub>? _messageHub;
 
-    public MessageService(ApplicationDbContext context, IHubContext<MessageHub>? messageHub = null)
+    public MessageService(ApplicationDbContext context)
     {
         _context = context;
-        _messageHub = messageHub;
     }
 
     public async Task<List<MessageListItemViewModel>> GetInboxAsync(string userId)
@@ -82,10 +78,6 @@ public class MessageService : IMessageService
             throw new InvalidOperationException("Отримувача не знайдено.");
         }
 
-        var sender = await _context.Users
-            .AsNoTracking()
-            .FirstAsync(x => x.Id == senderUserId);
-
         var message = new Message
         {
             SenderId = senderUserId,
@@ -97,8 +89,6 @@ public class MessageService : IMessageService
 
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
-
-        await NotifyReceiverAsync(message, sender.FullName);
     }
 
     public async Task<MessageDetailsViewModel?> GetDetailsAsync(string userId, int id)
@@ -152,34 +142,4 @@ public class MessageService : IMessageService
             .ToListAsync();
     }
 
-    private async Task NotifyReceiverAsync(Message message, string senderName)
-    {
-        if (_messageHub is null)
-        {
-            return;
-        }
-
-        var unreadCount = await GetUnreadCountAsync(message.ReceiverId);
-        var payload = new RealtimeMessageViewModel
-        {
-            Id = message.Id,
-            Subject = message.Subject,
-            ContentPreview = BuildPreview(message.Content),
-            SenderName = senderName,
-            SentAt = message.SentAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm"),
-            UnreadCount = unreadCount,
-            DetailsUrl = $"/Messages/Details/{message.Id}"
-        };
-
-        await _messageHub
-            .Clients
-            .Group(MessageHub.GetUserGroupName(message.ReceiverId))
-            .SendAsync("ReceiveMessage", payload);
-    }
-
-    private static string BuildPreview(string content)
-    {
-        var normalized = (content ?? string.Empty).ReplaceLineEndings(" ").Trim();
-        return normalized.Length <= 120 ? normalized : $"{normalized[..120]}...";
-    }
 }

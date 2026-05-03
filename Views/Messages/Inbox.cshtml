@@ -14,11 +14,13 @@
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info" data-live-inbox-empty>Вхідних повідомлень немає.</div>
+    <div class="alert alert-info">Вхідних повідомлень немає.</div>
 }
-<div class="card shadow-sm border-0 @(Model.Any() ? string.Empty : "d-none")" data-live-inbox-card>
-    <div class="table-responsive">
-        <table class="table table-striped align-middle mb-0">
+else
+{
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
             <thead>
                 <tr>
                     <th>Тема</th>
@@ -28,7 +30,7 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody data-live-inbox-body>
+            <tbody>
                 @foreach (var item in Model)
                 {
                     <tr class="@(item.IsRead ? string.Empty : "table-warning")">
@@ -42,6 +44,7 @@
                     </tr>
                 }
             </tbody>
-        </table>
+            </table>
+        </div>
     </div>
-</div>
+}
