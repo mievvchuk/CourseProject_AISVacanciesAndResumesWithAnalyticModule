@@ -11,5 +11,11 @@ public enum ResumeStatus
     Published = 2,
 
     [Display(Name = "Архівне")]
-    Archived = 3
+    Archived = 3,
+
+    [Display(Name = "На модерації")]
+    UnderModeration = 4,
+
+    [Display(Name = "Відхилене")]
+    Rejected = 5
 }
