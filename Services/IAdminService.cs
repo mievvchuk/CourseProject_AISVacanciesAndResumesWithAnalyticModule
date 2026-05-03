@@ -5,9 +5,9 @@ namespace AisVacanciesAndResumes.Services;
 public interface IAdminService
 {
     Task<AdminDashboardViewModel> GetDashboardAsync();
-    Task<List<AdminUserListItemViewModel>> GetUsersAsync();
-    Task<List<AdminVacancyListItemViewModel>> GetVacanciesAsync();
-    Task<List<AdminResumeListItemViewModel>> GetResumesAsync();
+    Task<AdminUserIndexViewModel> GetUsersAsync(AdminUserFilterViewModel filter);
+    Task<AdminVacancyIndexViewModel> GetVacanciesAsync(AdminVacancyFilterViewModel filter);
+    Task<AdminResumeIndexViewModel> GetResumesAsync(AdminResumeFilterViewModel filter);
     Task<List<ModerationLogListItemViewModel>> GetModerationLogsAsync();
     Task ApproveVacancyAsync(string adminUserId, int vacancyId, string? comment);
     Task RejectVacancyAsync(string adminUserId, int vacancyId, string comment);

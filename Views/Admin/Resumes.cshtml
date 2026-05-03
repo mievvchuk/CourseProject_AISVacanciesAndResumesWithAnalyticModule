@@ -1,4 +1,4 @@
-@model List<AisVacanciesAndResumes.ViewModels.Admin.AdminResumeListItemViewModel>
+@model AisVacanciesAndResumes.ViewModels.Admin.AdminResumeIndexViewModel
 
 @{
     ViewData["Title"] = "Резюме";
@@ -7,11 +7,48 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h2 class="h4 mb-1">Модерація резюме</h2>
-        <div class="text-secondary">Адміністратор переглядає резюме, схвалює його або відхиляє з поясненням для кандидата.</div>
+        <div class="text-secondary">Адміністратор переглядає резюме, схвалює його або відхиляє з поясненням для кандидата. Знайдено: @Model.Items.Count</div>
     </div>
 </div>
 
-@if (!Model.Any())
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Resumes" method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="admin-resume-search">Пошук</label>
+                <input id="admin-resume-search" name="Search" value="@Model.Filter.Search" class="form-control" placeholder="Назва, кандидат або категорія" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="admin-resume-status">Статус</label>
+                <select id="admin-resume-status" name="Status" class="form-select">
+                    <option value="">Усі статуси</option>
+                    @foreach (var status in Enum.GetValues<ResumeStatus>())
+                    {
+                        <option value="@status" selected="@(Model.Filter.Status == status)">@status.GetDisplayName()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="admin-resume-published">Публікація</label>
+                <select id="admin-resume-published" name="IsPublished" class="form-select">
+                    <option value="">Усі</option>
+                    <option value="true" selected="@(Model.Filter.IsPublished == true)">Опубліковані</option>
+                    <option value="false" selected="@(Model.Filter.IsPublished == false)">Приховані</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-search me-1"></i>Знайти
+                </button>
+                <a asp-action="Resumes" class="btn btn-outline-secondary" title="Очистити">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Items.Any())
 {
     <div class="card">
         <div class="admin-empty-state">
@@ -24,7 +61,7 @@
 else
 {
     <div class="admin-moderation-list">
-        @foreach (var item in Model)
+        @foreach (var item in Model.Items)
         {
             <article class="card admin-moderation-card">
                 <div class="card-body">

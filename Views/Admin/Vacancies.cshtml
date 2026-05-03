@@ -1,4 +1,4 @@
-@model List<AisVacanciesAndResumes.ViewModels.Admin.AdminVacancyListItemViewModel>
+@model AisVacanciesAndResumes.ViewModels.Admin.AdminVacancyIndexViewModel
 
 @{
     ViewData["Title"] = "Вакансії";
@@ -7,11 +7,48 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h2 class="h4 mb-1">Модерація вакансій</h2>
-        <div class="text-secondary">Адміністратор переглядає вакансії, які роботодавці надіслали на модерацію.</div>
+        <div class="text-secondary">Адміністратор переглядає вакансії, які роботодавці надіслали на модерацію. Знайдено: @Model.Items.Count</div>
     </div>
 </div>
 
-@if (!Model.Any())
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Vacancies" method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="admin-vacancy-search">Пошук</label>
+                <input id="admin-vacancy-search" name="Search" value="@Model.Filter.Search" class="form-control" placeholder="Назва, компанія або категорія" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="admin-vacancy-status">Статус</label>
+                <select id="admin-vacancy-status" name="Status" class="form-select">
+                    <option value="">Усі статуси</option>
+                    @foreach (var status in Enum.GetValues<VacancyStatus>())
+                    {
+                        <option value="@status" selected="@(Model.Filter.Status == status)">@status.GetDisplayName()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="admin-vacancy-active">Активність</label>
+                <select id="admin-vacancy-active" name="IsActive" class="form-select">
+                    <option value="">Усі</option>
+                    <option value="true" selected="@(Model.Filter.IsActive == true)">Активні</option>
+                    <option value="false" selected="@(Model.Filter.IsActive == false)">Неактивні</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-search me-1"></i>Знайти
+                </button>
+                <a asp-action="Vacancies" class="btn btn-outline-secondary" title="Очистити">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Items.Any())
 {
     <div class="card">
         <div class="admin-empty-state">
@@ -24,7 +61,7 @@
 else
 {
     <div class="admin-moderation-list">
-        @foreach (var item in Model)
+        @foreach (var item in Model.Items)
         {
             var canModerate = item.Status == VacancyStatus.UnderModeration;
 

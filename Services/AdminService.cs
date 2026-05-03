@@ -29,10 +29,28 @@ public class AdminService : IAdminService
         };
     }
 
-    public async Task<List<AdminUserListItemViewModel>> GetUsersAsync()
+    public async Task<AdminUserIndexViewModel> GetUsersAsync(AdminUserFilterViewModel filter)
     {
-        var users = await _context.Users
+        filter ??= new AdminUserFilterViewModel();
+
+        var query = _context.Users
             .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var search = filter.Search.Trim().ToLower();
+            query = query.Where(x =>
+                x.FullName.ToLower().Contains(search) ||
+                (x.Email != null && x.Email.ToLower().Contains(search)));
+        }
+
+        if (filter.IsActive.HasValue)
+        {
+            query = query.Where(x => x.IsActive == filter.IsActive.Value);
+        }
+
+        var users = await query
             .OrderBy(x => x.FullName)
             .ToListAsync();
 
@@ -51,15 +69,50 @@ public class AdminService : IAdminService
             });
         }
 
-        return result;
+        if (!string.IsNullOrWhiteSpace(filter.RoleName))
+        {
+            result = result
+                .Where(x => string.Equals(x.RoleName, filter.RoleName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        return new AdminUserIndexViewModel
+        {
+            Filter = filter,
+            Items = result
+        };
     }
 
-    public async Task<List<AdminVacancyListItemViewModel>> GetVacanciesAsync()
+    public async Task<AdminVacancyIndexViewModel> GetVacanciesAsync(AdminVacancyFilterViewModel filter)
     {
-        return await _context.Vacancies
+        filter ??= new AdminVacancyFilterViewModel();
+
+        var query = _context.Vacancies
             .AsNoTracking()
             .Include(x => x.Category)
             .Include(x => x.EmployerProfile)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var search = filter.Search.Trim().ToLower();
+            query = query.Where(x =>
+                x.Title.ToLower().Contains(search) ||
+                (x.EmployerProfile != null && x.EmployerProfile.CompanyName.ToLower().Contains(search)) ||
+                (x.Category != null && x.Category.Name.ToLower().Contains(search)));
+        }
+
+        if (filter.Status.HasValue)
+        {
+            query = query.Where(x => x.Status == filter.Status.Value);
+        }
+
+        if (filter.IsActive.HasValue)
+        {
+            query = query.Where(x => x.IsActive == filter.IsActive.Value);
+        }
+
+        var items = await query
             .OrderByDescending(x => x.Status == VacancyStatus.UnderModeration)
             .ThenByDescending(x => x.PublishedAt)
             .Select(x => new AdminVacancyListItemViewModel
@@ -73,15 +126,47 @@ public class AdminService : IAdminService
                 PublishedAt = x.PublishedAt
             })
             .ToListAsync();
+
+        return new AdminVacancyIndexViewModel
+        {
+            Filter = filter,
+            Items = items
+        };
     }
 
-    public async Task<List<AdminResumeListItemViewModel>> GetResumesAsync()
+    public async Task<AdminResumeIndexViewModel> GetResumesAsync(AdminResumeFilterViewModel filter)
     {
-        return await _context.Resumes
+        filter ??= new AdminResumeFilterViewModel();
+
+        var query = _context.Resumes
             .AsNoTracking()
             .Include(x => x.Category)
             .Include(x => x.CandidateProfile)
             .ThenInclude(x => x!.User)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var search = filter.Search.Trim().ToLower();
+            query = query.Where(x =>
+                x.Title.ToLower().Contains(search) ||
+                (x.CandidateProfile != null &&
+                    x.CandidateProfile.User != null &&
+                    x.CandidateProfile.User.FullName.ToLower().Contains(search)) ||
+                (x.Category != null && x.Category.Name.ToLower().Contains(search)));
+        }
+
+        if (filter.Status.HasValue)
+        {
+            query = query.Where(x => x.Status == filter.Status.Value);
+        }
+
+        if (filter.IsPublished.HasValue)
+        {
+            query = query.Where(x => x.IsPublished == filter.IsPublished.Value);
+        }
+
+        var items = await query
             .OrderByDescending(x => x.Status == ResumeStatus.UnderModeration)
             .ThenByDescending(x => x.CreatedAt)
             .Select(x => new AdminResumeListItemViewModel
@@ -97,6 +182,12 @@ public class AdminService : IAdminService
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();
+
+        return new AdminResumeIndexViewModel
+        {
+            Filter = filter,
+            Items = items
+        };
     }
 
     public async Task<List<ModerationLogListItemViewModel>> GetModerationLogsAsync()
