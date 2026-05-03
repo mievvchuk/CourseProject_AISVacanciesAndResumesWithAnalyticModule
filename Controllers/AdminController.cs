@@ -1,4 +1,5 @@
 using AisVacanciesAndResumes.Services;
+using AisVacanciesAndResumes.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -32,16 +33,16 @@ public class AdminController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Users()
+    public async Task<IActionResult> Users([FromQuery] AdminUserFilterViewModel filter)
     {
-        var model = await _adminService.GetUsersAsync();
+        var model = await _adminService.GetUsersAsync(filter);
         return View(model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Vacancies()
+    public async Task<IActionResult> Vacancies([FromQuery] AdminVacancyFilterViewModel filter)
     {
-        var model = await _adminService.GetVacanciesAsync();
+        var model = await _adminService.GetVacanciesAsync(filter);
         return View(model);
     }
 
@@ -80,9 +81,9 @@ public class AdminController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Resumes()
+    public async Task<IActionResult> Resumes([FromQuery] AdminResumeFilterViewModel filter)
     {
-        var model = await _adminService.GetResumesAsync();
+        var model = await _adminService.GetResumesAsync(filter);
         return View(model);
     }
 
