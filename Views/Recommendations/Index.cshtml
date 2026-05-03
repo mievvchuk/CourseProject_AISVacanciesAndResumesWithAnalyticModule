@@ -27,12 +27,27 @@
             return "Сильний збіг";
         }
 
-        if (match >= 60)
+        if (match >= 50)
         {
-            return "Добра відповідність";
+            return "Середній збіг";
         }
 
-        return "Можна розглянути";
+        return "Слабкий збіг";
+    }
+
+    private static string GetMatchClass(int match)
+    {
+        if (match >= 80)
+        {
+            return "recommendation-match-high";
+        }
+
+        if (match >= 50)
+        {
+            return "recommendation-match-medium";
+        }
+
+        return "recommendation-match-low";
     }
 }
 
@@ -96,7 +111,7 @@
             {
                 <article class="card recommendation-card">
                     <div class="card-body">
-                        <div class="recommendation-match" style="--match-value: @item.MatchPercentage%;">
+                        <div class="recommendation-match @GetMatchClass(item.MatchPercentage)" style="--match-value: @item.MatchPercentage%;" aria-label="Відповідність @item.MatchPercentage відсотків">
                             <strong>@item.MatchPercentage%</strong>
                             <span>@GetMatchLabel(item.MatchPercentage)</span>
                         </div>
