@@ -494,20 +494,38 @@ body {
 
 .recommendation-match {
   --match-value: 0%;
+  --match-color: #d63939;
+  --match-soft-color: #fff1f1;
   align-items: center;
   aspect-ratio: 1 / 1;
   background:
-    radial-gradient(circle closest-side, #fff 68%, transparent 69%),
-    conic-gradient(#2fb344 var(--match-value), #e9eef5 0);
+    radial-gradient(circle closest-side, #fff 63%, transparent 64%),
+    conic-gradient(var(--match-color) var(--match-value), #e9eef5 0);
   border-radius: 50%;
+  box-shadow: inset 0 0 0 .5rem var(--match-soft-color);
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
 }
 
+.recommendation-match-high {
+  --match-color: #2fb344;
+  --match-soft-color: #e9f7ef;
+}
+
+.recommendation-match-medium {
+  --match-color: #f59f00;
+  --match-soft-color: #fff4de;
+}
+
+.recommendation-match-low {
+  --match-color: #d63939;
+  --match-soft-color: #fff1f1;
+}
+
 .recommendation-match strong {
-  color: #182433;
+  color: var(--match-color);
   font-size: 1.35rem;
   line-height: 1.1;
 }
