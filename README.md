@@ -1,23 +1,24 @@
-# АІС вакансій та резюме з аналітичним модулем
+# AIS for Vacancies and Resumes with Analytics Module
 
-Курсовий ASP.NET Core MVC проєкт для автоматизації пошуку роботи та підбору персоналу. Система підтримує ролі кандидата, роботодавця й адміністратора, роботу з резюме та вакансіями, заявки, рекомендації, сповіщення, повідомлення, модерацію й аналітику.
+Coursework ASP.NET Core MVC project for automating job search and recruitment workflows. The system supports candidate, employer, and administrator roles, and includes resumes, vacancies, applications, recommendations, notifications, messaging, moderation, and analytics.
 
-## Основні можливості
+## Key Features
 
-- реєстрація, авторизація та ролі `Candidate`, `Employer`, `Admin`;
-- профілі кандидата і роботодавця;
-- створення, редагування, перегляд, архівування та видалення резюме;
-- завантаження PDF/DOCX-файлів резюме з автоматичним парсингом;
-- створення, редагування, перегляд, архівування та модерація вакансій;
-- пошук і фільтрація вакансій, резюме та кандидатів;
-- збережені пошукові запити;
-- подання заявок без дублювання на одну вакансію;
-- розрахунок відсотка відповідності резюме та вакансії;
-- рекомендації вакансій для кандидатів і кандидатів для роботодавців;
-- аналітичний модуль із візуалізацією статистики;
-- повідомлення, сповіщення та адміністративна панель.
+- Registration, authentication, and role-based access for `Candidate`, `Employer`, and `Admin`.
+- Candidate and employer profile management.
+- Resume creation, editing, viewing, archiving, and deletion.
+- PDF/DOCX resume upload with automatic parsing.
+- Vacancy creation, editing, viewing, archiving, deletion, and moderation.
+- Search and filtering for vacancies, resumes, and candidates.
+- Saved search filters.
+- Applications without duplicate submissions for the same vacancy.
+- Resume-to-vacancy matching percentage calculation.
+- Vacancy recommendations for candidates and candidate recommendations for employers.
+- Analytics dashboard with statistics visualization.
+- Notifications, private messages, and an administrative panel.
+- CSV/PDF export for vacancies and analytics.
 
-## Технології
+## Technology Stack
 
 - ASP.NET Core MVC
 - Entity Framework Core
@@ -27,28 +28,28 @@
 - Bootstrap / AdminLTE
 - xUnit
 
-## Структура проєкту
+## Project Structure
 
 ```text
 AisVacanciesAndResumes
-├── Controllers      HTTP-запити MVC та API
-├── Data             ApplicationDbContext, міграції, seed-дані
-├── Enums            статуси, ролі та типи системи
-├── Models           сутності бази даних
-├── Services         бізнес-логіка
-├── ViewModels       моделі для форм і сторінок
-├── Views            Razor-сторінки
-├── wwwroot          CSS, JavaScript, бібліотеки, статичні файли
-└── Tests            автоматизовані тести
+|-- Controllers                  MVC and API request handlers
+|-- Data                         ApplicationDbContext, migrations, seed data
+|-- Enums                        System statuses, roles, and types
+|-- Models                       Database entities
+|-- Services                     Business logic and application workflows
+|-- ViewModels                   Models for forms and pages
+|-- Views                        Razor pages
+|-- wwwroot                      CSS, JavaScript, libraries, and static files
+|-- AisVacanciesAndResumes.Tests Automated tests
 ```
 
-## Тестові акаунти для Development
+## Development Test Accounts
 
 - Admin: `admin@example.com` / `Admin123!`
 - Candidate: `candidate@example.com` / `Candidate123!`
 - Employer: `employer@example.com` / `Employer123!`
 
-## Запуск
+## Run Locally
 
 ```bash
 dotnet restore
@@ -56,31 +57,31 @@ dotnet build
 dotnet run
 ```
 
-Для застосування міграцій:
+Apply database migrations:
 
 ```bash
 dotnet ef database update
 ```
 
-## Перевірка
+## Verification
 
 ```bash
 dotnet build
 dotnet test
 ```
 
-Поточний набір тестів перевіряє ключову бізнес-логіку: резюме, вакансії, заявки, метчинг, рекомендації, аналітику, експорт, повідомлення та адмінські сценарії.
+The current test suite covers key business scenarios: resumes, vacancies, applications, matching, recommendations, analytics, export, notifications, and admin workflows.
 
 ## Git Flow
 
-Репозиторій організовано за Git Flow:
+The repository is organized according to Git Flow:
 
-- `main` — стабільний стан для демонстрації;
-- `develop` — інтеграційна гілка;
-- `feature/*` — окремі функціональні частини;
-- `release/pre-defense` — підготовка стану перед передзахистом;
-- `v1.0.0-pre-defense` — тег релізного стану.
+- `main` - stable state for demonstration.
+- `develop` - integration branch.
+- `feature/*` - separate feature branches.
+- `release/pre-defense` - preparation branch before pre-defense.
+- `v1.0.0-pre-defense` - release-state tag.
 
-## Автор
+## Author
 
 Mykhailo Yevchuk
