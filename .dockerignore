@@ -1,0 +1,16 @@
+bin/
+obj/
+.git/
+.github/
+.vs/
+.vscode/
+*.user
+*.suo
+*.db
+*.sqlite
+appsettings.Development.json
+node_modules/
+logs/
+artifacts/
+run-output.log
+run-error.log

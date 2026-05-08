@@ -97,14 +97,21 @@ public class ApplicationsApiController : ControllerBase
         }
 
         var duplicateExists = await _context.Applications
-            .AnyAsync(x => x.ResumeId == request.ResumeId && x.VacancyId == request.VacancyId && x.CandidateUserId == userId);
+            .AnyAsync(x => x.VacancyId == request.VacancyId && x.CandidateUserId == userId);
 
         if (duplicateExists)
         {
             return Conflict(new { message = "Ви вже подавали заявку на цю вакансію." });
         }
 
-        await _applicationWorkflowService.ApplyAsync(request.ResumeId, request.VacancyId, userId, request.CoverLetter);
+        try
+        {
+            await _applicationWorkflowService.ApplyAsync(request.ResumeId, request.VacancyId, userId, request.CoverLetter);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
 
         var createdApplication = await _context.Applications
             .AsNoTracking()
@@ -138,7 +145,14 @@ public class ApplicationsApiController : ControllerBase
             return Forbid();
         }
 
-        await _applicationWorkflowService.UpdateStatusAsync(id, request.Status, userId);
+        try
+        {
+            await _applicationWorkflowService.UpdateStatusAsync(id, request.Status, userId);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
 
         return Ok(new
         {
