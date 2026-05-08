@@ -87,6 +87,13 @@ public class AdminController : Controller
         return View(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ResumeDetails(int id)
+    {
+        var model = await _adminService.GetResumeDetailsAsync(id);
+        return model is null ? NotFound() : View(model);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ApproveResume(int id, string? comment)

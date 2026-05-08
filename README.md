@@ -1,5 +1,7 @@
 # AIS for Vacancies and Resumes with Analytics Module
 
+[![.NET CI](https://github.com/mievvchuk/CourseProject_AISVacanciesAndResumesWithAnalyticModule/actions/workflows/dotnet-ci.yml/badge.svg)](https://github.com/mievvchuk/CourseProject_AISVacanciesAndResumesWithAnalyticModule/actions/workflows/dotnet-ci.yml)
+
 Coursework ASP.NET Core MVC project for automating job search and recruitment workflows. The system supports candidate, employer, and administrator roles, and includes resumes, vacancies, applications, recommendations, notifications, messaging, moderation, and analytics.
 
 ## Key Features
@@ -25,8 +27,15 @@ Coursework ASP.NET Core MVC project for automating job search and recruitment wo
 - PostgreSQL
 - ASP.NET Identity
 - Razor Views
-- Bootstrap / AdminLTE
+- Tabler UI / Tabler Icons
+- Bootstrap / Bootstrap Icons
+- AdminLTE
+- Chart.js
+- jQuery / jQuery Validation
+- Swashbuckle / Swagger OpenAPI
+- UglyToad.PdfPig
 - xUnit
+- EF Core InMemory provider
 
 ## Project Structure
 
@@ -51,6 +60,12 @@ AisVacanciesAndResumes
 
 ## Run Locally
 
+Configure the PostgreSQL connection string with .NET User Secrets or environment variables. For local development:
+
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=AisVacanciesAndResumesDb;Username=postgres;Password=your_password"
+```
+
 ```bash
 dotnet restore
 dotnet build
@@ -61,6 +76,12 @@ Apply database migrations:
 
 ```bash
 dotnet ef database update
+```
+
+For deployment, provide the production database connection string through the hosting environment variable:
+
+```text
+ConnectionStrings__DefaultConnection
 ```
 
 ## Verification

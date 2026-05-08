@@ -57,12 +57,11 @@ public class ResumesController : Controller
             return RedirectToAction("Create", "CandidateProfiles");
         }
 
-        var parseResult = await ApplyParsedValuesAsync(model, replaceExistingValues: false);
+        var parseResult = await ApplyParsedValuesAsync(model, model.ReplaceFieldsFromFile);
 
         if (!ModelState.IsValid)
         {
-            model.CategoryOptions = await _resumeService.GetCategoriesAsync();
-            ViewData["ParseMessage"] = GetParseMessage(parseResult);
+            await PrepareFormAfterValidationErrorAsync(model, parseResult);
             return View(model);
         }
 
@@ -72,14 +71,15 @@ public class ResumesController : Controller
         }
         catch (InvalidOperationException exception)
         {
-            ModelState.AddModelError(nameof(model.ResumeFile), exception.Message);
-            model.CategoryOptions = await _resumeService.GetCategoriesAsync();
+            ModelState.AddModelError(string.Empty, exception.Message);
+            await PrepareFormAfterValidationErrorAsync(model, parseResult);
             return View(model);
         }
 
         TempData["StatusMessage"] = model.IsPublished
             ? "Резюме збережено та відправлено на модерацію."
             : "Резюме збережено як чернетку.";
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -100,12 +100,14 @@ public class ResumesController : Controller
         return Json(new
         {
             desiredPosition = parsed.DesiredPosition,
+            categoryName = parsed.CategoryName,
             summary = parsed.Summary,
             education = parsed.Education,
             experience = parsed.Experience,
             skillsDescription,
             employmentType = parsed.EmploymentType?.ToString(),
             educationLevel = parsed.EducationLevel?.ToString(),
+            experienceLevel = parsed.ExperienceLevel?.ToString(),
             experienceYears = parsed.YearsOfExperience,
             desiredSalary = parsed.DesiredSalary,
             parsedSkillNames = parsed.ParsedSkillNames,
@@ -150,8 +152,7 @@ public class ResumesController : Controller
 
         if (!ModelState.IsValid)
         {
-            model.CategoryOptions = await _resumeService.GetCategoriesAsync();
-            ViewData["ParseMessage"] = GetParseMessage(parseResult);
+            await PrepareFormAfterValidationErrorAsync(model, parseResult);
             return View(model);
         }
 
@@ -161,14 +162,15 @@ public class ResumesController : Controller
         }
         catch (InvalidOperationException exception)
         {
-            ModelState.AddModelError(nameof(model.ResumeFile), exception.Message);
-            model.CategoryOptions = await _resumeService.GetCategoriesAsync();
+            ModelState.AddModelError(string.Empty, exception.Message);
+            await PrepareFormAfterValidationErrorAsync(model, parseResult);
             return View(model);
         }
 
         TempData["StatusMessage"] = model.IsPublished
             ? "Резюме оновлено та повторно відправлено на модерацію."
             : "Резюме оновлено як чернетку.";
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -216,6 +218,7 @@ public class ResumesController : Controller
         var parsed = await _resumeParserService.ParseAsync(model.ResumeFile);
 
         model.DesiredPosition = MergeParsedValue(model.DesiredPosition, parsed.DesiredPosition, replaceExistingValues);
+        model.CategoryName = MergeParsedValue(model.CategoryName, parsed.CategoryName, replaceExistingValues);
         model.Summary = MergeParsedValue(model.Summary, parsed.Summary, replaceExistingValues);
         model.Education = MergeParsedValue(model.Education, parsed.Education, replaceExistingValues);
         model.Experience = MergeParsedValue(model.Experience, parsed.Experience, replaceExistingValues);
@@ -239,6 +242,11 @@ public class ResumesController : Controller
             model.EducationLevel = parsed.EducationLevel.Value;
         }
 
+        if (parsed.ExperienceLevel.HasValue)
+        {
+            model.ExperienceLevel = parsed.ExperienceLevel.Value;
+        }
+
         if ((replaceExistingValues || model.ExperienceYears == 0) && parsed.YearsOfExperience.HasValue)
         {
             model.ExperienceYears = parsed.YearsOfExperience.Value;
@@ -249,11 +257,6 @@ public class ResumesController : Controller
             model.DesiredSalary = parsed.DesiredSalary.Value;
         }
 
-        if (model.CategoryId <= 0)
-        {
-            await SetDefaultCategoryAsync(model);
-        }
-
         await UpdateCurrentUserContactsAsync(parsed);
 
         ModelState.Clear();
@@ -262,18 +265,15 @@ public class ResumesController : Controller
         return parsed;
     }
 
-    private async Task SetDefaultCategoryAsync(ResumeFormViewModel model)
-    {
-        var firstCategory = (await _resumeService.GetCategoriesAsync()).FirstOrDefault();
-        if (firstCategory is not null && int.TryParse(firstCategory.Value, out var categoryId))
-        {
-            model.CategoryId = categoryId;
-        }
-    }
-
     private static string MergeParsedValue(string currentValue, string parsedValue, bool replaceExistingValue)
     {
         return replaceExistingValue || string.IsNullOrWhiteSpace(currentValue) ? parsedValue : currentValue;
+    }
+
+    private async Task PrepareFormAfterValidationErrorAsync(ResumeFormViewModel model, ResumeParseResult parseResult)
+    {
+        model.CategoryOptions = await _resumeService.GetCategoriesAsync();
+        ViewData["ParseMessage"] = GetParseMessage(parseResult);
     }
 
     private async Task UpdateCurrentUserContactsAsync(ResumeParseResult parsed)
@@ -308,13 +308,14 @@ public class ResumesController : Controller
     private static string GetParseMessage(ResumeParseResult parsed)
     {
         return HasParsedData(parsed)
-            ? "Дані з файлу підтягнуто. Перевірте поля, які залишилися незаповненими."
+            ? "Дані з файлу підтягнуто. Перевірте поля перед збереженням."
             : "Не вдалося автоматично витягнути достатньо даних із файлу. Перевірте PDF/DOCX або доповніть поля вручну.";
     }
 
     private static bool HasParsedData(ResumeParseResult parsed)
     {
         return !string.IsNullOrWhiteSpace(parsed.DesiredPosition)
+            || !string.IsNullOrWhiteSpace(parsed.CategoryName)
             || !string.IsNullOrWhiteSpace(parsed.Summary)
             || !string.IsNullOrWhiteSpace(parsed.Education)
             || !string.IsNullOrWhiteSpace(parsed.Experience)
@@ -325,6 +326,7 @@ public class ResumesController : Controller
             || parsed.YearsOfExperience.HasValue
             || parsed.DesiredSalary.HasValue
             || parsed.EducationLevel.HasValue
+            || parsed.ExperienceLevel.HasValue
             || parsed.EmploymentType.HasValue;
     }
 }

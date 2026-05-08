@@ -53,6 +53,7 @@ public class ResumeServiceTests
         var model = new ResumeFormViewModel
         {
             CategoryId = 1,
+            CategoryName = "Development",
             Title = "My Resume",
             Summary = "Summary",
             ResumeFile = formFile
@@ -83,6 +84,7 @@ public class ResumeServiceTests
         await service.CreateAsync("candidate-1", new ResumeFormViewModel
         {
             CategoryId = 1,
+            CategoryName = "Development",
             Title = "My Resume",
             DesiredPosition = ".NET Developer",
             Summary = "Summary",
@@ -93,6 +95,62 @@ public class ResumeServiceTests
         var resume = await context.Resumes.SingleAsync();
         Assert.Equal(ResumeStatus.UnderModeration, resume.Status);
         Assert.False(resume.IsPublished);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithNewCategoryName_CreatesCategoryAndAssignsResume()
+    {
+        await using var context = TestDbContextFactory.Create();
+        context.CandidateProfiles.Add(new CandidateProfile
+        {
+            Id = 1,
+            UserId = "candidate-1",
+            Headline = "Candidate",
+            Summary = "Summary",
+            City = "Kyiv"
+        });
+        await context.SaveChangesAsync();
+
+        var service = new ResumeService(context, CreateEnvironment());
+
+        await service.CreateAsync("candidate-1", new ResumeFormViewModel
+        {
+            CategoryName = "Аналітика даних",
+            Title = "Data Resume",
+            DesiredPosition = "Data Analyst",
+            Summary = "Summary"
+        });
+
+        var resume = await context.Resumes.Include(x => x.Category).SingleAsync();
+        Assert.Equal("Аналітика даних", resume.Category?.Name);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithoutCategoryName_UsesDefaultCategoryAndWritesResume()
+    {
+        await using var context = TestDbContextFactory.Create();
+        context.CandidateProfiles.Add(new CandidateProfile
+        {
+            Id = 1,
+            UserId = "candidate-1",
+            Headline = "Candidate",
+            Summary = "Summary",
+            City = "Kyiv"
+        });
+        await context.SaveChangesAsync();
+
+        var service = new ResumeService(context, CreateEnvironment());
+
+        await service.CreateAsync("candidate-1", new ResumeFormViewModel
+        {
+            Title = "Resume Without Category",
+            DesiredPosition = "Junior Developer",
+            Summary = "Summary"
+        });
+
+        var resume = await context.Resumes.Include(x => x.Category).SingleAsync();
+        Assert.Equal("Інше", resume.Category?.Name);
+        Assert.Equal("Resume Without Category", resume.Title);
     }
 
     [Fact]

@@ -29,6 +29,7 @@
         }
 
         field.value = value;
+        field.dispatchEvent(new Event('input', { bubbles: true }));
         field.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
@@ -82,6 +83,7 @@
 
             const parsed = await response.json();
             setValue('DesiredPosition', parsed.desiredPosition, replaceFieldsFromFile);
+            setValue('CategoryName', parsed.categoryName, replaceFieldsFromFile);
             setValue('Summary', parsed.summary, replaceFieldsFromFile);
             setValue('Education', parsed.education, replaceFieldsFromFile);
             setValue('Experience', parsed.experience, replaceFieldsFromFile);
@@ -89,6 +91,7 @@
             setValue('ExperienceYears', parsed.experienceYears, replaceFieldsFromFile);
             setValue('DesiredSalary', parsed.desiredSalary, replaceFieldsFromFile);
             setSelectByText('EmploymentType', parsed.employmentType);
+            setSelectByText('ExperienceLevel', parsed.experienceLevel);
             setSelectByText('EducationLevel', parsed.educationLevel);
 
             if (replaceInput) {

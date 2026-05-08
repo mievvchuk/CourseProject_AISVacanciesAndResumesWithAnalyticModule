@@ -10,44 +10,50 @@ namespace AisVacanciesAndResumes.Services;
 
 public class ResumeParserService : IResumeParserService
 {
-    private static readonly string[] DesiredPositionKeywords =
+    private static readonly string[] PositionHeadings =
     [
-        "desired position", "position", "job title", "objective", "target position",
-        "посада", "позиція", "бажана посада", "цільова посада", "професійна мета"
+        "бажана посада", "посада", "позиція", "професійна мета", "цільова посада",
+        "desired position", "position", "job title", "target position", "objective"
     ];
 
-    private static readonly string[] SummaryKeywords =
+    private static readonly string[] SummaryHeadings =
     [
-        "summary", "profile", "about", "about me", "professional summary", "personal profile",
-        "про себе", "коротко про себе", "профіль", "короткий опис"
+        "про себе", "короткий опис", "профіль", "професійний профіль", "summary",
+        "profile", "about", "about me", "professional summary"
     ];
 
-    private static readonly string[] EducationKeywords =
+    private static readonly string[] EducationHeadings =
     [
-        "education", "academic background", "qualification",
-        "освіта", "кваліфікація", "навчання"
+        "освіта", "навчання", "кваліфікація", "education", "academic background", "qualification"
     ];
 
-    private static readonly string[] ExperienceKeywords =
+    private static readonly string[] ExperienceHeadings =
     [
-        "experience", "work experience", "employment history", "career history",
-        "досвід", "досвід роботи", "професійний досвід", "кар'єра", "практика"
+        "досвід", "досвід роботи", "професійний досвід", "кар'єра", "практика",
+        "experience", "work experience", "employment history", "career history"
     ];
 
-    private static readonly string[] SkillsKeywords =
+    private static readonly string[] SkillsHeadings =
     [
-        "skills", "technical skills", "key skills", "core skills", "competencies",
-        "навички", "технічні навички", "ключові навички", "компетенції", "технології", "інструменти"
+        "навички", "технічні навички", "ключові навички", "компетенції", "технології", "інструменти",
+        "skills", "technical skills", "key skills", "core skills", "competencies", "technologies", "tools", "stack", "tech stack"
     ];
 
-    private static readonly string[] SectionKeywords =
+    private static readonly string[] ContactHeadings =
     [
-        "summary", "profile", "about", "about me", "education", "experience", "skills",
-        "contacts", "contact", "phone", "email", "salary", "desired position", "position",
-        "про себе", "профіль", "короткий опис", "освіта", "досвід", "досвід роботи",
-        "навички", "контакти", "телефон", "зарплата", "бажана зарплата",
-        "бажана посада", "посада", "позиція"
+        "контакти", "телефон", "електронна пошта", "email", "phone", "contacts", "contact", "linkedin", "github"
     ];
+
+    private static readonly string[] AllSectionHeadings =
+        PositionHeadings
+            .Concat(SummaryHeadings)
+            .Concat(EducationHeadings)
+            .Concat(ExperienceHeadings)
+            .Concat(SkillsHeadings)
+            .Concat(ContactHeadings)
+            .Concat(["зарплата", "бажана зарплата", "очікувана зарплата", "salary", "expected salary"])
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
     public async Task<ResumeParseResult> ParseAsync(IFormFile? file)
     {
@@ -76,72 +82,63 @@ public class ResumeParserService : IResumeParserService
 
         var normalizedText = NormalizeText(text);
         var compactText = CompactText(normalizedText);
-        var summary = ExtractBlock(normalizedText, SummaryKeywords);
-        var education = ExtractBlock(normalizedText, EducationKeywords);
-        var experience = ExtractBlock(normalizedText, ExperienceKeywords);
-        var skillsDescription = ExtractBlock(normalizedText, SkillsKeywords);
-        var desiredPosition = ExtractSingleLineValue(normalizedText, DesiredPositionKeywords);
+        var lines = GetMeaningfulLines(normalizedText);
+
+        var summary = ExtractSection(lines, SummaryHeadings);
+        var education = ExtractSection(lines, EducationHeadings);
+        var experience = ExtractSection(lines, ExperienceHeadings);
+        var skillsDescription = ExtractSection(lines, SkillsHeadings);
+        var desiredPosition = ExtractSingleLineValue(lines, PositionHeadings);
+
         if (string.IsNullOrWhiteSpace(desiredPosition))
         {
-            desiredPosition = ExtractBlock(normalizedText, DesiredPositionKeywords);
+            desiredPosition = ExtractLikelyTitle(lines);
         }
 
         if (string.IsNullOrWhiteSpace(summary))
         {
-            summary = ExtractFallbackSummary(normalizedText);
+            summary = ExtractFallbackSummary(lines);
         }
 
         if (string.IsNullOrWhiteSpace(education))
         {
-            education = ExtractByKeywordWindow(
-                compactText,
-                ["education", "academic", "university", "college", "bachelor", "master", "освіта", "університет", "коледж", "бакалавр", "магістр"],
-                280);
+            education = ExtractKeywordLines(lines, ["університет", "коледж", "бакалавр", "магістр", "education", "university", "college", "bachelor", "master"], 3);
         }
 
         if (string.IsNullOrWhiteSpace(experience))
         {
-            experience = ExtractByKeywordWindow(
-                compactText,
-                ["experience", "employment", "career", "worked", "company", "досвід", "роботи", "працював", "працювала", "компанія"],
-                360);
+            experience = ExtractKeywordLines(lines, ["досвід", "працював", "працювала", "компанія", "experience", "worked", "company"], 4);
         }
 
         if (string.IsNullOrWhiteSpace(skillsDescription))
         {
-            skillsDescription = ExtractByKeywordWindow(
-                compactText,
-                ["skills", "competencies", "stack", "technologies", "tools", "навички", "компетенції", "технології", "інструменти"],
-                260);
+            skillsDescription = ExtractKeywordLines(lines, ["навички", "технології", "skills", "technologies", "stack"], 3);
         }
 
-        if (string.IsNullOrWhiteSpace(desiredPosition))
+        skillsDescription = CleanupBlock(skillsDescription);
+        var parsedSkillNames = ExtractSkillNames(skillsDescription);
+        if (parsedSkillNames.Count == 0)
         {
-            desiredPosition = ExtractByKeywordWindow(
-                compactText,
-                ["desired position", "position", "job title", "specialist", "manager", "developer", "analyst", "посада", "позиція", "спеціаліст", "фахівець", "менеджер"],
-                140);
-        }
-
-        if (string.IsNullOrWhiteSpace(desiredPosition))
-        {
-            desiredPosition = ExtractLikelyTitle(compactText);
+            parsedSkillNames = ExtractKnownSkillNames(compactText);
+            skillsDescription = string.Join(", ", parsedSkillNames);
         }
 
         return new ResumeParseResult
         {
             ExtractedText = Limit(compactText, 4000),
-            DesiredPosition = desiredPosition,
-            Summary = summary,
-            Education = education,
-            Experience = experience,
-            SkillsDescription = skillsDescription,
-            ParsedSkillNames = ExtractSkillNames(normalizedText),
+            DesiredPosition = Limit(CleanupPosition(desiredPosition), 160),
+            CategoryName = GuessCategory(desiredPosition, skillsDescription, compactText),
+            Summary = Limit(CleanupBlock(summary), 1000),
+            Education = Limit(CleanupBlock(education), 1000),
+            Experience = Limit(CleanupBlock(experience), 1200),
+            SkillsDescription = Limit(skillsDescription, 1000),
+            ParsedSkillNames = parsedSkillNames,
             Email = ExtractEmail(compactText),
             PhoneNumber = ExtractPhoneNumber(compactText),
             YearsOfExperience = ExtractYearsOfExperience(compactText),
             DesiredSalary = ExtractDesiredSalary(compactText),
             EducationLevel = ExtractEducationLevel(compactText),
+            ExperienceLevel = ExtractExperienceLevel(compactText),
             EmploymentType = ExtractEmploymentType(compactText)
         };
     }
@@ -158,7 +155,7 @@ public class ResumeParserService : IResumeParserService
         await using var entryStream = entry.Open();
         using var reader = new StreamReader(entryStream, Encoding.UTF8);
         var xml = await reader.ReadToEndAsync();
-        var withBreaks = Regex.Replace(xml, @"</w:p>|</w:tr>|</w:tbl>", "\n", RegexOptions.IgnoreCase);
+        var withBreaks = Regex.Replace(xml, @"</w:p>|</w:tr>|</w:tbl>|<w:br\s*/?>", "\n", RegexOptions.IgnoreCase);
         var withoutTags = Regex.Replace(withBreaks, "<.*?>", " ");
         return WebUtility.HtmlDecode(withoutTags);
     }
@@ -179,20 +176,14 @@ public class ResumeParserService : IResumeParserService
         var rawLatin = Encoding.GetEncoding("ISO-8859-1").GetString(bytes);
         var rawUtf8 = Encoding.UTF8.GetString(bytes);
 
-        var operatorText = string.Join(' ', new[]
+        return string.Join(' ', new[]
         {
             ExtractPdfTextOperators(rawLatin),
             ExtractPdfTextOperators(rawUtf8),
-            ExtractPdfHexStrings(rawLatin)
-        }.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-        var printableText = string.Join(' ', new[]
-        {
+            ExtractPdfHexStrings(rawLatin),
             ExtractPrintablePdfText(rawUtf8),
             ExtractPrintablePdfText(rawLatin)
         }.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-        return $"{operatorText} {printableText}".Trim();
     }
 
     private static string ExtractPdfTextWithPdfPig(byte[] bytes)
@@ -216,21 +207,12 @@ public class ResumeParserService : IResumeParserService
 
     private static string ExtractPdfTextOperators(string rawText)
     {
-        var matches = Regex.Matches(rawText, @"\((.*?)\)\s*Tj", RegexOptions.Singleline);
-        if (matches.Count == 0)
-        {
-            matches = Regex.Matches(rawText, @"\[(.*?)\]\s*TJ", RegexOptions.Singleline);
-        }
-
+        var matches = Regex.Matches(rawText, @"\((.*?)\)\s*Tj|\[(.*?)\]\s*TJ", RegexOptions.Singleline);
         var builder = new StringBuilder();
+
         foreach (Match match in matches)
         {
-            if (!match.Success)
-            {
-                continue;
-            }
-
-            var value = match.Groups[1].Value
+            var value = (match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value)
                 .Replace(@"\(", "(")
                 .Replace(@"\)", ")")
                 .Replace(@"\n", " ")
@@ -259,8 +241,7 @@ public class ResumeParserService : IResumeParserService
 
             try
             {
-                var bytes = Convert.FromHexString(hex);
-                builder.Append(' ').Append(Encoding.BigEndianUnicode.GetString(bytes));
+                builder.Append(' ').Append(Encoding.BigEndianUnicode.GetString(Convert.FromHexString(hex)));
             }
             catch
             {
@@ -274,7 +255,7 @@ public class ResumeParserService : IResumeParserService
     {
         var matches = Regex.Matches(
             rawText,
-            @"[\p{L}\p{N}@+().,\-/:]{3,}(?:\s+[\p{L}\p{N}@+().,\-/:]{2,})*",
+            @"[\p{L}\p{N}@+().,\-/:#]{3,}(?:\s+[\p{L}\p{N}@+().,\-/:#]{2,})*",
             RegexOptions.Multiline);
 
         return string.Join(' ', matches.Select(x => x.Value.Trim()).Where(x => x.Length >= 3));
@@ -284,7 +265,6 @@ public class ResumeParserService : IResumeParserService
     {
         var decoded = WebUtility.HtmlDecode(text)
             .Replace('\u00A0', ' ')
-            .Replace("\r\n", "\n")
             .Replace('\r', '\n');
 
         decoded = Regex.Replace(decoded, @"[ \t]+", " ");
@@ -299,81 +279,6 @@ public class ResumeParserService : IResumeParserService
         return Regex.Replace(text, @"\s+", " ").Trim();
     }
 
-    private static string ExtractBlock(string text, IEnumerable<string> keywords)
-    {
-        var lines = GetMeaningfulLines(text);
-        foreach (var keyword in keywords)
-        {
-            for (var i = 0; i < lines.Count; i++)
-            {
-                var inlineValue = ExtractInlineSectionValue(lines[i], keyword);
-                if (!string.IsNullOrWhiteSpace(inlineValue))
-                {
-                    return Limit(CleanupBlock(inlineValue), 1200);
-                }
-
-                if (!IsSectionHeading(lines[i], keyword))
-                {
-                    continue;
-                }
-
-                var blockLines = new List<string>();
-                for (var j = i + 1; j < lines.Count; j++)
-                {
-                    if (IsAnySectionHeading(lines[j]))
-                    {
-                        break;
-                    }
-
-                    blockLines.Add(lines[j]);
-                }
-
-                var value = CleanupBlock(string.Join(" ", blockLines));
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    return Limit(value, 1200);
-                }
-            }
-        }
-
-        var compact = CompactText(text);
-        var lookahead = string.Join("|", SectionKeywords.Select(Regex.Escape));
-        foreach (var keyword in keywords)
-        {
-            var pattern = $@"(?<!\p{{L}}){Regex.Escape(keyword)}[:\-\s]+(.+?)(?=((?<!\p{{L}})({lookahead})[:\-\s])|$)";
-            var match = Regex.Match(compact, pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (!match.Success)
-            {
-                continue;
-            }
-
-            var value = CleanupBlock(match.Groups[1].Value);
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                return Limit(value, 1200);
-            }
-        }
-
-        return string.Empty;
-    }
-
-    private static string ExtractSingleLineValue(string text, IEnumerable<string> keywords)
-    {
-        foreach (var line in GetMeaningfulLines(text).Take(20))
-        {
-            foreach (var keyword in keywords)
-            {
-                var value = ExtractInlineSectionValue(line, keyword);
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    return Limit(CleanupBlock(value), 160);
-                }
-            }
-        }
-
-        return string.Empty;
-    }
-
     private static List<string> GetMeaningfulLines(string text)
     {
         return text.Split('\n')
@@ -382,62 +287,39 @@ public class ResumeParserService : IResumeParserService
             .ToList();
     }
 
-    private static bool IsAnySectionHeading(string line)
+    private static string ExtractSection(List<string> lines, IEnumerable<string> headings)
     {
-        return SectionKeywords.Any(keyword => IsSectionHeading(line, keyword));
-    }
-
-    private static bool IsSectionHeading(string line, string keyword)
-    {
-        var normalized = line.Trim(' ', '-', ':', '.', ';').ToLowerInvariant();
-        var normalizedKeyword = keyword.ToLowerInvariant();
-        return normalized == normalizedKeyword
-            || normalized.StartsWith($"{normalizedKeyword}:")
-            || normalized.StartsWith($"{normalizedKeyword} -")
-            || normalized.StartsWith($"{normalizedKeyword} —");
-    }
-
-    private static string ExtractInlineSectionValue(string line, string keyword)
-    {
-        var pattern = $@"^\s*{Regex.Escape(keyword)}\s*[:\-—]\s*(.+)$";
-        var match = Regex.Match(line, pattern, RegexOptions.IgnoreCase);
-        return match.Success ? match.Groups[1].Value : string.Empty;
-    }
-
-    private static string CleanupBlock(string value)
-    {
-        return Regex.Replace(value, @"\s+", " ").Trim(' ', '-', ':', ';', ',');
-    }
-
-    private static string ExtractFallbackSummary(string text)
-    {
-        var compact = CompactText(text);
-        var sentences = Regex.Split(compact, @"(?<=[.!?])\s+")
-            .Select(x => x.Trim())
-            .Where(x => x.Length > 20)
-            .Take(3)
-            .ToList();
-
-        if (sentences.Count > 0)
+        for (var i = 0; i < lines.Count; i++)
         {
-            return Limit(string.Join(" ", sentences).Trim(), 800);
-        }
-
-        return Limit(compact, 400);
-    }
-
-    private static string ExtractByKeywordWindow(string text, IEnumerable<string> keywords, int length)
-    {
-        foreach (var keyword in keywords)
-        {
-            var index = text.IndexOf(keyword, StringComparison.OrdinalIgnoreCase);
-            if (index < 0)
+            var matchedHeading = FindHeading(lines[i], headings);
+            if (string.IsNullOrWhiteSpace(matchedHeading))
             {
                 continue;
             }
 
-            var size = Math.Min(length, text.Length - index);
-            var value = text.Substring(index, size).Trim(' ', '.', ',', ';', ':', '-');
+            var inlineValue = ExtractInlineValue(lines[i], matchedHeading);
+            if (!string.IsNullOrWhiteSpace(inlineValue))
+            {
+                return CleanupBlock(inlineValue);
+            }
+
+            var block = new List<string>();
+            for (var j = i + 1; j < lines.Count; j++)
+            {
+                if (IsAnyHeading(lines[j]))
+                {
+                    break;
+                }
+
+                if (IsContactLine(lines[j]) || IsLikelyPersonalName(lines[j]))
+                {
+                    continue;
+                }
+
+                block.Add(lines[j]);
+            }
+
+            var value = CleanupBlock(string.Join(" ", block));
             if (!string.IsNullOrWhiteSpace(value))
             {
                 return value;
@@ -447,24 +329,203 @@ public class ResumeParserService : IResumeParserService
         return string.Empty;
     }
 
-    private static string ExtractLikelyTitle(string text)
+    private static string ExtractSingleLineValue(List<string> lines, IEnumerable<string> headings)
     {
-        var titlePatterns = new[]
+        foreach (var line in lines.Take(25))
         {
-            @"\b(senior|middle|junior|lead)?\s*(developer|engineer|manager|analyst|designer|teacher|accountant|assistant|specialist)\b",
-            @"\b(розробник|менеджер|аналітик|дизайнер|вчитель|бухгалтер|асистент|спеціаліст|фахівець)\b"
-        };
-
-        foreach (var pattern in titlePatterns)
-        {
-            var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
-            if (match.Success)
+            foreach (var heading in headings)
             {
-                return match.Value.Trim();
+                var value = ExtractInlineValue(line, heading);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
             }
         }
 
         return string.Empty;
+    }
+
+    private static string ExtractInlineValue(string line, string heading)
+    {
+        var pattern = $@"^\s*{Regex.Escape(heading)}\s*[:\-–—]\s*(.+)$";
+        var match = Regex.Match(line, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        return match.Success ? CleanupBlock(match.Groups[1].Value) : string.Empty;
+    }
+
+    private static string FindHeading(string line, IEnumerable<string> headings)
+    {
+        return headings
+            .OrderByDescending(x => x.Length)
+            .FirstOrDefault(heading => IsHeading(line, heading)) ?? string.Empty;
+    }
+
+    private static bool IsAnyHeading(string line)
+    {
+        return AllSectionHeadings.Any(heading => IsHeading(line, heading));
+    }
+
+    private static bool IsHeading(string line, string heading)
+    {
+        var normalized = NormalizeHeading(line);
+        var normalizedHeading = NormalizeHeading(heading);
+
+        return normalized == normalizedHeading ||
+            normalized.StartsWith($"{normalizedHeading}:") ||
+            normalized.StartsWith($"{normalizedHeading} -") ||
+            normalized.StartsWith($"{normalizedHeading} –") ||
+            normalized.StartsWith($"{normalizedHeading} —");
+    }
+
+    private static string NormalizeHeading(string value)
+    {
+        return value.Trim(' ', '-', ':', '.', ';', '–', '—').ToLowerInvariant();
+    }
+
+    private static string ExtractLikelyTitle(List<string> lines)
+    {
+        foreach (var line in lines.Take(12))
+        {
+            var candidate = CleanupPosition(line);
+            if (candidate.Length < 3 ||
+                candidate.Length > 90 ||
+                IsAnyHeading(candidate) ||
+                IsContactLine(candidate))
+            {
+                continue;
+            }
+
+            if (IsLikelyJobTitle(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string ExtractFallbackSummary(List<string> lines)
+    {
+        var summaryLines = lines
+            .Where(x => !IsAnyHeading(x) && !IsContactLine(x))
+            .Where(x => !IsLikelyPersonalName(x) && !IsLikelyJobTitle(x))
+            .Where(x => x.Length is >= 30 and <= 220)
+            .Take(2)
+            .ToList();
+
+        return CleanupBlock(string.Join(" ", summaryLines));
+    }
+
+    private static string ExtractKeywordLines(List<string> lines, IEnumerable<string> keywords, int maxLines)
+    {
+        for (var i = 0; i < lines.Count; i++)
+        {
+            if (IsContactLine(lines[i]) ||
+                !keywords.Any(keyword => lines[i].Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            var block = new List<string>();
+            for (var j = i; j < lines.Count && block.Count < maxLines; j++)
+            {
+                if (j > i && IsAnyHeading(lines[j]))
+                {
+                    break;
+                }
+
+                if (IsContactLine(lines[j]) || IsLikelyPersonalName(lines[j]))
+                {
+                    continue;
+                }
+
+                var value = CleanupBlock(lines[j]);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    block.Add(value);
+                }
+            }
+
+            var result = CleanupBlock(string.Join(" ", block));
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                return result;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string CleanupBlock(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var withoutContacts = RemoveContactFragments(value);
+        withoutContacts = Regex.Replace(withoutContacts, @"[•●▪]+", ", ");
+        withoutContacts = Regex.Replace(withoutContacts, @"\s+", " ");
+        withoutContacts = Regex.Replace(withoutContacts, @"\s*,\s*", ", ");
+        withoutContacts = StripSectionLabels(withoutContacts);
+        return withoutContacts.Trim(' ', '-', ':', ';', ',', '.', '–', '—');
+    }
+
+    private static string CleanupPosition(string value)
+    {
+        var cleaned = RemoveContactFragments(value);
+        cleaned = Regex.Replace(cleaned, @"\b(телефон|phone|email|електронна пошта|linkedin|github)\b.*", string.Empty, RegexOptions.IgnoreCase);
+        cleaned = Regex.Replace(cleaned, @"\s+", " ");
+        return cleaned.Trim(' ', '-', ':', ';', ',', '.', '–', '—');
+    }
+
+    private static string StripSectionLabels(string value)
+    {
+        var result = value;
+        foreach (var heading in AllSectionHeadings.OrderByDescending(x => x.Length))
+        {
+            result = Regex.Replace(result, $@"^\s*{Regex.Escape(heading)}\s*[:\-–—]?\s*", string.Empty, RegexOptions.IgnoreCase);
+
+            var trailingMatch = Regex.Match(result, $@"\s+{Regex.Escape(heading)}\s*[:\-–—]", RegexOptions.IgnoreCase);
+            if (trailingMatch.Success)
+            {
+                result = result[..trailingMatch.Index];
+            }
+        }
+
+        return result;
+    }
+
+    private static string RemoveContactFragments(string value)
+    {
+        var result = Regex.Replace(value, @"[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}", string.Empty, RegexOptions.IgnoreCase);
+        result = Regex.Replace(result, @"\+?\d[\d\s().\-]{8,}\d", string.Empty);
+        result = Regex.Replace(result, @"https?://\S+|www\.\S+", string.Empty, RegexOptions.IgnoreCase);
+        return result;
+    }
+
+    private static bool IsContactLine(string line)
+    {
+        return Regex.IsMatch(line, @"[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}", RegexOptions.IgnoreCase) ||
+            Regex.IsMatch(line, @"\+?\d[\d\s().\-]{8,}\d") ||
+            Regex.IsMatch(line, @"linkedin|github|телефон|email|електронна пошта", RegexOptions.IgnoreCase);
+    }
+
+    private static bool IsLikelyPersonalName(string line)
+    {
+        var value = CleanupPosition(line);
+        var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return words.Length is >= 2 and <= 3 &&
+            words.All(word => Regex.IsMatch(word, @"^\p{Lu}\p{Ll}{1,}['\-]?\p{Ll}*$")) &&
+            !IsLikelyJobTitle(value);
+    }
+
+    private static bool IsLikelyJobTitle(string value)
+    {
+        return Regex.IsMatch(
+            value,
+            @"developer|engineer|manager|analyst|designer|specialist|розробник|інженер|менеджер|аналітик|дизайнер|спеціаліст|фахівець|програміст|розробниця",
+            RegexOptions.IgnoreCase);
     }
 
     private static string ExtractEmail(string text)
@@ -475,55 +536,139 @@ public class ResumeParserService : IResumeParserService
 
     private static string ExtractPhoneNumber(string text)
     {
-        var match = Regex.Match(text, @"(\+?\d[\d\-\s\(\)]{8,}\d)");
+        var match = Regex.Match(text, @"(\+?\d[\d\s().\-]{8,}\d)");
         return match.Success ? match.Value.Trim() : string.Empty;
     }
 
-    private static List<string> ExtractSkillNames(string text)
+    private static List<string> ExtractSkillNames(string skillsDescription)
     {
-        var skillsBlock = ExtractBlock(text, SkillsKeywords);
-        if (string.IsNullOrWhiteSpace(skillsBlock))
-        {
-            skillsBlock = ExtractByKeywordWindow(text, ["skills", "technologies", "tools", "competencies", "навички", "технології", "інструменти"], 240);
-        }
-
-        if (string.IsNullOrWhiteSpace(skillsBlock))
+        if (string.IsNullOrWhiteSpace(skillsDescription))
         {
             return new List<string>();
         }
 
-        return Regex.Split(skillsBlock, @"[,;/|•]")
-            .Select(x => x.Trim())
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(NormalizeSkillToken)
-            .Where(x => !string.IsNullOrWhiteSpace(x))
+        var splitSkills = Regex.Split(skillsDescription, @"[,;/|•●▪\n]")
+            .Select(x => Regex.Replace(x, @"\s+", " ").Trim(' ', '.', '-', ':'))
+            .Where(x => x.Length >= 2 && x.Length <= 40)
+            .Where(x => !IsAnyHeading(x) && !IsContactLine(x))
+            .ToList();
+
+        return splitSkills
+            .Concat(ExtractKnownSkillNames(skillsDescription))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Take(20)
             .ToList();
     }
 
-    private static string NormalizeSkillToken(string value)
+    private static List<string> ExtractKnownSkillNames(string text)
     {
-        var normalized = Regex.Replace(value, @"\s+", " ").Trim(' ', '.', '-', ':');
-        return normalized.Length < 2 ? string.Empty : normalized;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return new List<string>();
+        }
+
+        var knownSkills = new[]
+        {
+            "C#", ".NET", "ASP.NET Core", "Entity Framework", "SQL", "PostgreSQL", "MS SQL", "MySQL",
+            "SQLite", "Java", "Python", "JavaScript", "TypeScript", "HTML", "CSS", "Bootstrap",
+            "React", "Angular", "Vue", "Node.js", "Git", "GitHub", "Docker", "Azure", "REST API",
+            "Swagger", "Postman", "Power BI", "Excel", "Figma", "UI/UX"
+        };
+
+        return knownSkills
+            .Where(skill => ContainsTerm(text, skill))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static bool ContainsTerm(string source, string term)
+    {
+        if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(term))
+        {
+            return false;
+        }
+
+        var escapedTerm = Regex.Escape(term.Trim());
+        return Regex.IsMatch(source, $@"(?<!\w){escapedTerm}(?!\w)", RegexOptions.IgnoreCase);
+    }
+
+    private static string GuessCategory(string desiredPosition, string skillsDescription, string fullText)
+    {
+        var source = $"{desiredPosition} {skillsDescription} {fullText}";
+
+        if (Regex.IsMatch(source, @"data|analytics|power bi|tableau|аналітик|аналітика", RegexOptions.IgnoreCase))
+        {
+            return "Аналітика даних";
+        }
+
+        if (Regex.IsMatch(source, @"c#|\.net|asp\.net|java\b|python|javascript|typescript|react|angular|sql|developer|розробник|програміст", RegexOptions.IgnoreCase))
+        {
+            return "Розробка ПЗ";
+        }
+
+        if (Regex.IsMatch(source, @"figma|ux|ui|designer|дизайн|дизайнер", RegexOptions.IgnoreCase))
+        {
+            return "Дизайн";
+        }
+
+        if (Regex.IsMatch(source, @"marketing|seo|smm|маркетинг", RegexOptions.IgnoreCase))
+        {
+            return "Маркетинг";
+        }
+
+        if (Regex.IsMatch(source, @"admin|адміністр|office|офіс", RegexOptions.IgnoreCase))
+        {
+            return "Адміністрування";
+        }
+
+        return string.Empty;
     }
 
     private static int? ExtractYearsOfExperience(string text)
     {
-        var match = Regex.Match(text, @"(\d{1,2})\+?\s*(years|year|роки|років|рік)", RegexOptions.IgnoreCase);
+        var match = Regex.Match(text, @"(\d{1,2})\+?\s*(роки|років|рік|years|year)", RegexOptions.IgnoreCase);
         return match.Success && int.TryParse(match.Groups[1].Value, out var years) ? years : null;
     }
 
     private static decimal? ExtractDesiredSalary(string text)
     {
-        var labeledMatch = Regex.Match(text, @"(salary|desired salary|expected salary|зарплата|бажана зарплата|очікувана зарплата)[^\d]{0,20}(\d{4,7})", RegexOptions.IgnoreCase);
-        if (labeledMatch.Success && decimal.TryParse(labeledMatch.Groups[2].Value, out var labeledSalary))
+        var labeledMatch = Regex.Match(
+            text,
+            @"(зарплата|бажана зарплата|очікувана зарплата|salary|desired salary|expected salary)[^\d$€]{0,30}[$€]?\s*(\d[\d\s]{2,10})(?:\s*[-–—]\s*[$€]?\s*(\d[\d\s]{2,10}))?",
+            RegexOptions.IgnoreCase);
+
+        if (labeledMatch.Success)
         {
-            return labeledSalary;
+            return ParseSalaryRange(labeledMatch.Groups[2].Value, labeledMatch.Groups[3].Value);
         }
 
-        var genericMatch = Regex.Match(text, @"(\d{4,7})\s*(uah|грн|\$|usd|eur|євро)", RegexOptions.IgnoreCase);
-        return genericMatch.Success && decimal.TryParse(genericMatch.Groups[1].Value, out var genericSalary) ? genericSalary : null;
+        var currencyAfterMatch = Regex.Match(text, @"(\d[\d\s]{2,10})(?:\s*[-–—]\s*(\d[\d\s]{2,10}))?\s*(грн|uah|usd|eur|євро)", RegexOptions.IgnoreCase);
+        if (currencyAfterMatch.Success)
+        {
+            return ParseSalaryRange(currencyAfterMatch.Groups[1].Value, currencyAfterMatch.Groups[2].Value);
+        }
+
+        var currencyBeforeMatch = Regex.Match(text, @"[$€]\s*(\d[\d\s]{2,10})(?:\s*[-–—]\s*[$€]?\s*(\d[\d\s]{2,10}))?", RegexOptions.IgnoreCase);
+        return currencyBeforeMatch.Success ? ParseSalaryRange(currencyBeforeMatch.Groups[1].Value, currencyBeforeMatch.Groups[2].Value) : null;
+    }
+
+    private static decimal? ParseSalaryRange(string from, string to)
+    {
+        var fromValue = ParseMoney(from);
+        var toValue = ParseMoney(to);
+
+        if (fromValue.HasValue && toValue.HasValue)
+        {
+            return Math.Round((fromValue.Value + toValue.Value) / 2, 0);
+        }
+
+        return fromValue ?? toValue;
+    }
+
+    private static decimal? ParseMoney(string value)
+    {
+        var digits = Regex.Replace(value, @"\s+", string.Empty);
+        return decimal.TryParse(digits, out var result) ? result : null;
     }
 
     private static EducationLevel? ExtractEducationLevel(string text)
@@ -549,6 +694,39 @@ public class ResumeParserService : IResumeParserService
         }
 
         return null;
+    }
+
+    private static ExperienceLevel? ExtractExperienceLevel(string text)
+    {
+        if (Regex.IsMatch(text, @"\b(senior|sr\.?)\b|сеньйор|старший", RegexOptions.IgnoreCase))
+        {
+            return ExperienceLevel.Senior;
+        }
+
+        if (Regex.IsMatch(text, @"\bmiddle\b|мідл|середній", RegexOptions.IgnoreCase))
+        {
+            return ExperienceLevel.Middle;
+        }
+
+        if (Regex.IsMatch(text, @"\b(junior|jr\.?)\b|джуніор|початковий", RegexOptions.IgnoreCase))
+        {
+            return ExperienceLevel.Junior;
+        }
+
+        if (Regex.IsMatch(text, @"без досвіду|no experience|trainee|стажер", RegexOptions.IgnoreCase))
+        {
+            return ExperienceLevel.NoExperience;
+        }
+
+        var years = ExtractYearsOfExperience(text);
+        return years switch
+        {
+            null => null,
+            <= 0 => ExperienceLevel.NoExperience,
+            <= 2 => ExperienceLevel.Junior,
+            <= 5 => ExperienceLevel.Middle,
+            _ => ExperienceLevel.Senior
+        };
     }
 
     private static EmploymentType? ExtractEmploymentType(string text)

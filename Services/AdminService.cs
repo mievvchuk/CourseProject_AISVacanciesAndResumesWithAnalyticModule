@@ -2,6 +2,7 @@ using AisVacanciesAndResumes.Data;
 using AisVacanciesAndResumes.Enums;
 using AisVacanciesAndResumes.Models;
 using AisVacanciesAndResumes.ViewModels.Admin;
+using AisVacanciesAndResumes.ViewModels.Resumes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -187,6 +188,54 @@ public class AdminService : IAdminService
         {
             Filter = filter,
             Items = items
+        };
+    }
+
+    public async Task<ResumeDetailsViewModel?> GetResumeDetailsAsync(int resumeId)
+    {
+        var resume = await _context.Resumes
+            .AsNoTracking()
+            .Include(x => x.CandidateProfile)
+            .ThenInclude(x => x!.User)
+            .Include(x => x.Category)
+            .Include(x => x.ResumeSkills)
+            .ThenInclude(x => x.Skill)
+            .FirstOrDefaultAsync(x => x.Id == resumeId);
+
+        if (resume is null)
+        {
+            return null;
+        }
+
+        return new ResumeDetailsViewModel
+        {
+            Id = resume.Id,
+            Title = resume.Title,
+            DesiredPosition = resume.DesiredPosition,
+            City = resume.CandidateProfile?.City ?? string.Empty,
+            Summary = resume.Summary,
+            Education = resume.Education,
+            Experience = resume.Experience,
+            SkillsDescription = resume.SkillsDescription,
+            FullName = resume.CandidateProfile?.User?.FullName ?? string.Empty,
+            CandidateUserId = resume.CandidateProfile?.UserId ?? string.Empty,
+            CategoryName = resume.Category?.Name ?? string.Empty,
+            EmploymentType = resume.EmploymentType,
+            ExperienceYears = resume.ExperienceYears,
+            ExperienceLevel = resume.ExperienceLevel,
+            EducationLevel = resume.EducationLevel,
+            DesiredSalary = resume.DesiredSalary,
+            Status = resume.Status,
+            IsPublished = resume.IsPublished,
+            FilePath = resume.FilePath,
+            OriginalFileName = resume.OriginalFileName,
+            ContentType = resume.ContentType,
+            FileSize = resume.FileSize,
+            UploadedAt = resume.UploadedAt,
+            SkillNames = resume.ResumeSkills
+                .Select(x => x.Skill != null ? x.Skill.Name : string.Empty)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList()
         };
     }
 

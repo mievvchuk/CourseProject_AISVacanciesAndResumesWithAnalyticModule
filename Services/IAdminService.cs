@@ -1,4 +1,5 @@
 using AisVacanciesAndResumes.ViewModels.Admin;
+using AisVacanciesAndResumes.ViewModels.Resumes;
 
 namespace AisVacanciesAndResumes.Services;
 
@@ -8,6 +9,7 @@ public interface IAdminService
     Task<AdminUserIndexViewModel> GetUsersAsync(AdminUserFilterViewModel filter);
     Task<AdminVacancyIndexViewModel> GetVacanciesAsync(AdminVacancyFilterViewModel filter);
     Task<AdminResumeIndexViewModel> GetResumesAsync(AdminResumeFilterViewModel filter);
+    Task<ResumeDetailsViewModel?> GetResumeDetailsAsync(int resumeId);
     Task<List<ModerationLogListItemViewModel>> GetModerationLogsAsync();
     Task ApproveVacancyAsync(string adminUserId, int vacancyId, string? comment);
     Task RejectVacancyAsync(string adminUserId, int vacancyId, string comment);

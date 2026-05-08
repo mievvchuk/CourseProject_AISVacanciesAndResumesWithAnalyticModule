@@ -1,0 +1,231 @@
+@model ResumeDetailsViewModel
+
+@{
+    ViewData["Title"] = "Перегляд резюме";
+}
+
+<style>
+    .admin-resume-shell {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .admin-resume-document {
+        background: #fff;
+        border: 1px solid #d9e2ef;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    }
+
+    .admin-resume-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 24px 28px 18px;
+        border-bottom: 1px solid #e5eaf2;
+    }
+
+    .admin-resume-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .admin-resume-subtitle {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+        color: #607089;
+        font-size: 14px;
+    }
+
+    .admin-resume-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .admin-resume-body {
+        padding: 22px 28px 28px;
+    }
+
+    .admin-resume-row {
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+        gap: 28px;
+        padding: 10px 0;
+    }
+
+    .admin-resume-label {
+        color: #4b5563;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .admin-resume-value {
+        color: #172033;
+        line-height: 1.55;
+        white-space: pre-line;
+    }
+
+    .admin-resume-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .admin-resume-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: #eaf3ff;
+        color: #0d6efd;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    @@media (max-width: 768px) {
+        .admin-resume-header {
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .admin-resume-actions {
+            width: 100%;
+            justify-content: stretch;
+        }
+
+        .admin-resume-actions .btn {
+            flex: 1;
+        }
+
+        .admin-resume-body {
+            padding: 18px 20px 22px;
+        }
+
+        .admin-resume-row {
+            grid-template-columns: 1fr;
+            gap: 4px;
+            padding: 12px 0;
+        }
+    }
+</style>
+
+<div class="admin-resume-shell">
+    <div class="admin-resume-document">
+        <div class="admin-resume-header">
+            <div>
+                <h1 class="admin-resume-title">@Model.DesiredPosition</h1>
+                <div class="admin-resume-subtitle">
+                    <span>@Model.FullName</span>
+                    @if (!string.IsNullOrWhiteSpace(Model.City))
+                    {
+                        <span>• @Model.City</span>
+                    }
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <span class="badge text-bg-info">@Model.Status.GetDisplayName()</span>
+                    <span class="badge @(Model.IsPublished ? "text-bg-success" : "text-bg-secondary")">
+                        @(Model.IsPublished ? "Опубліковано" : "Приховано")
+                    </span>
+                </div>
+            </div>
+            <div class="admin-resume-actions">
+                @if (!string.IsNullOrWhiteSpace(Model.CandidateUserId))
+                {
+                    <a asp-controller="Messages" asp-action="Conversation" asp-route-userId="@Model.CandidateUserId" class="btn btn-primary">
+                        <i class="bi bi-envelope me-1"></i>Написати кандидату
+                    </a>
+                }
+                <a asp-action="Resumes" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Назад до модерації
+                </a>
+            </div>
+        </div>
+
+        <div class="admin-resume-body">
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Назва резюме</div>
+                <div class="admin-resume-value">@Model.Title</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Категорія</div>
+                <div class="admin-resume-value">@Model.CategoryName</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Короткий опис</div>
+                <div class="admin-resume-value">@Model.Summary</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Освіта</div>
+                <div class="admin-resume-value">@Model.Education</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Досвід</div>
+                <div class="admin-resume-value">@Model.Experience</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Навички</div>
+                <div class="admin-resume-value">
+                    @if (Model.SkillNames.Any())
+                    {
+                        <div class="admin-resume-tags mb-2">
+                            @foreach (var skill in Model.SkillNames)
+                            {
+                                <span class="admin-resume-tag">@skill</span>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.SkillsDescription))
+                    {
+                        <div>@Model.SkillsDescription</div>
+                    }
+                </div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Тип зайнятості</div>
+                <div class="admin-resume-value">@Model.EmploymentType.GetDisplayName()</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Рівень досвіду</div>
+                <div class="admin-resume-value">@Model.ExperienceLevel.GetDisplayName() (@Model.ExperienceYears років)</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Рівень освіти</div>
+                <div class="admin-resume-value">@Model.EducationLevel.GetDisplayName()</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Бажана зарплата</div>
+                <div class="admin-resume-value">@(Model.DesiredSalary?.ToString("0.##") ?? "Не вказано") грн</div>
+            </div>
+
+            <div class="admin-resume-row">
+                <div class="admin-resume-label">Файл резюме</div>
+                <div class="admin-resume-value">
+                    @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                    {
+                        <a href="@Model.FilePath" target="_blank">@Model.OriginalFileName</a>
+                    }
+                    else
+                    {
+                        <span class="text-secondary">Файл не завантажено</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

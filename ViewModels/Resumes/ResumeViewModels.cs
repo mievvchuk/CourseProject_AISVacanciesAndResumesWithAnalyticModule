@@ -38,9 +38,12 @@ public class ResumeFormViewModel
     public int Id { get; set; }
     public int CandidateProfileId { get; set; }
 
-    [Required(ErrorMessage = "Оберіть категорію")]
     [Display(Name = "Категорія")]
     public int CategoryId { get; set; }
+
+    [StringLength(80, ErrorMessage = "Категорія має містити не більше 80 символів")]
+    [Display(Name = "Категорія")]
+    public string CategoryName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Вкажіть назву резюме")]
     [Display(Name = "Назва резюме")]
@@ -96,8 +99,6 @@ public class ResumeFormViewModel
     public List<string> ParsedSkillNames { get; set; } = new();
 
     public string FullName { get; set; } = string.Empty;
-    public string CategoryName { get; set; } = string.Empty;
-
     public List<SelectListItem> CategoryOptions { get; set; } = new();
 }
 
