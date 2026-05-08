@@ -40,7 +40,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
     if (string.IsNullOrWhiteSpace(connectionString))
     {
-        throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
+        throw new InvalidOperationException(
+            "Connection string 'DefaultConnection' was not found. " +
+            "Set Railway variable ConnectionStrings__DefaultConnection, DATABASE_URL, DATABASE_PRIVATE_URL, or PGHOST/PGDATABASE/PGUSER/PGPASSWORD.");
     }
 
     options.UseNpgsql(connectionString);
@@ -171,6 +173,11 @@ static string? ResolveConnectionString(IConfiguration configuration)
 
     if (string.IsNullOrWhiteSpace(connectionString))
     {
+        connectionString = BuildConnectionStringFromPostgresVariables(configuration);
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
         return null;
     }
 
@@ -209,6 +216,38 @@ static string ConvertPostgresUrlToConnectionString(string databaseUrl)
             ? SslMode.Disable
             : SslMode.Require
     };
+
+    return builder.ConnectionString;
+}
+
+static string? BuildConnectionStringFromPostgresVariables(IConfiguration configuration)
+{
+    var host = configuration["PGHOST"] ?? configuration["POSTGRES_HOST"];
+    var database = configuration["PGDATABASE"] ?? configuration["POSTGRES_DB"] ?? configuration["POSTGRES_DATABASE"];
+    var username = configuration["PGUSER"] ?? configuration["POSTGRES_USER"];
+    var password = configuration["PGPASSWORD"] ?? configuration["POSTGRES_PASSWORD"];
+    var portValue = configuration["PGPORT"] ?? configuration["POSTGRES_PORT"];
+
+    if (string.IsNullOrWhiteSpace(host)
+        || string.IsNullOrWhiteSpace(database)
+        || string.IsNullOrWhiteSpace(username))
+    {
+        return null;
+    }
+
+    var builder = new NpgsqlConnectionStringBuilder
+    {
+        Host = host,
+        Database = database,
+        Username = username,
+        Password = password ?? string.Empty,
+        SslMode = SslMode.Require
+    };
+
+    if (int.TryParse(portValue, out var port))
+    {
+        builder.Port = port;
+    }
 
     return builder.ConnectionString;
 }

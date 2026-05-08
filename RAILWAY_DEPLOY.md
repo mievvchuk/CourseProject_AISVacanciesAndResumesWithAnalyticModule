@@ -41,6 +41,18 @@ POSTGRESQL_URL=${{Postgres.DATABASE_URL}}
 
 Railway PostgreSQL URLs usually look like `postgresql://user:password@host:port/database`. The app converts that URL to the Npgsql connection string format automatically.
 
+If Railway gives you separate PostgreSQL variables instead of a URL, add these to the web service variables:
+
+```text
+PGHOST=${{Postgres.PGHOST}}
+PGPORT=${{Postgres.PGPORT}}
+PGDATABASE=${{Postgres.PGDATABASE}}
+PGUSER=${{Postgres.PGUSER}}
+PGPASSWORD=${{Postgres.PGPASSWORD}}
+```
+
+These variables are not available to the web service automatically just because PostgreSQL exists. They must be referenced in the web service Variables tab.
+
 Railway sets `PORT` automatically. The app reads `PORT` and listens on that port. If `PORT` is missing, it uses `8080`.
 
 ## 5. Redeploy
@@ -65,7 +77,7 @@ Do not manually create tables in Railway PostgreSQL. Let EF Core migrations crea
 ## 8. Typical Railway log issues
 
 - `Connection string 'DefaultConnection' was not found.`  
-  Add `ConnectionStrings__DefaultConnection` to the web service variables, or add `DATABASE_URL`/`DATABASE_PRIVATE_URL`.
+  Add `ConnectionStrings__DefaultConnection` to the web service variables, or add `DATABASE_URL`/`DATABASE_PRIVATE_URL`. If you use separate PostgreSQL variables, add `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, and `PGPASSWORD`.
 
 - `The ConnectionString property has not been initialized.`  
   The variable exists but is empty or points to the wrong Railway service reference. Check that the Postgres service is named `Postgres`, or update the variable to use the actual service name.
