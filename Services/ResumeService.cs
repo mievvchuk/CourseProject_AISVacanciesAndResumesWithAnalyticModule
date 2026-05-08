@@ -198,7 +198,14 @@ public class ResumeService : IResumeService
         return new ResumeFormViewModel
         {
             CandidateProfileId = candidateProfile.Id,
-            CategoryId = int.TryParse(categories.FirstOrDefault()?.Value, out var categoryId) ? categoryId : 0,
+            DesiredPosition = candidateProfile.Headline,
+            Summary = candidateProfile.Summary,
+            EmploymentType = candidateProfile.DesiredEmploymentType,
+            ExperienceYears = candidateProfile.ExperienceYears,
+            ExperienceLevel = candidateProfile.ExperienceLevel,
+            EducationLevel = candidateProfile.EducationLevel,
+            DesiredSalary = candidateProfile.DesiredSalary,
+            CategoryName = categories.FirstOrDefault()?.Text ?? "Інше",
             CategoryOptions = categories
         };
     }
@@ -207,6 +214,7 @@ public class ResumeService : IResumeService
     {
         var resume = await _context.Resumes
             .Include(x => x.CandidateProfile)
+            .Include(x => x.Category)
             .Include(x => x.ResumeSkills)
             .FirstOrDefaultAsync(x => x.Id == id && x.CandidateProfile != null && x.CandidateProfile.UserId == userId);
 
@@ -220,6 +228,7 @@ public class ResumeService : IResumeService
             Id = resume.Id,
             CandidateProfileId = resume.CandidateProfileId,
             CategoryId = resume.CategoryId,
+            CategoryName = resume.Category?.Name ?? string.Empty,
             Title = resume.Title,
             DesiredPosition = resume.DesiredPosition,
             Summary = resume.Summary,
@@ -297,11 +306,12 @@ public class ResumeService : IResumeService
     public async Task CreateAsync(string userId, ResumeFormViewModel model)
     {
         var candidateProfile = await GetCandidateProfileAsync(userId);
+        var categoryId = await ResolveCategoryIdAsync(model.CategoryName, model.CategoryId);
 
         var resume = new Resume
         {
             CandidateProfileId = candidateProfile.Id,
-            CategoryId = model.CategoryId,
+            CategoryId = categoryId,
             Title = model.Title,
             DesiredPosition = model.DesiredPosition,
             Summary = model.Summary,
@@ -333,7 +343,7 @@ public class ResumeService : IResumeService
             .Include(x => x.ResumeSkills)
             .FirstAsync(x => x.Id == model.Id && x.CandidateProfile != null && x.CandidateProfile.UserId == userId);
 
-        resume.CategoryId = model.CategoryId;
+        resume.CategoryId = await ResolveCategoryIdAsync(model.CategoryName, model.CategoryId);
         resume.Title = model.Title;
         resume.DesiredPosition = model.DesiredPosition;
         resume.Summary = model.Summary;
@@ -374,17 +384,86 @@ public class ResumeService : IResumeService
 
     public async Task<List<SelectListItem>> GetCategoriesAsync()
     {
-        return await _context.Categories
+        var categories = await _context.Categories
             .AsNoTracking()
-            .OrderBy(x => x.Name)
-            .Select(x => new SelectListItem(x.Name, x.Id.ToString()))
             .ToListAsync();
+
+        var resumeUsage = await _context.Resumes
+            .AsNoTracking()
+            .GroupBy(x => x.CategoryId)
+            .Select(x => new { CategoryId = x.Key, LastUsed = x.Max(r => r.UpdatedAt) })
+            .ToListAsync();
+
+        var vacancyUsage = await _context.Vacancies
+            .AsNoTracking()
+            .GroupBy(x => x.CategoryId)
+            .Select(x => new { CategoryId = x.Key, LastUsed = x.Max(v => v.UpdatedAt) })
+            .ToListAsync();
+
+        var lastUsedByCategory = resumeUsage
+            .Select(x => (x.CategoryId, x.LastUsed))
+            .Concat(vacancyUsage.Select(x => (x.CategoryId, x.LastUsed)))
+            .GroupBy(x => x.CategoryId)
+            .ToDictionary(x => x.Key, x => x.Max(v => v.LastUsed));
+
+        return categories
+            .Select(x => new
+            {
+                x.Id,
+                x.Name,
+                LastUsed = lastUsedByCategory.TryGetValue(x.Id, out var lastUsed) ? (DateTime?)lastUsed : null
+            })
+            .OrderByDescending(x => x.LastUsed.HasValue)
+            .ThenByDescending(x => x.LastUsed)
+            .ThenBy(x => x.Name)
+            .Select(x => new SelectListItem(x.Name, x.Id.ToString()))
+            .ToList();
+    }
+
+    private async Task<int> ResolveCategoryIdAsync(string categoryName, int fallbackCategoryId)
+    {
+        var normalizedName = NormalizeCategoryName(categoryName);
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            normalizedName = fallbackCategoryId > 0
+                ? await GetCategoryNameOrDefaultAsync(fallbackCategoryId)
+                : "Інше";
+        }
+
+        var existingCategory = await _context.Categories
+            .FirstOrDefaultAsync(x => x.Name.ToLower() == normalizedName.ToLower());
+
+        if (existingCategory is not null)
+        {
+            return existingCategory.Id;
+        }
+
+        var category = new Category { Name = normalizedName };
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
+        return category.Id;
+    }
+
+    private async Task<string> GetCategoryNameOrDefaultAsync(int categoryId)
+    {
+        var categoryName = await _context.Categories
+            .AsNoTracking()
+            .Where(x => x.Id == categoryId)
+            .Select(x => x.Name)
+            .FirstOrDefaultAsync();
+
+        return string.IsNullOrWhiteSpace(categoryName) ? "Інше" : categoryName;
+    }
+
+    private static string NormalizeCategoryName(string categoryName)
+    {
+        return Regex.Replace(categoryName ?? string.Empty, @"\s+", " ").Trim();
     }
 
     private async Task<CandidateProfile> GetCandidateProfileAsync(string userId)
     {
         var profile = await _context.CandidateProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
-        return profile ?? throw new InvalidOperationException("Candidate profile was not found.");
+        return profile ?? throw new InvalidOperationException("Профіль кандидата не знайдено.");
     }
 
     private async Task SyncSkillsAsync(Resume resume, string skillsDescription)
@@ -562,7 +641,7 @@ public class ResumeService : IResumeService
 
         if (!allowedExtensions.Contains(extension))
         {
-            throw new InvalidOperationException("Only PDF and DOCX files are allowed.");
+            throw new InvalidOperationException("Дозволені лише файли PDF або DOCX.");
         }
 
         var uploadsRoot = Path.Combine(_environment.WebRootPath, "uploads", "resumes");

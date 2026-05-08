@@ -93,10 +93,7 @@ public class EmployerProfileService : IEmployerProfileService
 
         profile = new EmployerProfile
         {
-            UserId = userId,
-            CompanyName = "New Company",
-            Description = "Describe your company and open positions.",
-            City = "Kyiv"
+            UserId = userId
         };
 
         _context.EmployerProfiles.Add(profile);
@@ -116,7 +113,7 @@ public class EmployerProfileService : IEmployerProfileService
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
         if (!allowedExtensions.Contains(extension))
         {
-            throw new InvalidOperationException("Only JPG, PNG or WEBP files are allowed.");
+            throw new InvalidOperationException("Дозволені лише файли JPG, PNG або WEBP.");
         }
 
         DeleteFile(currentPath);

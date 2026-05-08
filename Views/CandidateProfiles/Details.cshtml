@@ -2,17 +2,22 @@
 
 @{
     ViewData["Title"] = "Профіль кандидата";
+    string Show(string? value) => string.IsNullOrWhiteSpace(value) ? "Не вказано" : value;
 }
 
 <div class="row">
     <div class="col-md-8">
         <div class="card shadow-sm">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 profile-details-head">
                     <div class="d-flex align-items-center gap-3">
                         @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
                         {
                             <img src="@Model.PhotoPath" alt="@Model.FullName" class="rounded-circle border" style="width: 88px; height: 88px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="profile-avatar profile-avatar-placeholder"><i class="ti ti-user"></i></div>
                         }
                         <div>
                             <h2 class="h4 mb-1">@Model.FullName</h2>
@@ -22,58 +27,21 @@
                     <a asp-action="Edit" class="btn btn-primary">Редагувати</a>
                 </div>
                 <dl class="row mb-0">
-                    <dt class="col-sm-4">Заголовок</dt>
-                    <dd class="col-sm-8">@Model.Headline</dd>
+                    <dt class="col-sm-4">Професійна роль</dt>
+                    <dd class="col-sm-8">@Show(Model.Headline)</dd>
                     <dt class="col-sm-4">Опис</dt>
-                    <dd class="col-sm-8">@Model.Summary</dd>
+                    <dd class="col-sm-8">@Show(Model.Summary)</dd>
                     <dt class="col-sm-4">Місто</dt>
-                    <dd class="col-sm-8">@Model.City</dd>
+                    <dd class="col-sm-8">@Show(Model.City)</dd>
                     <dt class="col-sm-4">Роки досвіду</dt>
                     <dd class="col-sm-8">@Model.ExperienceYears</dd>
                     <dt class="col-sm-4">Рівень досвіду</dt>
-                    <dd class="col-sm-8">@Model.ExperienceLevel</dd>
+                    <dd class="col-sm-8">@Model.ExperienceLevel.GetDisplayName()</dd>
                     <dt class="col-sm-4">Рівень освіти</dt>
-                    <dd class="col-sm-8">@Model.EducationLevel</dd>
+                    <dd class="col-sm-8">@Model.EducationLevel.GetDisplayName()</dd>
                     <dt class="col-sm-4">Бажана зарплата</dt>
-                    <dd class="col-sm-8">@Model.DesiredSalary</dd>
+                    <dd class="col-sm-8">@(Model.DesiredSalary.HasValue ? Model.DesiredSalary.Value.ToString("0.##") : "Не вказано")</dd>
                 </dl>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mt-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="h5 mb-0">Портфоліо</h3>
-                    <a asp-controller="Portfolio" asp-action="Index" class="btn btn-outline-primary">Керувати портфоліо</a>
-                </div>
-                @if (Model.PortfolioItems.Count == 0)
-                {
-                    <p class="text-muted mb-0">Елементи портфоліо ще не додані.</p>
-                }
-                else
-                {
-                    <div class="row g-3">
-                        @foreach (var item in Model.PortfolioItems)
-                        {
-                            <div class="col-md-6">
-                                <div class="card border-0 bg-light h-100">
-                                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
-                                    {
-                                        <img src="@item.ImagePath" class="card-img-top" alt="@item.Title" style="height: 180px; object-fit: cover;" />
-                                    }
-                                    <div class="card-body">
-                                        <h4 class="h6 mb-2">@item.Title</h4>
-                                        <p class="text-muted small mb-2">@item.Description</p>
-                                        @if (!string.IsNullOrWhiteSpace(item.Url))
-                                        {
-                                            <a href="@item.Url" target="_blank">@item.Url</a>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
             </div>
         </div>
     </div>

@@ -7,9 +7,17 @@
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
     <div class="col-md-4">
-        <label asp-for="CategoryId" class="form-label"></label>
-        <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select"></select>
-        <span asp-validation-for="CategoryId" class="text-danger"></span>
+        <label asp-for="CategoryName" class="form-label"></label>
+        <input asp-for="CategoryName" class="form-control" list="vacancy-category-options" placeholder="Наприклад: Медицина" autocomplete="off" />
+        <datalist id="vacancy-category-options">
+            @foreach (var category in Model.CategoryOptions)
+            {
+                <option value="@category.Text"></option>
+            }
+        </datalist>
+        <input asp-for="CategoryId" type="hidden" />
+        <span asp-validation-for="CategoryName" class="text-danger"></span>
+        <div class="form-hint">Можна вибрати зі списку або вписати власну категорію.</div>
     </div>
     <div class="col-12">
         <label asp-for="Description" class="form-label"></label>
@@ -50,11 +58,12 @@
     <div class="col-md-6">
         <label asp-for="SelectedSkillIds" class="form-label"></label>
         <select asp-for="SelectedSkillIds" asp-items="Model.SkillOptions" class="form-select" multiple size="7"></select>
-        <div class="form-hint">Можна обрати кілька готових навичок.</div>
+        <div class="form-hint">Це необов’язково. Можна обрати готові навички або просто вписати свої праворуч.</div>
     </div>
     <div class="col-md-6">
         <label asp-for="SkillsText" class="form-label"></label>
         <textarea asp-for="SkillsText" class="form-control" rows="7" placeholder="Наприклад: C#, PostgreSQL, комунікація"></textarea>
-        <div class="form-hint">Якщо навички немає у списку, впишіть її тут.</div>
+        <span asp-validation-for="SkillsText" class="text-danger"></span>
+        <div class="form-hint">Якщо навички немає у списку, впишіть її тут через кому або з нового рядка.</div>
     </div>
 </div>

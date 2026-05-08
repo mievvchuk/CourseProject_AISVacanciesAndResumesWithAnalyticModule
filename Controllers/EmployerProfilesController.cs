@@ -73,7 +73,7 @@ public class EmployerProfilesController : Controller
             return View(model);
         }
 
-        TempData["StatusMessage"] = "Employer profile created.";
+        TempData["StatusMessage"] = "Профіль роботодавця створено.";
         return RedirectToAction(nameof(Details));
     }
 
@@ -106,13 +106,13 @@ public class EmployerProfilesController : Controller
             return View(model);
         }
 
-        TempData["StatusMessage"] = "Employer profile saved.";
+        TempData["StatusMessage"] = "Профіль роботодавця збережено.";
         return RedirectToAction(nameof(Details));
     }
 
     private async Task<User> GetCurrentUserAsync()
     {
         var user = await _userManager.GetUserAsync(User);
-        return user ?? throw new InvalidOperationException("Current user was not found.");
+        return user ?? throw new InvalidOperationException("Поточного користувача не знайдено.");
     }
 }

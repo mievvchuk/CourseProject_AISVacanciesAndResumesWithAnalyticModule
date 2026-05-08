@@ -1,26 +1,22 @@
 @model EmployerProfileFormViewModel
 
 @{
-    ViewData["Title"] = "Створення профілю роботодавця";
+    ViewData["Title"] = "Профіль роботодавця";
 }
 
 <div class="row justify-content-center">
     <div class="col-xl-9 col-lg-10">
-        <form asp-action="Create" method="post" enctype="multipart/form-data" class="profile-edit-card card shadow-sm border-0">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="profile-edit-card card shadow-sm border-0 js-profile-image-form">
             <div class="profile-cover employer-profile-cover"></div>
-
             <div class="card-body">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
                 <div class="profile-edit-header">
                     <div class="profile-avatar-wrap">
-                        <div class="profile-avatar profile-avatar-placeholder">
-                            <i class="ti ti-building"></i>
-                        </div>
+                        <div class="profile-avatar profile-avatar-placeholder js-profile-image-preview"><i class="ti ti-building"></i></div>
                     </div>
                     <div class="profile-edit-heading">
-                        <h2 class="h4 mb-1">Створення профілю роботодавця</h2>
-                        <div class="text-secondary">Додайте дані компанії, щоб публікувати вакансії та переглядати кандидатів</div>
+                        <h2 class="h4 mb-1">Заповнення профілю роботодавця</h2>
+                        <div class="text-secondary">Після реєстрації профіль порожній. Додайте дані компанії перед створенням вакансій.</div>
                     </div>
                 </div>
 
@@ -34,18 +30,29 @@
                         </div>
                         <div class="col-md-6">
                             <label asp-for="LogoFile" class="form-label">Логотип компанії</label>
-                            <input asp-for="LogoFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                            <input asp-for="LogoFile" class="form-control js-profile-image-input" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
                             <span asp-validation-for="LogoFile" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <div class="profile-crop-panel js-profile-crop-panel d-none">
+                                <div class="profile-crop-box"><img class="js-profile-crop-image" alt="Попередній перегляд логотипа" /></div>
+                                <div class="profile-crop-controls">
+                                    <label class="form-label">Масштаб</label>
+                                    <input class="form-range js-profile-crop-zoom" type="range" min="1" max="2.5" step="0.05" value="1" />
+                                    <label class="form-label">Положення по горизонталі</label>
+                                    <input class="form-range js-profile-crop-x" type="range" min="0" max="100" value="50" />
+                                    <label class="form-label">Положення по вертикалі</label>
+                                    <input class="form-range js-profile-crop-y" type="range" min="0" max="100" value="50" />
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Industry" class="form-label">Галузь</label>
                             <input asp-for="Industry" class="form-control" />
-                            <span asp-validation-for="Industry" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Website" class="form-label">Сайт</label>
                             <input asp-for="Website" class="form-control" />
-                            <span asp-validation-for="Website" class="text-danger"></span>
                         </div>
                         <div class="col-12">
                             <label asp-for="Description" class="form-label">Опис компанії</label>
@@ -61,12 +68,10 @@
                         <div class="col-md-4">
                             <label asp-for="CompanySize" class="form-label">Розмір компанії</label>
                             <input asp-for="CompanySize" class="form-control" placeholder="Наприклад: 50-100" />
-                            <span asp-validation-for="CompanySize" class="text-danger"></span>
                         </div>
                         <div class="col-md-4">
                             <label asp-for="FoundedYear" class="form-label">Рік заснування</label>
                             <input asp-for="FoundedYear" class="form-control" />
-                            <span asp-validation-for="FoundedYear" class="text-danger"></span>
                         </div>
                         <div class="col-md-4">
                             <label asp-for="City" class="form-label">Місто</label>
@@ -76,16 +81,12 @@
                         <div class="col-12">
                             <label asp-for="Location" class="form-label">Локація</label>
                             <input asp-for="Location" class="form-control" placeholder="Адреса або район офісу" />
-                            <span asp-validation-for="Location" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="profile-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="ti ti-device-floppy me-1"></i>
-                        Створити профіль
-                    </button>
+                    <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-1"></i>Зберегти профіль</button>
                 </div>
             </div>
         </form>
@@ -94,4 +95,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/profile-image-crop.js" asp-append-version="true"></script>
 }

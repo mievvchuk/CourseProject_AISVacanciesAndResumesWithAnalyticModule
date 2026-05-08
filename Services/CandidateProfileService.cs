@@ -108,10 +108,7 @@ public class CandidateProfileService : ICandidateProfileService
 
         profile = new CandidateProfile
         {
-            UserId = userId,
-            Headline = "Junior Specialist",
-            Summary = "Tell employers about your experience and goals.",
-            City = "Kyiv"
+            UserId = userId
         };
 
         _context.CandidateProfiles.Add(profile);
@@ -131,7 +128,7 @@ public class CandidateProfileService : ICandidateProfileService
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
         if (!allowedExtensions.Contains(extension))
         {
-            throw new InvalidOperationException("Only JPG, PNG or WEBP files are allowed.");
+            throw new InvalidOperationException("Дозволені лише файли JPG, PNG або WEBP.");
         }
 
         DeleteFile(currentPath);

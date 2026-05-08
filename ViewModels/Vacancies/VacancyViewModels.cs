@@ -42,9 +42,13 @@ public class VacancyFormViewModel
     public int Id { get; set; }
     public int EmployerProfileId { get; set; }
 
-    [Required(ErrorMessage = "Оберіть категорію")]
     [Display(Name = "Категорія")]
     public int CategoryId { get; set; }
+
+    [Required(ErrorMessage = "Вкажіть категорію")]
+    [StringLength(80, ErrorMessage = "Категорія має містити не більше 80 символів")]
+    [Display(Name = "Категорія")]
+    public string CategoryName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Вкажіть назву вакансії")]
     [Display(Name = "Назва вакансії")]
@@ -92,7 +96,6 @@ public class VacancyFormViewModel
     public List<string> SelectedSkillNames { get; set; } = new();
 
     public string CompanyName { get; set; } = string.Empty;
-    public string CategoryName { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
 
     public List<SelectListItem> CategoryOptions { get; set; } = new();

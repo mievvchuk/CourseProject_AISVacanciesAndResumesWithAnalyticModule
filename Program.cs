@@ -126,11 +126,8 @@ var localizationOptions = new RequestLocalizationOptions
 CultureInfo.DefaultThreadCurrentCulture = supportedCultures[0];
 CultureInfo.DefaultThreadCurrentUICulture = supportedCultures[0];
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 if (!app.Environment.IsDevelopment())
 {

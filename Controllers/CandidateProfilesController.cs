@@ -73,7 +73,7 @@ public class CandidateProfilesController : Controller
             return View(model);
         }
 
-        TempData["StatusMessage"] = "Candidate profile created.";
+        TempData["StatusMessage"] = "Профіль кандидата створено.";
         return RedirectToAction(nameof(Details));
     }
 
@@ -106,13 +106,13 @@ public class CandidateProfilesController : Controller
             return View(model);
         }
 
-        TempData["StatusMessage"] = "Candidate profile saved.";
+        TempData["StatusMessage"] = "Профіль кандидата збережено.";
         return RedirectToAction(nameof(Details));
     }
 
     private async Task<User> GetCurrentUserAsync()
     {
         var user = await _userManager.GetUserAsync(User);
-        return user ?? throw new InvalidOperationException("Current user was not found.");
+        return user ?? throw new InvalidOperationException("Поточного користувача не знайдено.");
     }
 }

@@ -1,66 +1,104 @@
 @model CandidateProfileFormViewModel
 
 @{
-    ViewData["Title"] = "Створення профілю кандидата";
+    ViewData["Title"] = "Профіль кандидата";
 }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-10">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="profile-edit-card card shadow-sm border-0 js-profile-image-form">
+            <div class="profile-cover"></div>
             <div class="card-body">
-                <h2 class="h4 mb-4">Створення профілю кандидата</h2>
-                <form asp-action="Create" method="post" enctype="multipart/form-data">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                    <div class="mb-3">
-                        <label asp-for="PhotoFile" class="form-label">Фото профілю</label>
-                        <input asp-for="PhotoFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
-                        <span asp-validation-for="PhotoFile" class="text-danger"></span>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="profile-edit-header">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar profile-avatar-placeholder js-profile-image-preview">
+                            <i class="ti ti-user"></i>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Headline" class="form-label">Заголовок профілю</label>
-                        <input asp-for="Headline" class="form-control" />
-                        <span asp-validation-for="Headline" class="text-danger"></span>
+                    <div class="profile-edit-heading">
+                        <h2 class="h4 mb-1">Заповнення профілю кандидата</h2>
+                        <div class="text-secondary">Після реєстрації профіль порожній. Додайте лише ті дані, які хочете показувати роботодавцям.</div>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Summary" class="form-label">Короткий опис</label>
-                        <textarea asp-for="Summary" class="form-control" rows="4"></textarea>
-                        <span asp-validation-for="Summary" class="text-danger"></span>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="profile-section-title">Основна інформація</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Headline" class="form-label">Професійна роль</label>
+                            <input asp-for="Headline" class="form-control" placeholder="Наприклад: Медсестра, Junior .NET Developer" />
+                            <span asp-validation-for="Headline" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhotoFile" class="form-label">Фото профілю</label>
+                            <input asp-for="PhotoFile" class="form-control js-profile-image-input" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+                            <span asp-validation-for="PhotoFile" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <div class="profile-crop-panel js-profile-crop-panel d-none">
+                                <div class="profile-crop-box"><img class="js-profile-crop-image" alt="Попередній перегляд фото" /></div>
+                                <div class="profile-crop-controls">
+                                    <label class="form-label">Масштаб</label>
+                                    <input class="form-range js-profile-crop-zoom" type="range" min="1" max="2.5" step="0.05" value="1" />
+                                    <label class="form-label">Положення по горизонталі</label>
+                                    <input class="form-range js-profile-crop-x" type="range" min="0" max="100" value="50" />
+                                    <label class="form-label">Положення по вертикалі</label>
+                                    <input class="form-range js-profile-crop-y" type="range" min="0" max="100" value="50" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Summary" class="form-label">Короткий опис</label>
+                            <textarea asp-for="Summary" class="form-control" rows="4" placeholder="Кілька речень про досвід, цілі та сильні сторони"></textarea>
+                            <span asp-validation-for="Summary" class="text-danger"></span>
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="profile-section-title">Професійні параметри</h3>
+                    <div class="row g-3">
+                        <div class="col-md-4">
                             <label asp-for="City" class="form-label">Місто</label>
                             <input asp-for="City" class="form-control" />
+                            <span asp-validation-for="City" class="text-danger"></span>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-4">
                             <label asp-for="ExperienceYears" class="form-label">Роки досвіду</label>
                             <input asp-for="ExperienceYears" class="form-control" />
+                            <span asp-validation-for="ExperienceYears" class="text-danger"></span>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-4">
                             <label asp-for="DesiredSalary" class="form-label">Бажана зарплата</label>
                             <input asp-for="DesiredSalary" class="form-control" />
+                            <span asp-validation-for="DesiredSalary" class="text-danger"></span>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4">
                             <label asp-for="ExperienceLevel" class="form-label">Рівень досвіду</label>
                             <select asp-for="ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select"></select>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4">
                             <label asp-for="EducationLevel" class="form-label">Рівень освіти</label>
                             <select asp-for="EducationLevel" asp-items="Html.GetEnumSelectList<EducationLevel>()" class="form-select"></select>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4">
                             <label asp-for="DesiredEmploymentType" class="form-label">Бажаний тип зайнятості</label>
                             <select asp-for="DesiredEmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select"></select>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Створити профіль</button>
-                </form>
+                </div>
+
+                <div class="profile-actions">
+                    <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-1"></i>Зберегти профіль</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/profile-image-crop.js" asp-append-version="true"></script>
 }

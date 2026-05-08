@@ -19,7 +19,7 @@
                     <dd class="col-sm-8">@Model.CategoryName</dd>
 
                     <dt class="col-sm-4">Тип зайнятості</dt>
-                    <dd class="col-sm-8">@Model.EmploymentType</dd>
+                    <dd class="col-sm-8">@Model.EmploymentType.GetDisplayName()</dd>
 
                     <dt class="col-sm-4">Статус</dt>
                     <dd class="col-sm-8">@Model.Status.GetDisplayName()</dd>

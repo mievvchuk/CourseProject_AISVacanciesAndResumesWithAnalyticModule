@@ -27,7 +27,7 @@ public class SavedSearchFormViewModel
     [Display(Name = "Employment type")]
     public EmploymentType? EmploymentType { get; set; }
 
-    [Display(Name = "Experience level")]
+    [Display(Name = "Рівень досвіду")]
     public ExperienceLevel? ExperienceLevel { get; set; }
 }
 

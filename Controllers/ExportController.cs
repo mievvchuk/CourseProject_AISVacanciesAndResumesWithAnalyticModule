@@ -52,10 +52,8 @@ public class ExportController : Controller
     public async Task<IActionResult> VacanciesPdf([FromQuery] VacancyFilterViewModel filter)
     {
         var model = await _vacancyService.SearchAsync(filter);
-        var fileBytes = _exportService.GenerateVacanciesPdf(model.Items);
-        var fileName = $"vacancies-{DateTime.UtcNow:yyyyMMdd-HHmmss}.pdf";
 
-        return File(fileBytes, "application/pdf", fileName);
+        return View("VacanciesPrint", model);
     }
 
     [HttpGet]
@@ -66,9 +64,6 @@ public class ExportController : Controller
             User.FindFirstValue(ClaimTypes.NameIdentifier),
             User.IsInRole("Admin"));
 
-        var fileBytes = _exportService.GenerateAnalyticsPdf(model);
-        var fileName = $"analytics-{DateTime.UtcNow:yyyyMMdd-HHmmss}.pdf";
-
-        return File(fileBytes, "application/pdf", fileName);
+        return View("AnalyticsPrint", model);
     }
 }

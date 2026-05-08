@@ -25,33 +25,36 @@ public class CandidateProfileFormViewModel
 {
     public int Id { get; set; }
 
-    [Required]
+    [Display(Name = "Професійна роль")]
+    [Required(ErrorMessage = "Вкажіть професійну роль")]
     public string Headline { get; set; } = string.Empty;
 
-    [Required]
+    [Display(Name = "Короткий опис")]
+    [Required(ErrorMessage = "Напишіть короткий опис")]
     public string Summary { get; set; } = string.Empty;
 
-    [Required]
+    [Display(Name = "Місто")]
+    [Required(ErrorMessage = "Вкажіть місто")]
     public string City { get; set; } = string.Empty;
 
     public string? PhotoPath { get; set; }
 
-    [Display(Name = "Profile photo")]
+    [Display(Name = "Фото профілю")]
     public IFormFile? PhotoFile { get; set; }
 
     [Range(0, 50)]
-    [Display(Name = "Experience years")]
+    [Display(Name = "Роки досвіду")]
     public int ExperienceYears { get; set; }
 
-    [Display(Name = "Experience level")]
+    [Display(Name = "Рівень досвіду")]
     public ExperienceLevel ExperienceLevel { get; set; } = ExperienceLevel.Junior;
 
-    [Display(Name = "Education level")]
+    [Display(Name = "Рівень освіти")]
     public EducationLevel EducationLevel { get; set; } = EducationLevel.Bachelor;
 
-    [Display(Name = "Desired employment type")]
+    [Display(Name = "Бажаний тип зайнятості")]
     public EmploymentType DesiredEmploymentType { get; set; } = EmploymentType.FullTime;
 
-    [Display(Name = "Desired salary")]
+    [Display(Name = "Бажана зарплата")]
     public decimal? DesiredSalary { get; set; }
 }

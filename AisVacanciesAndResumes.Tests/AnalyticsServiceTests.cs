@@ -70,6 +70,6 @@ public class AnalyticsServiceTests
         Assert.Equal(1, result.ApplicationCount);
         Assert.Single(result.VacancyEmploymentTypeDistribution);
         Assert.Equal("Повна зайнятість", result.VacancyEmploymentTypeDistribution[0].EmploymentTypeName);
-        Assert.Equal("Middle", result.ResumeExperienceDistribution[0].ExperienceLevelName);
+        Assert.Equal("Середній", result.ResumeExperienceDistribution[0].ExperienceLevelName);
     }
 }

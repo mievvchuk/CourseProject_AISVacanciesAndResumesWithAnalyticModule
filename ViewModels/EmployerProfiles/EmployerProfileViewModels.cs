@@ -20,30 +20,35 @@ public class EmployerProfileFormViewModel
 {
     public int Id { get; set; }
 
-    [Required]
-    [Display(Name = "Company name")]
+    [Required(ErrorMessage = "Вкажіть назву компанії")]
+    [Display(Name = "Назва компанії")]
     public string CompanyName { get; set; } = string.Empty;
 
+    [Display(Name = "Галузь")]
     public string Industry { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "Опишіть компанію")]
+    [Display(Name = "Опис компанії")]
     public string Description { get; set; } = string.Empty;
 
-    [Display(Name = "Company size")]
+    [Display(Name = "Розмір компанії")]
     public string CompanySize { get; set; } = string.Empty;
 
+    [Display(Name = "Сайт")]
     public string Website { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "Вкажіть місто")]
+    [Display(Name = "Місто")]
     public string City { get; set; } = string.Empty;
 
+    [Display(Name = "Локація")]
     public string Location { get; set; } = string.Empty;
 
-    [Display(Name = "Founded year")]
+    [Display(Name = "Рік заснування")]
     public int? FoundedYear { get; set; }
 
     public string? LogoPath { get; set; }
 
-    [Display(Name = "Company logo")]
+    [Display(Name = "Логотип компанії")]
     public IFormFile? LogoFile { get; set; }
 }

@@ -1,0 +1,200 @@
+@model AnalyticsDashboardViewModel
+
+@{
+    Layout = null;
+    var generatedAt = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
+}
+
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Експорт аналітики у PDF</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 32px;
+            color: #172033;
+            font-family: "DejaVu Sans", "Segoe UI", Arial, sans-serif;
+            background: #f4f7fb;
+        }
+        .toolbar {
+            max-width: 1120px;
+            margin: 0 auto 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        button, a {
+            padding: 10px 14px;
+            border: 1px solid #0d6efd;
+            border-radius: 6px;
+            background: #0d6efd;
+            color: #fff;
+            text-decoration: none;
+            font: inherit;
+            cursor: pointer;
+        }
+        a {
+            background: #fff;
+            color: #0d6efd;
+        }
+        .sheet {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 28px;
+            background: #fff;
+            border: 1px solid #d9e2ef;
+        }
+        h1 {
+            margin: 0 0 4px;
+            font-size: 28px;
+        }
+        h2 {
+            margin: 24px 0 10px;
+            font-size: 18px;
+        }
+        .muted {
+            color: #607089;
+            margin-bottom: 24px;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .metric {
+            padding: 14px;
+            border: 1px solid #e5eaf2;
+            border-radius: 6px;
+            background: #f9fbfe;
+        }
+        .metric span {
+            display: block;
+            color: #607089;
+            font-size: 12px;
+        }
+        .metric strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 22px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 9px 8px;
+            border-bottom: 1px solid #e5eaf2;
+            text-align: left;
+        }
+        th {
+            color: #3c4a60;
+            background: #f6f8fb;
+            font-weight: 700;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+        @@media print {
+            body { padding: 0; background: #fff; }
+            .toolbar { display: none; }
+            .sheet { max-width: none; border: 0; padding: 0; }
+            .metrics, .grid { break-inside: avoid; }
+        }
+        @@media (max-width: 767.98px) {
+            body { padding: 12px; }
+            .toolbar { align-items: stretch; flex-direction: column; }
+            button, a { width: 100%; text-align: center; }
+            .sheet { padding: 16px; }
+            h1 { font-size: 22px; }
+            .metrics, .grid { grid-template-columns: 1fr; }
+            table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <a asp-controller="Analytics" asp-action="Index">Назад</a>
+        <button type="button" onclick="window.print()">Зберегти як PDF</button>
+    </div>
+
+    <main class="sheet">
+        <h1>Аналітичний звіт</h1>
+        <div class="muted">Сформовано: @generatedAt</div>
+
+        <section class="metrics">
+            <div class="metric"><span>Вакансії</span><strong>@Model.VacancyCount</strong></div>
+            <div class="metric"><span>Резюме</span><strong>@Model.ResumeCount</strong></div>
+            <div class="metric"><span>Заявки</span><strong>@Model.ApplicationCount</strong></div>
+            <div class="metric"><span>Кандидати</span><strong>@Model.CandidateCount</strong></div>
+            <div class="metric"><span>Роботодавці</span><strong>@Model.EmployerCount</strong></div>
+            <div class="metric"><span>Середня зарплата</span><strong>@Model.AverageSalary</strong></div>
+            <div class="metric"><span>Середня відповідність</span><strong>@Model.AverageMatchPercentage%</strong></div>
+            <div class="metric"><span>Активні вакансії</span><strong>@Model.ActiveVacancyCount</strong></div>
+        </section>
+
+        <section class="grid">
+            <div>
+                <h2>Вакансії за категоріями</h2>
+                <table>
+                    <thead><tr><th>Категорія</th><th>Кількість</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.VacanciesByCategory)
+                        {
+                            <tr><td>@item.CategoryName</td><td>@item.Count</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h2>Популярні навички</h2>
+                <table>
+                    <thead><tr><th>Навичка</th><th>Використань</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.PopularSkills)
+                        {
+                            <tr><td>@item.SkillName</td><td>@item.UsageCount</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h2>Типи зайнятості вакансій</h2>
+                <table>
+                    <thead><tr><th>Тип</th><th>Кількість</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.VacancyEmploymentTypeDistribution)
+                        {
+                            <tr><td>@item.EmploymentTypeName</td><td>@item.Count</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h2>Рівні досвіду в резюме</h2>
+                <table>
+                    <thead><tr><th>Рівень</th><th>Кількість</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.ResumeExperienceDistribution)
+                        {
+                            <tr><td>@item.ExperienceLevelName</td><td>@item.Count</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        window.addEventListener('load', function () {
+            window.print();
+        });
+    </script>
+</body>
+</html>

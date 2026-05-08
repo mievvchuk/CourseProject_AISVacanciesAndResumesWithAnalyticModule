@@ -7,12 +7,12 @@ public enum ExperienceLevel
     [Display(Name = "Без досвіду")]
     NoExperience = 1,
 
-    [Display(Name = "Junior")]
+    [Display(Name = "Початковий")]
     Junior = 2,
 
-    [Display(Name = "Middle")]
+    [Display(Name = "Середній")]
     Middle = 3,
 
-    [Display(Name = "Senior")]
+    [Display(Name = "Досвідчений")]
     Senior = 4
 }

@@ -171,23 +171,14 @@ public class VacanciesController : Controller
 
     private async Task ValidateVacancyModelAsync(VacancyFormViewModel model)
     {
-        if (model.CategoryId <= 0)
+        if (string.IsNullOrWhiteSpace(model.CategoryName) && model.CategoryId <= 0)
         {
-            ModelState.AddModelError(nameof(model.CategoryId), "Оберіть категорію.");
+            ModelState.AddModelError(nameof(model.CategoryName), "Вкажіть категорію або виберіть її зі списку.");
         }
 
         if (model.SalaryFrom > model.SalaryTo)
         {
             ModelState.AddModelError(nameof(model.SalaryFrom), "Мінімальна зарплата не може бути більшою за максимальну.");
-        }
-
-        var categoryIds = (await _vacancyService.GetCategoriesAsync())
-            .Select(x => int.TryParse(x.Value, out var id) ? id : 0)
-            .ToHashSet();
-
-        if (model.CategoryId > 0 && !categoryIds.Contains(model.CategoryId))
-        {
-            ModelState.AddModelError(nameof(model.CategoryId), "Обрана категорія не існує.");
         }
 
         var selectedSkillIds = model.SelectedSkillIds.Distinct().ToList();

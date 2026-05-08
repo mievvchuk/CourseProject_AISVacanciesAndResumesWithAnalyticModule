@@ -6,10 +6,9 @@
 
 <div class="row justify-content-center">
     <div class="col-xl-9 col-lg-10">
-        <form asp-action="Edit" method="post" enctype="multipart/form-data" class="profile-edit-card card shadow-sm border-0">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" class="profile-edit-card card shadow-sm border-0 js-profile-image-form">
             <input asp-for="Id" type="hidden" />
             <div class="profile-cover"></div>
-
             <div class="card-body">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -17,18 +16,16 @@
                     <div class="profile-avatar-wrap">
                         @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
                         {
-                            <img src="@Model.PhotoPath" alt="Фото профілю" class="profile-avatar" />
+                            <img src="@Model.PhotoPath" alt="Фото профілю" class="profile-avatar js-profile-image-preview" />
                         }
                         else
                         {
-                            <div class="profile-avatar profile-avatar-placeholder">
-                                <i class="ti ti-user"></i>
-                            </div>
+                            <div class="profile-avatar profile-avatar-placeholder js-profile-image-preview"><i class="ti ti-user"></i></div>
                         }
                     </div>
                     <div class="profile-edit-heading">
                         <h2 class="h4 mb-1">Редагування профілю кандидата</h2>
-                        <div class="text-secondary">@(!string.IsNullOrWhiteSpace(Model.Headline) ? Model.Headline : "Заповніть коротку інформацію про себе")</div>
+                        <div class="text-secondary">@(!string.IsNullOrWhiteSpace(Model.Headline) ? Model.Headline : "Заповніть інформацію про себе")</div>
                     </div>
                 </div>
 
@@ -36,14 +33,31 @@
                     <h3 class="profile-section-title">Основна інформація</h3>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label asp-for="Headline" class="form-label">Заголовок профілю</label>
+                            <label asp-for="Headline" class="form-label">Професійна роль</label>
                             <input asp-for="Headline" class="form-control" />
                             <span asp-validation-for="Headline" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="PhotoFile" class="form-label">Фото профілю</label>
-                            <input asp-for="PhotoFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                            @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
+                            {
+                                <div class="profile-file-state"><i class="ti ti-check"></i> Фото вже додано. Виберіть новий файл, щоб замінити.</div>
+                            }
+                            <input asp-for="PhotoFile" class="form-control js-profile-image-input" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
                             <span asp-validation-for="PhotoFile" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <div class="profile-crop-panel js-profile-crop-panel d-none">
+                                <div class="profile-crop-box"><img class="js-profile-crop-image" alt="Попередній перегляд фото" /></div>
+                                <div class="profile-crop-controls">
+                                    <label class="form-label">Масштаб</label>
+                                    <input class="form-range js-profile-crop-zoom" type="range" min="1" max="2.5" step="0.05" value="1" />
+                                    <label class="form-label">Положення по горизонталі</label>
+                                    <input class="form-range js-profile-crop-x" type="range" min="0" max="100" value="50" />
+                                    <label class="form-label">Положення по вертикалі</label>
+                                    <input class="form-range js-profile-crop-y" type="range" min="0" max="100" value="50" />
+                                </div>
+                            </div>
                         </div>
                         <div class="col-12">
                             <label asp-for="Summary" class="form-label">Короткий опис</label>
@@ -87,10 +101,7 @@
                 </div>
 
                 <div class="profile-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="ti ti-device-floppy me-1"></i>
-                        Зберегти зміни
-                    </button>
+                    <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-1"></i>Зберегти зміни</button>
                 </div>
             </div>
         </form>
@@ -99,4 +110,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/profile-image-crop.js" asp-append-version="true"></script>
 }

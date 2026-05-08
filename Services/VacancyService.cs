@@ -133,6 +133,7 @@ public class VacancyService : IVacancyService
             EmployerProfileId = employerProfile.Id,
             City = employerProfile.City,
             CategoryId = int.TryParse(categories.FirstOrDefault()?.Value, out var categoryId) ? categoryId : 0,
+            CategoryName = categories.FirstOrDefault()?.Text ?? string.Empty,
             CategoryOptions = categories,
             SkillOptions = await GetSkillsAsync()
         };
@@ -142,6 +143,7 @@ public class VacancyService : IVacancyService
     {
         var vacancy = await _context.Vacancies
             .Include(x => x.EmployerProfile)
+            .Include(x => x.Category)
             .Include(x => x.VacancySkills)
             .ThenInclude(x => x.Skill)
             .FirstOrDefaultAsync(x => x.Id == id && x.EmployerProfile != null && x.EmployerProfile.UserId == userId);
@@ -156,6 +158,7 @@ public class VacancyService : IVacancyService
             Id = vacancy.Id,
             EmployerProfileId = vacancy.EmployerProfileId,
             CategoryId = vacancy.CategoryId,
+            CategoryName = vacancy.Category?.Name ?? string.Empty,
             Title = vacancy.Title,
             Description = vacancy.Description,
             Requirements = vacancy.Requirements,
@@ -239,11 +242,12 @@ public class VacancyService : IVacancyService
     public async Task CreateAsync(string userId, VacancyFormViewModel model)
     {
         var employerProfile = await GetEmployerProfileAsync(userId);
+        var categoryId = await ResolveCategoryIdAsync(model.CategoryName, model.CategoryId);
 
         var vacancy = new Models.Vacancy
         {
             EmployerProfileId = employerProfile.Id,
-            CategoryId = model.CategoryId,
+            CategoryId = categoryId,
             Title = model.Title,
             Description = model.Description,
             Requirements = model.Requirements,
@@ -270,7 +274,7 @@ public class VacancyService : IVacancyService
             .Include(x => x.EmployerProfile)
             .FirstAsync(x => x.Id == model.Id && x.EmployerProfile != null && x.EmployerProfile.UserId == userId);
 
-        vacancy.CategoryId = model.CategoryId;
+        vacancy.CategoryId = await ResolveCategoryIdAsync(model.CategoryName, model.CategoryId);
         vacancy.Title = model.Title;
         vacancy.Description = model.Description;
         vacancy.Requirements = model.Requirements;
@@ -343,7 +347,38 @@ public class VacancyService : IVacancyService
     private async Task<Models.EmployerProfile> GetEmployerProfileAsync(string userId)
     {
         var profile = await _context.EmployerProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
-        return profile ?? throw new InvalidOperationException("Employer profile was not found.");
+        return profile ?? throw new InvalidOperationException("Профіль роботодавця не знайдено.");
+    }
+
+    private async Task<int> ResolveCategoryIdAsync(string? categoryName, int fallbackCategoryId)
+    {
+        var normalizedName = NormalizeName(categoryName);
+        if (string.IsNullOrWhiteSpace(normalizedName) && fallbackCategoryId > 0)
+        {
+            var fallbackCategory = await _context.Categories.FirstOrDefaultAsync(x => x.Id == fallbackCategoryId);
+            if (fallbackCategory is not null)
+            {
+                return fallbackCategory.Id;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            normalizedName = "Інше";
+        }
+
+        var existingCategory = await _context.Categories
+            .FirstOrDefaultAsync(x => x.Name.ToLower() == normalizedName.ToLower());
+
+        if (existingCategory is not null)
+        {
+            return existingCategory.Id;
+        }
+
+        var category = new Models.Category { Name = normalizedName };
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
+        return category.Id;
     }
 
     private async Task SyncSkillsAsync(int vacancyId, List<int> selectedSkillIds, string? skillsText)
@@ -359,12 +394,18 @@ public class VacancyService : IVacancyService
 
         foreach (var skillName in typedSkillNames)
         {
+            var normalizedSkillName = NormalizeName(skillName);
+            if (string.IsNullOrWhiteSpace(normalizedSkillName))
+            {
+                continue;
+            }
+
             var existingSkill = await _context.Skills
-                .FirstOrDefaultAsync(x => x.Name.ToLower() == skillName.ToLower());
+                .FirstOrDefaultAsync(x => x.Name.ToLower() == normalizedSkillName.ToLower());
 
             if (existingSkill is null)
             {
-                existingSkill = new Models.Skill { Name = skillName };
+                existingSkill = new Models.Skill { Name = normalizedSkillName };
                 _context.Skills.Add(existingSkill);
                 await _context.SaveChangesAsync();
             }
@@ -389,5 +430,11 @@ public class VacancyService : IVacancyService
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static string NormalizeName(string? value)
+    {
+        return string.Join(" ", (value ?? string.Empty)
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
     }
 }

@@ -36,13 +36,13 @@
                     <dd class="col-sm-8">@Model.SkillsDescription</dd>
 
                     <dt class="col-sm-4">Тип зайнятості</dt>
-                    <dd class="col-sm-8">@Model.EmploymentType</dd>
+                    <dd class="col-sm-8">@Model.EmploymentType.GetDisplayName()</dd>
 
                     <dt class="col-sm-4">Досвід</dt>
-                    <dd class="col-sm-8">@Model.ExperienceLevel (@Model.ExperienceYears років)</dd>
+                    <dd class="col-sm-8">@Model.ExperienceLevel.GetDisplayName() (@Model.ExperienceYears років)</dd>
 
                     <dt class="col-sm-4">Рівень освіти</dt>
-                    <dd class="col-sm-8">@Model.EducationLevel</dd>
+                    <dd class="col-sm-8">@Model.EducationLevel.GetDisplayName()</dd>
 
                     <dt class="col-sm-4">Бажана зарплата</dt>
                     <dd class="col-sm-8">@Model.DesiredSalary</dd>
