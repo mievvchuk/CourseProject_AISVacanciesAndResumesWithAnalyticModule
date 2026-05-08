@@ -1,5 +1,16 @@
 # Railway Deploy
 
+## Render + Neon note
+
+If Railway free limits are not enough, deploy the same Docker app on Render and use Neon PostgreSQL:
+
+```text
+ASPNETCORE_ENVIRONMENT=Production
+DATABASE_URL=postgresql://user:password@host.neon.tech/database?sslmode=require
+```
+
+`DATABASE_URL` is preferred over the local `appsettings.json` connection string, so production containers do not try to connect to `localhost`.
+
 ## 1. Push to GitHub
 
 1. Commit the project files.

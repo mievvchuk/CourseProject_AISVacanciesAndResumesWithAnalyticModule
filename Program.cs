@@ -161,19 +161,19 @@ app.Run();
 
 static string? ResolveConnectionString(IConfiguration configuration)
 {
-    var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-    if (string.IsNullOrWhiteSpace(connectionString))
-    {
-        connectionString = configuration["DATABASE_PRIVATE_URL"]
-            ?? configuration["DATABASE_URL"]
-            ?? configuration["POSTGRES_URL"]
-            ?? configuration["POSTGRESQL_URL"];
-    }
+    var connectionString = configuration["DATABASE_PRIVATE_URL"]
+        ?? configuration["DATABASE_URL"]
+        ?? configuration["POSTGRES_URL"]
+        ?? configuration["POSTGRESQL_URL"];
 
     if (string.IsNullOrWhiteSpace(connectionString))
     {
         connectionString = BuildConnectionStringFromPostgresVariables(configuration);
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        connectionString = configuration.GetConnectionString("DefaultConnection");
     }
 
     if (string.IsNullOrWhiteSpace(connectionString))
