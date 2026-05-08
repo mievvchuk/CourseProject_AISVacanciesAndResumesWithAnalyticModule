@@ -132,8 +132,7 @@ public class VacancyService : IVacancyService
         {
             EmployerProfileId = employerProfile.Id,
             City = employerProfile.City,
-            CategoryId = int.TryParse(categories.FirstOrDefault()?.Value, out var categoryId) ? categoryId : 0,
-            CategoryName = categories.FirstOrDefault()?.Text ?? string.Empty,
+            CategoryId = 0,
             CategoryOptions = categories,
             SkillOptions = await GetSkillsAsync()
         };
@@ -158,7 +157,7 @@ public class VacancyService : IVacancyService
             Id = vacancy.Id,
             EmployerProfileId = vacancy.EmployerProfileId,
             CategoryId = vacancy.CategoryId,
-            CategoryName = vacancy.Category?.Name ?? string.Empty,
+            CategoryName = null,
             Title = vacancy.Title,
             Description = vacancy.Description,
             Requirements = vacancy.Requirements,
@@ -250,14 +249,14 @@ public class VacancyService : IVacancyService
             CategoryId = categoryId,
             Title = model.Title,
             Description = model.Description,
-            Requirements = model.Requirements,
+            Requirements = model.Requirements ?? string.Empty,
             SalaryFrom = model.SalaryFrom,
             SalaryTo = model.SalaryTo,
             EmploymentType = model.EmploymentType,
             ExperienceLevel = model.ExperienceLevel,
             Status = VacancyStatus.UnderModeration,
             IsActive = false,
-            Location = model.Location,
+            Location = model.Location ?? string.Empty,
             ClosingDate = model.ClosingDate
         };
 
@@ -277,14 +276,14 @@ public class VacancyService : IVacancyService
         vacancy.CategoryId = await ResolveCategoryIdAsync(model.CategoryName, model.CategoryId);
         vacancy.Title = model.Title;
         vacancy.Description = model.Description;
-        vacancy.Requirements = model.Requirements;
+        vacancy.Requirements = model.Requirements ?? string.Empty;
         vacancy.SalaryFrom = model.SalaryFrom;
         vacancy.SalaryTo = model.SalaryTo;
         vacancy.EmploymentType = model.EmploymentType;
         vacancy.ExperienceLevel = model.ExperienceLevel;
         vacancy.Status = VacancyStatus.UnderModeration;
         vacancy.IsActive = false;
-        vacancy.Location = model.Location;
+        vacancy.Location = model.Location ?? string.Empty;
         vacancy.ClosingDate = model.ClosingDate;
         vacancy.UpdatedAt = DateTime.UtcNow;
 

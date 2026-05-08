@@ -47,7 +47,7 @@ public class VacancyFormViewModel
 
     [StringLength(80, ErrorMessage = "Категорія має містити не більше 80 символів")]
     [Display(Name = "Категорія")]
-    public string CategoryName { get; set; } = string.Empty;
+    public string? CategoryName { get; set; }
 
     [Required(ErrorMessage = "Вкажіть назву вакансії")]
     [Display(Name = "Назва вакансії")]
@@ -58,7 +58,7 @@ public class VacancyFormViewModel
     public string Description { get; set; } = string.Empty;
 
     [Display(Name = "Вимоги")]
-    public string Requirements { get; set; } = string.Empty;
+    public string? Requirements { get; set; }
 
     [Range(0, 1000000, ErrorMessage = "Зарплата має бути в межах від 0 до 1 000 000")]
     [Display(Name = "Зарплата від")]
@@ -81,7 +81,7 @@ public class VacancyFormViewModel
     public bool IsActive { get; set; }
 
     [Display(Name = "Локація")]
-    public string Location { get; set; } = string.Empty;
+    public string? Location { get; set; }
 
     [Display(Name = "Актуальна до")]
     public DateTime? ClosingDate { get; set; }
@@ -90,7 +90,7 @@ public class VacancyFormViewModel
     public List<int> SelectedSkillIds { get; set; } = new();
 
     [Display(Name = "Додаткові навички")]
-    public string SkillsText { get; set; } = string.Empty;
+    public string? SkillsText { get; set; }
 
     public List<string> SelectedSkillNames { get; set; } = new();
 

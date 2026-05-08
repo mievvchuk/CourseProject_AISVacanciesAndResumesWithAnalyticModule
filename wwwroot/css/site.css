@@ -1507,6 +1507,15 @@ body {
   gap: 0.5rem;
 }
 
+.profile-details-page {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-details-page .card {
+  width: 100%;
+}
+
 @media (max-width: 767.98px) {
   .app-nav-container,
   .app-main-nav {
