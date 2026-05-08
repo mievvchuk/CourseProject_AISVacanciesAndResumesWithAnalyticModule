@@ -69,7 +69,7 @@
 
             <div class="vacancy-overview-footer">
                 <span class="badge bg-green-lt text-green">@Model.Status.GetDisplayName()</span>
-                <span class="text-secondary">Опубліковано: @Model.PublishedAt.ToString("dd.MM.yyyy")</span>
+                <span class="text-secondary">Опубліковано: @Model.PublishedAt.ToKyivString("dd.MM.yyyy HH:mm")</span>
                 @if (Model.ClosingDate.HasValue)
                 {
                     <span class="text-secondary">Актуальна до: @Model.ClosingDate.Value.ToString("dd.MM.yyyy")</span>

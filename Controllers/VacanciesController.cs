@@ -77,6 +77,7 @@ public class VacanciesController : Controller
             return RedirectToAction("Create", "EmployerProfiles");
         }
 
+        NormalizeSkillSelection(model);
         await ValidateVacancyModelAsync(model);
 
         if (!ModelState.IsValid)
@@ -114,6 +115,7 @@ public class VacanciesController : Controller
             return RedirectToAction("Create", "EmployerProfiles");
         }
 
+        NormalizeSkillSelection(model);
         await ValidateVacancyModelAsync(model);
 
         if (!ModelState.IsValid)
@@ -195,5 +197,15 @@ public class VacanciesController : Controller
         {
             ModelState.AddModelError(nameof(model.SelectedSkillIds), "Одна або кілька обраних навичок не існують.");
         }
+    }
+
+    private void NormalizeSkillSelection(VacancyFormViewModel model)
+    {
+        model.SelectedSkillIds = model.SelectedSkillIds?
+            .Where(x => x > 0)
+            .Distinct()
+            .ToList() ?? new List<int>();
+
+        ModelState.Remove(nameof(model.SelectedSkillIds));
     }
 }

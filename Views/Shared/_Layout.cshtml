@@ -29,7 +29,8 @@
             unreadMessageCount = await MessageService.GetUnreadCountAsync(userId);
         }
 
-        var hour = DateTime.Now.Hour;
+        var currentKyivTime = DateTime.UtcNow.ToKyivTime();
+        var hour = currentKyivTime.Hour;
         var greeting = hour < 12 ? "Доброго ранку" : hour < 18 ? "Добрий день" : "Добрий вечір";
         var currentUser = isAuthenticated ? await UserManager.GetUserAsync(User) : null;
         var displayName = !string.IsNullOrWhiteSpace(currentUser?.FullName)
@@ -190,7 +191,7 @@
                             </ul>
                         </div>
                         <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                            <span class="text-secondary">&copy; @DateTime.Now.Year АІС вакансій та резюме. Навчальний проєкт.</span>
+                            <span class="text-secondary">&copy; @currentKyivTime.Year АІС вакансій та резюме. Навчальний проєкт.</span>
                         </div>
                     </div>
                 </div>

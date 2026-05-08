@@ -55,7 +55,7 @@
                                 <div class="application-meta">
                                     <span><i class="ti ti-file-text"></i>@item.ResumeTitle</span>
                                     <span><i class="ti ti-percentage"></i>@item.MatchingPercent% відповідності</span>
-                                    <span><i class="ti ti-calendar"></i>@item.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                    <span><i class="ti ti-calendar"></i>@item.CreatedAt.ToKyivString("dd.MM.yyyy HH:mm")</span>
                                 </div>
                             </div>
                             <span class="badge @GetStatusClass(item.Status)">@item.Status.GetDisplayName()</span>

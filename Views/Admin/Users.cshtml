@@ -84,7 +84,7 @@
                                         <span class="badge text-bg-secondary">Деактивований</span>
                                     }
                                 </td>
-                                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@item.CreatedAt.ToKyivString()</td>
                                 <td class="text-end">
                                     @if (item.IsActive)
                                     {

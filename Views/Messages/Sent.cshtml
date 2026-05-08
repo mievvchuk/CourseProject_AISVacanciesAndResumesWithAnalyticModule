@@ -37,7 +37,7 @@ else
                         <td>@item.Subject</td>
                         <td>@item.OtherUserName</td>
                         <td>@(item.IsRead ? "Так" : "Ні")</td>
-                        <td>@item.SentAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@item.SentAt.ToKyivString()</td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Відкрити</a>
                         </td>

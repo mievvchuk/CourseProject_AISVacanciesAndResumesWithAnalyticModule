@@ -62,7 +62,7 @@
                         {
                             <a href="@Model.FilePath" target="_blank">@Model.OriginalFileName</a>
                             <div class="text-muted small">
-                                @Model.ContentType, @Model.FileSize байт, завантажено @Model.UploadedAt
+                                @Model.ContentType, @Model.FileSize байт, завантажено @Model.UploadedAt.ToKyivString()
                             </div>
                         }
                         else

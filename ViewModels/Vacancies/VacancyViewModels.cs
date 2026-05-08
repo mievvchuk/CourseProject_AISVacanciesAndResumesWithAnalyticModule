@@ -45,7 +45,6 @@ public class VacancyFormViewModel
     [Display(Name = "Категорія")]
     public int CategoryId { get; set; }
 
-    [Required(ErrorMessage = "Вкажіть категорію")]
     [StringLength(80, ErrorMessage = "Категорія має містити не більше 80 символів")]
     [Display(Name = "Категорія")]
     public string CategoryName { get; set; } = string.Empty;

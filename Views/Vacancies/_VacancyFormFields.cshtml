@@ -1,23 +1,23 @@
 @model VacancyFormViewModel
 
-<div class="row g-3">
+<div class="row g-3 vacancy-form-grid">
     <div class="col-md-8">
         <label asp-for="Title" class="form-label"></label>
         <input asp-for="Title" class="form-control" />
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
     <div class="col-md-4">
-        <label asp-for="CategoryName" class="form-label"></label>
-        <input asp-for="CategoryName" class="form-control" list="vacancy-category-options" placeholder="Наприклад: Медицина" autocomplete="off" />
-        <datalist id="vacancy-category-options">
-            @foreach (var category in Model.CategoryOptions)
-            {
-                <option value="@category.Text"></option>
-            }
-        </datalist>
-        <input asp-for="CategoryId" type="hidden" />
+        <label class="form-label" asp-for="CategoryId">Категорія зі списку</label>
+        <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+            <option value="0">Оберіть категорію</option>
+        </select>
+        <div class="form-hint">Або введіть свою категорію нижче.</div>
+    </div>
+    <div class="col-12">
+        <label asp-for="CategoryName" class="form-label">Своя категорія</label>
+        <input asp-for="CategoryName" class="form-control" placeholder="Наприклад: Медицина" autocomplete="off" />
         <span asp-validation-for="CategoryName" class="text-danger"></span>
-        <div class="form-hint">Можна вибрати зі списку або вписати власну категорію.</div>
+        <div class="form-hint">Заповнюйте це поле тільки якщо потрібної категорії немає у списку.</div>
     </div>
     <div class="col-12">
         <label asp-for="Description" class="form-label"></label>
@@ -56,9 +56,26 @@
         <input asp-for="ClosingDate" class="form-control" type="date" />
     </div>
     <div class="col-md-6">
-        <label asp-for="SelectedSkillIds" class="form-label"></label>
-        <select asp-for="SelectedSkillIds" asp-items="Model.SkillOptions" class="form-select" multiple size="7"></select>
-        <div class="form-hint">Це необов’язково. Можна обрати готові навички або просто вписати свої праворуч.</div>
+        <label class="form-label">Готові навички</label>
+        <div class="vacancy-skill-picker">
+            @if (Model.SkillOptions.Any())
+            {
+                @foreach (var skill in Model.SkillOptions)
+                {
+                    var isChecked = int.TryParse(skill.Value, out var skillId) && Model.SelectedSkillIds.Contains(skillId);
+                    <label class="form-check vacancy-skill-option">
+                        <input class="form-check-input" type="checkbox" name="SelectedSkillIds" value="@skill.Value" checked="@isChecked" />
+                        <span class="form-check-label">@skill.Text</span>
+                    </label>
+                }
+            }
+            else
+            {
+                <div class="text-secondary">Готових навичок ще немає.</div>
+            }
+        </div>
+        <span asp-validation-for="SelectedSkillIds" class="text-danger"></span>
+        <div class="form-hint">Необов’язково. Можна нічого не обирати й просто вписати свої навички.</div>
     </div>
     <div class="col-md-6">
         <label asp-for="SkillsText" class="form-label"></label>

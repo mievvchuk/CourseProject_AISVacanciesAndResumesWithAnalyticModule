@@ -90,7 +90,7 @@
                             </div>
                         }
 
-                        <div class="resume-card-updated">Оновлено: @item.UpdatedAt.ToString("dd.MM.yyyy")</div>
+                        <div class="resume-card-updated">Оновлено: @item.UpdatedAt.ToKyivString("dd.MM.yyyy HH:mm")</div>
 
                         <div class="resume-card-actions">
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">

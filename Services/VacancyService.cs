@@ -381,7 +381,7 @@ public class VacancyService : IVacancyService
         return category.Id;
     }
 
-    private async Task SyncSkillsAsync(int vacancyId, List<int> selectedSkillIds, string? skillsText)
+    private async Task SyncSkillsAsync(int vacancyId, List<int>? selectedSkillIds, string? skillsText)
     {
         var existingItems = await _context.VacancySkills
             .Where(x => x.VacancyId == vacancyId)
@@ -389,7 +389,10 @@ public class VacancyService : IVacancyService
 
         _context.VacancySkills.RemoveRange(existingItems);
 
-        var skillIds = selectedSkillIds.Distinct().ToList();
+        var skillIds = (selectedSkillIds ?? new List<int>())
+            .Where(x => x > 0)
+            .Distinct()
+            .ToList();
         var typedSkillNames = SplitSkillNames(skillsText);
 
         foreach (var skillName in typedSkillNames)

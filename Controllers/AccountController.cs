@@ -61,22 +61,28 @@ public class AccountController : Controller
         await _userManager.AddToRoleAsync(user, model.Role.Value.ToString());
         await _signInManager.SignInAsync(user, isPersistent: false);
 
-        return model.Role switch
-        {
-            UserRoleType.Candidate => RedirectToAction("Edit", "CandidateProfiles"),
-            UserRoleType.Employer => RedirectToAction("Edit", "EmployerProfiles"),
-            _ => RedirectToAction("Index", "Home")
-        };
+        return await RedirectAfterSignInAsync(user);
     }
 
     [HttpGet]
-    public IActionResult Login()
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Login()
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser is not null)
+            {
+                return await RedirectAfterSignInAsync(currentUser);
+            }
+        }
+
         return View(new LoginViewModel());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)
@@ -98,9 +104,9 @@ public class AccountController : Controller
             return View(model);
         }
 
-        if (user is not null && await _userManager.IsInRoleAsync(user, UserRoleType.Admin.ToString()))
+        if (user is not null)
         {
-            return RedirectToAction("Dashboard", "Admin");
+            return await RedirectAfterSignInAsync(user);
         }
 
         return RedirectToAction("Index", "Home");
@@ -118,5 +124,25 @@ public class AccountController : Controller
     public IActionResult AccessDenied()
     {
         return View();
+    }
+
+    private async Task<IActionResult> RedirectAfterSignInAsync(User user)
+    {
+        if (await _userManager.IsInRoleAsync(user, UserRoleType.Admin.ToString()))
+        {
+            return RedirectToAction("Dashboard", "Admin");
+        }
+
+        if (await _userManager.IsInRoleAsync(user, UserRoleType.Employer.ToString()))
+        {
+            return RedirectToAction("Edit", "EmployerProfiles");
+        }
+
+        if (await _userManager.IsInRoleAsync(user, UserRoleType.Candidate.ToString()))
+        {
+            return RedirectToAction("Edit", "CandidateProfiles");
+        }
+
+        return RedirectToAction("Index", "Home");
     }
 }

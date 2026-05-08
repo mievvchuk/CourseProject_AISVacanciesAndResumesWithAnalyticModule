@@ -33,7 +33,7 @@ else
                             <td>@item.Title</td>
                             <td>@item.Type.GetDisplayName()</td>
                             <td>@(item.IsRead ? "Прочитано" : "Непрочитано")</td>
-                            <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@item.CreatedAt.ToKyivString()</td>
                             <td class="text-end">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Відкрити</a>
                                 @if (!item.IsRead)

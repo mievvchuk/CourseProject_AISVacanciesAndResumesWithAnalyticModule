@@ -72,7 +72,7 @@
                         <div class="saved-search-card-header">
                             <div>
                                 <h2>@ValueOrDefault(item.Query, "Будь-які вакансії")</h2>
-                                <div class="text-secondary">Створено: @item.CreatedAt.ToString("dd.MM.yyyy")</div>
+                                <div class="text-secondary">Створено: @item.CreatedAt.ToKyivString("dd.MM.yyyy HH:mm")</div>
                             </div>
                             <i class="ti ti-bell saved-search-bell" title="Збережений пошук"></i>
                         </div>
