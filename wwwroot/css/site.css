@@ -166,6 +166,32 @@ body {
   box-shadow: 0 1rem 2.25rem rgba(15, 23, 42, 0.07);
 }
 
+.content-center-page {
+  display: flex;
+  justify-content: center;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.content-center-page-md {
+  max-width: 46rem;
+}
+
+.content-center-page-lg {
+  max-width: 56rem;
+}
+
+.message-compose-form {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.message-compose-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .workspace-home {
   display: grid;
   gap: 1rem;
@@ -2082,6 +2108,14 @@ body {
 
   .workspace-tile {
     min-height: auto;
+  }
+
+  .content-center-page {
+    max-width: none;
+  }
+
+  .message-compose-actions .btn {
+    width: 100%;
   }
 
   .profile-edit-header {

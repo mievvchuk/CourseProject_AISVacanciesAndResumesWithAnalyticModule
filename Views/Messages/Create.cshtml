@@ -4,12 +4,12 @@
     ViewData["Title"] = "Нове повідомлення";
 }
 
-<div class="row">
-    <div class="col-md-8">
+<div class="content-center-page content-center-page-md">
+    <div class="w-100">
         <div class="card shadow-sm border-0">
             <div class="card-body">
                 <h2 class="h4 mb-4">Надіслати повідомлення</h2>
-                <form asp-action="Create" method="post">
+                <form asp-action="Create" method="post" class="message-compose-form">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                     <div class="mb-3">
                         <label asp-for="ReceiverId" class="form-label">Отримувач</label>
@@ -33,11 +33,13 @@
                     </div>
                     <div class="mb-3">
                         <label asp-for="Content" class="form-label">Текст повідомлення</label>
-                        <textarea asp-for="Content" class="form-control" rows="7"></textarea>
+                        <textarea asp-for="Content" class="form-control" rows="6"></textarea>
                         <span asp-validation-for="Content" class="text-danger"></span>
                     </div>
-                    <button type="submit" class="btn btn-primary">Надіслати</button>
-                    <a asp-action="Inbox" class="btn btn-outline-secondary">Скасувати</a>
+                    <div class="message-compose-actions">
+                        <button type="submit" class="btn btn-primary">Надіслати</button>
+                        <a asp-action="Inbox" class="btn btn-outline-secondary">Скасувати</a>
+                    </div>
                 </form>
             </div>
         </div>
