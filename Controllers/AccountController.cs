@@ -3,18 +3,26 @@ using AisVacanciesAndResumes.Models;
 using AisVacanciesAndResumes.ViewModels.Account;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
+using AisVacanciesAndResumes.Services;
 namespace AisVacanciesAndResumes.Controllers;
 
 public class AccountController : Controller
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
+    private readonly ICandidateProfileService _candidateProfileService;
+    private readonly IEmployerProfileService _employerProfileService;
 
-    public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+    public AccountController(
+    UserManager<User> userManager,
+    SignInManager<User> signInManager,
+    ICandidateProfileService candidateProfileService,
+    IEmployerProfileService employerProfileService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _candidateProfileService = candidateProfileService;
+        _employerProfileService = employerProfileService;
     }
 
     [HttpGet]
@@ -135,12 +143,20 @@ public class AccountController : Controller
 
         if (await _userManager.IsInRoleAsync(user, UserRoleType.Employer.ToString()))
         {
-            return RedirectToAction("Edit", "EmployerProfiles");
+            var hasProfile = await _employerProfileService.ExistsAsync(user.Id);
+
+            return hasProfile
+                ? RedirectToAction("Index", "Home")
+                : RedirectToAction("Edit", "EmployerProfiles");
         }
 
         if (await _userManager.IsInRoleAsync(user, UserRoleType.Candidate.ToString()))
         {
-            return RedirectToAction("Edit", "CandidateProfiles");
+            var hasProfile = await _candidateProfileService.ExistsAsync(user.Id);
+
+            return hasProfile
+                ? RedirectToAction("Index", "Home")
+                : RedirectToAction("Edit", "CandidateProfiles");
         }
 
         return RedirectToAction("Index", "Home");

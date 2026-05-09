@@ -2,56 +2,124 @@
 
 @{
     ViewData["Title"] = "Профіль кандидата";
-    string Show(string? value) => string.IsNullOrWhiteSpace(value) ? "Не вказано" : value;
+
+    string Show(string? value, string fallback = "Не вказано")
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
+
+    var salary = Model.DesiredSalary.HasValue
+        ? $"{Model.DesiredSalary.Value:N0} грн"
+        : "Не вказано";
+
+    var experienceYears = Model.ExperienceYears == 1
+        ? "1 рік"
+        : Model.ExperienceYears is >= 2 and <= 4
+            ? $"{Model.ExperienceYears} роки"
+            : $"{Model.ExperienceYears} років";
 }
 
-<div class="row justify-content-center profile-details-page">
-    <div class="col-lg-8 col-xl-7">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4 profile-details-head">
-                    <div class="d-flex align-items-center gap-3">
+<section class="profile-show-page">
+    <div class="profile-show-card card shadow-sm border-0">
+        <div class="profile-show-cover profile-show-cover-candidate"></div>
+
+        <div class="card-body">
+            <div class="profile-show-head">
+                <div class="profile-show-identity">
+                    <div class="profile-show-avatar-wrap">
                         @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
                         {
                             <img src="@Model.PhotoPath"
                                  alt="@Model.FullName"
-                                 class="img-thumbnail border profile-details-photo"
+                                 class="profile-show-avatar-image"
                                  onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
 
-                            <div class="profile-avatar profile-avatar-placeholder d-none">
+                            <div class="profile-show-avatar-placeholder d-none">
                                 <i class="ti ti-user"></i>
                             </div>
                         }
                         else
                         {
-                            <div class="profile-avatar profile-avatar-placeholder">
+                            <div class="profile-show-avatar-placeholder">
                                 <i class="ti ti-user"></i>
                             </div>
                         }
-                        <div>
-                            <h2 class="h4 mb-1">@Model.FullName</h2>
-                            <div class="text-muted">@Model.Email</div>
+                    </div>
+
+                    <div>
+                        <div class="profile-show-eyebrow">Профіль кандидата</div>
+                        <h1>@Show(Model.FullName, "Кандидат")</h1>
+                        <div class="profile-show-subtitle">
+                            <i class="ti ti-mail"></i>
+                            <span>@Show(Model.Email)</span>
                         </div>
                     </div>
-                    <a asp-action="Edit" class="btn btn-primary">Редагувати</a>
                 </div>
-                <dl class="row mb-0">
-                    <dt class="col-sm-4">Професійна роль</dt>
-                    <dd class="col-sm-8">@Show(Model.Headline)</dd>
-                    <dt class="col-sm-4">Опис</dt>
-                    <dd class="col-sm-8">@Show(Model.Summary)</dd>
-                    <dt class="col-sm-4">Місто</dt>
-                    <dd class="col-sm-8">@Show(Model.City)</dd>
-                    <dt class="col-sm-4">Роки досвіду</dt>
-                    <dd class="col-sm-8">@Model.ExperienceYears</dd>
-                    <dt class="col-sm-4">Рівень досвіду</dt>
-                    <dd class="col-sm-8">@Model.ExperienceLevel.GetDisplayName()</dd>
-                    <dt class="col-sm-4">Рівень освіти</dt>
-                    <dd class="col-sm-8">@Model.EducationLevel.GetDisplayName()</dd>
-                    <dt class="col-sm-4">Бажана зарплата</dt>
-                    <dd class="col-sm-8">@(Model.DesiredSalary.HasValue ? Model.DesiredSalary.Value.ToString("0.##") : "Не вказано")</dd>
-                </dl>
+
+                <a asp-action="Edit" class="btn btn-primary">
+                    <i class="ti ti-edit me-1"></i>
+                    Редагувати
+                </a>
+            </div>
+
+            <div class="profile-show-metrics">
+                <div class="profile-show-metric">
+                    <i class="ti ti-briefcase"></i>
+                    <span>Професійна роль</span>
+                    <strong>@Show(Model.Headline)</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-map-pin"></i>
+                    <span>Місто</span>
+                    <strong>@Show(Model.City)</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-chart-bar"></i>
+                    <span>Досвід</span>
+                    <strong>@Model.ExperienceLevel.GetDisplayName() · @experienceYears</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-currency-hryvnia"></i>
+                    <span>Бажана зарплата</span>
+                    <strong>@salary</strong>
+                </div>
+            </div>
+
+            <div class="profile-show-content">
+                <section class="profile-show-section">
+                    <h2>Короткий опис</h2>
+                    <p>@Show(Model.Summary, "Кандидат ще не додав опис профілю.")</p>
+                </section>
+
+                <section class="profile-show-section">
+                    <h2>Додаткова інформація</h2>
+
+                    <dl class="profile-show-list">
+                        <div>
+                            <dt>Роки досвіду</dt>
+                            <dd>@Model.ExperienceYears</dd>
+                        </div>
+
+                        <div>
+                            <dt>Рівень досвіду</dt>
+                            <dd>@Model.ExperienceLevel.GetDisplayName()</dd>
+                        </div>
+
+                        <div>
+                            <dt>Рівень освіти</dt>
+                            <dd>@Model.EducationLevel.GetDisplayName()</dd>
+                        </div>
+
+                        <div>
+                            <dt>Бажана зарплата</dt>
+                            <dd>@salary</dd>
+                        </div>
+                    </dl>
+                </section>
             </div>
         </div>
     </div>
-</div>
+</section>

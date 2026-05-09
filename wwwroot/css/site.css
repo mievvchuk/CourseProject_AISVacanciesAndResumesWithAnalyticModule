@@ -2902,3 +2902,220 @@ body {
     max-width: 100%;
   }
 }
+.profile-show-page {
+  margin-inline: auto;
+  max-width: 64rem;
+}
+
+.profile-show-card {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+  .profile-show-card .card-body {
+    padding: 0 1.75rem 1.75rem;
+  }
+
+.profile-show-cover {
+  min-height: 7.25rem;
+}
+
+.profile-show-cover-candidate {
+  background: linear-gradient(90deg, rgba(32, 107, 196, 0.2), rgba(47, 179, 68, 0.14)), #eef4fb;
+}
+
+.profile-show-cover-employer {
+  background: linear-gradient(90deg, rgba(32, 107, 196, 0.2), rgba(245, 159, 0, 0.14)), #eef4fb;
+}
+
+.profile-show-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: -3.4rem;
+  padding-bottom: 1.5rem;
+}
+
+.profile-show-identity {
+  align-items: flex-end;
+  display: flex;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.profile-show-avatar-wrap {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 0.75rem 2rem rgba(15, 23, 42, 0.14);
+  flex: 0 0 auto;
+  padding: 0.35rem;
+}
+
+.profile-show-avatar-image,
+.profile-show-avatar-placeholder {
+  align-items: center;
+  background: linear-gradient(135deg, #eef4fb, #e8f7ee);
+  border-radius: 10px;
+  color: #206bc4;
+  display: flex;
+  font-size: 2.35rem;
+  height: 6.75rem;
+  justify-content: center;
+  object-fit: cover;
+  overflow: hidden;
+  width: 6.75rem;
+}
+
+.profile-show-eyebrow {
+  color: #667085;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.profile-show-head h1 {
+  color: #101828;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.profile-show-subtitle {
+  align-items: center;
+  color: #667085;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.profile-show-dot {
+  color: #98a2b3;
+}
+
+.profile-show-metrics {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 1.25rem;
+}
+
+.profile-show-metric {
+  background: #f8fafc;
+  border: 1px solid rgba(98, 105, 118, 0.13);
+  border-radius: 10px;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.9rem;
+}
+
+  .profile-show-metric i {
+    color: #206bc4;
+    font-size: 1.2rem;
+  }
+
+  .profile-show-metric span {
+    color: #667085;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .profile-show-metric strong {
+    color: #182433;
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+.profile-show-content {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+}
+
+.profile-show-section {
+  background: #ffffff;
+  border: 1px solid rgba(98, 105, 118, 0.13);
+  border-radius: 10px;
+  padding: 1.1rem;
+}
+
+  .profile-show-section h2 {
+    color: #101828;
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+  }
+
+  .profile-show-section p {
+    color: #475467;
+    line-height: 1.65;
+    margin: 0;
+    white-space: pre-line;
+  }
+
+.profile-show-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+  .profile-show-list div {
+    border-bottom: 1px solid rgba(98, 105, 118, 0.1);
+    display: grid;
+    gap: 0.2rem;
+    padding-bottom: 0.75rem;
+  }
+
+    .profile-show-list div:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+  .profile-show-list dt {
+    color: #667085;
+    font-size: 0.78rem;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .profile-show-list dd {
+    color: #182433;
+    margin: 0;
+    word-break: break-word;
+  }
+
+@media (max-width: 992px) {
+  .profile-show-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-show-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-show-card .card-body {
+    padding-inline: 1rem;
+  }
+
+  .profile-show-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-show-identity {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .profile-show-metrics {
+    grid-template-columns: 1fr;
+  }
+}
