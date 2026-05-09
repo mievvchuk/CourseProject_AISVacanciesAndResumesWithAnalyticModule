@@ -28,7 +28,25 @@ public class EmployerProfileService : IEmployerProfileService
     {
         return await _context.EmployerProfiles.AnyAsync(x => x.UserId == userId);
     }
+    private string? GetExistingPublicFilePath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return null;
+        }
 
+        if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return path;
+        }
+
+        var fullPath = Path.Combine(
+            _environment.WebRootPath,
+            path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+        return File.Exists(fullPath) ? path : null;
+    }
     public async Task<EmployerProfileFormViewModel> GetOrCreateFormAsync(string userId)
     {
         var profile = await EnsureProfileAsync(userId);
@@ -44,7 +62,7 @@ public class EmployerProfileService : IEmployerProfileService
             City = profile.City,
             Location = profile.Location,
             FoundedYear = profile.FoundedYear,
-            LogoPath = profile.LogoPath
+            LogoPath = GetExistingPublicFilePath(profile.LogoPath)
         };
     }
 
@@ -69,7 +87,7 @@ public class EmployerProfileService : IEmployerProfileService
             CompanySize = profile.CompanySize,
             Website = profile.Website,
             City = profile.City,
-            LogoPath = profile.LogoPath
+            LogoPath = GetExistingPublicFilePath(profile.LogoPath)
         };
     }
 

@@ -22,6 +22,25 @@ public class CandidateProfileService : ICandidateProfileService
     {
         return await _context.CandidateProfiles.AnyAsync(x => x.UserId == userId);
     }
+    private string? GetExistingPublicFilePath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return null;
+        }
+
+        if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return path;
+        }
+
+        var fullPath = Path.Combine(
+            _environment.WebRootPath,
+            path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+        return File.Exists(fullPath) ? path : null;
+    }
     public async Task<bool> IsCompletedAsync(string userId)
     {
         return await _context.CandidateProfiles.AnyAsync(x =>
@@ -40,7 +59,7 @@ public class CandidateProfileService : ICandidateProfileService
             Headline = profile.Headline,
             Summary = profile.Summary,
             City = profile.City,
-            PhotoPath = profile.PhotoPath,
+            PhotoPath = GetExistingPublicFilePath(profile.PhotoPath),
             ExperienceYears = profile.ExperienceYears,
             ExperienceLevel = profile.ExperienceLevel,
             EducationLevel = profile.EducationLevel,
