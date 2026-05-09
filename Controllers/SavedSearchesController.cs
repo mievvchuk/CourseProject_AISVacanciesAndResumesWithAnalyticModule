@@ -37,8 +37,7 @@ public class SavedSearchesController : Controller
     public async Task<IActionResult> CreatePost([FromForm] SavedSearchFormViewModel model)
     {
         await _savedSearchService.CreateAsync(GetUserId(), model);
-        TempData["StatusMessage"] = "Пошук збережено.";
-        return RedirectToAction(nameof(Index));
+        TempData["StatusMessage"] = "\u041f\u043e\u0448\u0443\u043a \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043d\u043e."; return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
@@ -73,7 +72,7 @@ public class SavedSearchesController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await _savedSearchService.DeleteAsync(GetUserId(), id);
-        TempData["StatusMessage"] = "Збережений пошук видалено.";
+        TempData["StatusMessage"] = "\u0417\u0431\u0435\u0440\u0435\u0436\u0435\u043d\u0438\u0439 \u043f\u043e\u0448\u0443\u043a \u0432\u0438\u0434\u0430\u043b\u0435\u043d\u043e.";
         return RedirectToAction(nameof(Index));
     }
 

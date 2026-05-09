@@ -8,6 +8,13 @@
         return string.IsNullOrWhiteSpace(value) ? fallback : value;
     }
 
+    string AvatarStyle(string? imagePath)
+    {
+        return string.IsNullOrWhiteSpace(imagePath)
+            ? string.Empty
+            : $"background-image: url('{Url.Content(imagePath)}');";
+    }
+
     string NormalizeUrl(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
@@ -30,36 +37,253 @@
     var websiteUrl = NormalizeUrl(Model.Website);
 }
 
-<section class="profile-show-page">
-    <div class="profile-show-card card shadow-sm border-0">
-        <div class="profile-show-cover profile-show-cover-employer"></div>
+<section class="profile-details-fixed-page">
+    <style>
+        .profile-details-fixed-page {
+            margin-inline: auto;
+            max-width: 64rem;
+        }
+
+        .profile-details-fixed-card {
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .profile-details-fixed-cover {
+            background: linear-gradient(90deg, rgba(32, 107, 196, 0.2), rgba(245, 159, 0, 0.14)), #eef4fb;
+            min-height: 7.25rem;
+        }
+
+        .profile-details-fixed-card .card-body {
+            padding: 0 1.75rem 1.75rem;
+        }
+
+        .profile-details-fixed-head {
+            align-items: flex-start;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: -3.4rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .profile-details-fixed-identity {
+            align-items: flex-end;
+            display: flex;
+            gap: 1.15rem;
+            min-width: 0;
+        }
+
+        .profile-details-fixed-avatar-shell {
+            align-items: center;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 0.75rem 2rem rgba(15, 23, 42, 0.14);
+            display: flex;
+            flex: 0 0 120px;
+            height: 120px;
+            justify-content: center;
+            overflow: hidden;
+            padding: 6px;
+            width: 120px;
+        }
+
+        .profile-details-fixed-avatar {
+            align-items: center;
+            background-color: #eef4fb;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            border-radius: 10px;
+            color: #206bc4;
+            display: flex;
+            font-size: 2.35rem;
+            height: 108px;
+            justify-content: center;
+            overflow: hidden;
+            width: 108px;
+        }
+
+        .profile-details-fixed-eyebrow {
+            color: #667085;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        .profile-details-fixed-head h1 {
+            color: #101828;
+            font-size: 1.45rem;
+            font-weight: 850;
+            line-height: 1.15;
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .profile-details-fixed-subtitle {
+            align-items: center;
+            color: #667085;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.35rem;
+        }
+
+        .profile-details-fixed-dot {
+            color: #98a2b3;
+        }
+
+        .profile-details-fixed-metrics {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            margin-bottom: 1.25rem;
+        }
+
+        .profile-details-fixed-metric {
+            background: #f8fafc;
+            border: 1px solid rgba(98, 105, 118, 0.13);
+            border-radius: 10px;
+            display: grid;
+            gap: 0.35rem;
+            min-width: 0;
+            padding: 0.9rem;
+        }
+
+            .profile-details-fixed-metric i {
+                color: #206bc4;
+                font-size: 1.2rem;
+            }
+
+            .profile-details-fixed-metric span {
+                color: #667085;
+                font-size: 0.78rem;
+                font-weight: 700;
+            }
+
+            .profile-details-fixed-metric strong {
+                color: #182433;
+                font-size: 0.95rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+        .profile-details-fixed-content {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+        }
+
+        .profile-details-fixed-section {
+            background: #ffffff;
+            border: 1px solid rgba(98, 105, 118, 0.13);
+            border-radius: 10px;
+            padding: 1.1rem;
+        }
+
+            .profile-details-fixed-section h2 {
+                color: #101828;
+                font-size: 1rem;
+                font-weight: 800;
+                margin-bottom: 0.75rem;
+            }
+
+            .profile-details-fixed-section p {
+                color: #475467;
+                line-height: 1.65;
+                margin: 0;
+                white-space: pre-line;
+            }
+
+        .profile-details-fixed-list {
+            display: grid;
+            gap: 0.75rem;
+            margin: 0;
+        }
+
+            .profile-details-fixed-list div {
+                border-bottom: 1px solid rgba(98, 105, 118, 0.1);
+                display: grid;
+                gap: 0.2rem;
+                padding-bottom: 0.75rem;
+            }
+
+                .profile-details-fixed-list div:last-child {
+                    border-bottom: 0;
+                    padding-bottom: 0;
+                }
+
+            .profile-details-fixed-list dt {
+                color: #667085;
+                font-size: 0.78rem;
+                font-weight: 800;
+                margin: 0;
+            }
+
+            .profile-details-fixed-list dd {
+                color: #182433;
+                margin: 0;
+                word-break: break-word;
+            }
+
+        @@media (max-width: 992px) {
+            .profile-details-fixed-metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .profile-details-fixed-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .profile-details-fixed-card .card-body {
+                padding-inline: 1rem;
+            }
+
+            .profile-details-fixed-head {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .profile-details-fixed-identity {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .profile-details-fixed-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="profile-details-fixed-card card shadow-sm border-0">
+        <div class="profile-details-fixed-cover"></div>
 
         <div class="card-body">
-            <div class="profile-show-head">
-                <div class="profile-show-identity">
-                    <div class="profile-show-avatar-wrap profile-show-avatar-wrap-fixed">
-                        @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
-                        {
-                            <div class="profile-show-avatar-fixed"
-                                 style="background-image: url('@Url.Content(Model.LogoPath)');">
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="profile-show-avatar-fixed profile-show-avatar-placeholder">
+            <div class="profile-details-fixed-head">
+                <div class="profile-details-fixed-identity">
+                    <div class="profile-details-fixed-avatar-shell">
+                        <div class="profile-details-fixed-avatar"
+                             style="@AvatarStyle(Model.LogoPath)">
+                            @if (string.IsNullOrWhiteSpace(Model.LogoPath))
+                            {
                                 <i class="ti ti-building"></i>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
 
                     <div>
-                        <div class="profile-show-eyebrow">Профіль роботодавця</div>
+                        <div class="profile-details-fixed-eyebrow">Профіль роботодавця</div>
                         <h1>@companyName</h1>
 
-                        <div class="profile-show-subtitle">
+                        <div class="profile-details-fixed-subtitle">
                             <i class="ti ti-user"></i>
                             <span>@Show(Model.FullName)</span>
-                            <span class="profile-show-dot">•</span>
+                            <span class="profile-details-fixed-dot">•</span>
                             <span>@Show(Model.Email)</span>
                         </div>
                     </div>
@@ -71,42 +295,42 @@
                 </a>
             </div>
 
-            <div class="profile-show-metrics">
-                <div class="profile-show-metric">
+            <div class="profile-details-fixed-metrics">
+                <div class="profile-details-fixed-metric">
                     <i class="ti ti-building"></i>
                     <span>Компанія</span>
                     <strong>@companyName</strong>
                 </div>
 
-                <div class="profile-show-metric">
+                <div class="profile-details-fixed-metric">
                     <i class="ti ti-users"></i>
                     <span>Розмір компанії</span>
                     <strong>@Show(Model.CompanySize)</strong>
                 </div>
 
-                <div class="profile-show-metric">
+                <div class="profile-details-fixed-metric">
                     <i class="ti ti-world"></i>
                     <span>Сайт</span>
                     <strong>@Show(Model.Website)</strong>
                 </div>
 
-                <div class="profile-show-metric">
+                <div class="profile-details-fixed-metric">
                     <i class="ti ti-map-pin"></i>
                     <span>Місто</span>
                     <strong>@Show(Model.City)</strong>
                 </div>
             </div>
 
-            <div class="profile-show-content">
-                <section class="profile-show-section">
+            <div class="profile-details-fixed-content">
+                <section class="profile-details-fixed-section">
                     <h2>Опис компанії</h2>
                     <p>@Show(Model.Description, "Роботодавець ще не додав опис компанії.")</p>
                 </section>
 
-                <section class="profile-show-section">
+                <section class="profile-details-fixed-section">
                     <h2>Контактна інформація</h2>
 
-                    <dl class="profile-show-list">
+                    <dl class="profile-details-fixed-list">
                         <div>
                             <dt>Представник</dt>
                             <dd>@Show(Model.FullName)</dd>

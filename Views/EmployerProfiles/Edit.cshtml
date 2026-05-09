@@ -2,121 +2,455 @@
 
 @{
     ViewData["Title"] = "Редагування профілю роботодавця";
+
+    string AvatarStyle(string? imagePath)
+    {
+        return string.IsNullOrWhiteSpace(imagePath)
+            ? string.Empty
+            : $"background-image: url('{Url.Content(imagePath)}');";
+    }
 }
 
-<div class="row justify-content-center">
-    <div class="col-xl-9 col-lg-10">
-        <form asp-action="Edit" method="post" enctype="multipart/form-data" class="profile-edit-card card shadow-sm border-0 js-profile-image-form">
-            <input asp-for="Id" type="hidden" />
-            <div class="profile-cover employer-profile-cover"></div>
-            <div class="card-body">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                @if (Context.Request.Query["profileRequired"] == "true")
-                {
-                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
-                        <i class="ti ti-alert-circle fs-3"></i>
-                        <div>
-                            <strong>Заповніть профіль роботодавця.</strong>
-                            <div>Поки профіль компанії не налаштований, ви не зможете створювати вакансії, переглядати заявки та працювати з кандидатами.</div>
-                        </div>
+<section class="profile-edit-page-fixed">
+    <style>
+        .profile-edit-page-fixed {
+            margin-inline: auto;
+            max-width: 62rem;
+        }
+
+        .profile-edit-card-fixed {
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .profile-edit-cover-fixed {
+            background: linear-gradient(90deg, rgba(32, 107, 196, 0.2), rgba(245, 159, 0, 0.14)), #eef4fb;
+            min-height: 6.5rem;
+        }
+
+        .profile-edit-card-fixed .card-body {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .profile-edit-header-fixed {
+            align-items: flex-end;
+            display: flex;
+            gap: 1.25rem;
+            margin-top: -3.25rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .profile-avatar-shell-fixed {
+            align-items: center;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 0.75rem 2rem rgba(15, 23, 42, 0.14);
+            display: flex;
+            flex: 0 0 120px;
+            height: 120px;
+            justify-content: center;
+            overflow: hidden;
+            padding: 6px;
+            width: 120px;
+        }
+
+        .profile-avatar-fixed {
+            align-items: center;
+            background-color: #eef4fb;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            border-radius: 10px;
+            color: #206bc4;
+            display: flex;
+            font-size: 2.35rem;
+            height: 108px;
+            justify-content: center;
+            overflow: hidden;
+            width: 108px;
+        }
+
+        .profile-section-fixed {
+            border-top: 1px solid rgba(98, 105, 118, 0.12);
+            padding-top: 1.5rem;
+        }
+
+            .profile-section-fixed + .profile-section-fixed {
+                margin-top: 1.5rem;
+            }
+
+        .profile-section-title-fixed {
+            color: #182433;
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .profile-crop-panel-fixed {
+            align-items: start;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 240px minmax(0, 1fr);
+            margin-top: 0.75rem;
+        }
+
+            .profile-crop-panel-fixed.d-none {
+                display: none !important;
+            }
+
+        .profile-crop-box-fixed {
+            background: #eef2f7;
+            border: 1px dashed rgba(98, 105, 118, 0.32);
+            border-radius: 12px;
+            height: 240px;
+            max-height: 240px;
+            max-width: 240px;
+            min-height: 240px;
+            min-width: 240px;
+            overflow: hidden;
+            width: 240px;
+        }
+
+        .profile-crop-image-fixed {
+            border-radius: 12px;
+            display: block;
+            height: 100%;
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .profile-crop-controls-fixed {
+            display: grid;
+            gap: 0.45rem;
+            min-width: 0;
+        }
+
+        .profile-actions-fixed {
+            border-top: 1px solid rgba(98, 105, 118, 0.12);
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+        }
+
+        @@media (max-width: 768px) {
+            .profile-crop-panel-fixed {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-crop-box-fixed {
+                height: 220px;
+                max-height: 220px;
+                max-width: 220px;
+                min-height: 220px;
+                min-width: 220px;
+                width: 220px;
+            }
+
+            .profile-edit-header-fixed {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <form asp-action="Edit"
+          method="post"
+          enctype="multipart/form-data"
+          class="profile-edit-card-fixed card shadow-sm border-0 js-fixed-profile-image-form">
+
+        <input asp-for="Id" type="hidden" />
+
+        <div class="profile-edit-cover-fixed"></div>
+
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            @if (Context.Request.Query["profileRequired"] == "true")
+            {
+                <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+                    <i class="ti ti-alert-circle fs-3"></i>
+                    <div>
+                        <strong>Заповніть профіль роботодавця.</strong>
+                        <div>Поки профіль компанії не налаштований, ви не зможете створювати вакансії, переглядати заявки та працювати з кандидатами.</div>
                     </div>
-                }
-                <div class="profile-edit-header">
-                    <div class="profile-avatar-wrap">
-                        @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
+                </div>
+            }
+
+            <div class="profile-edit-header-fixed">
+                <div class="profile-avatar-shell-fixed">
+                    <div class="profile-avatar-fixed js-fixed-profile-avatar"
+                         style="@AvatarStyle(Model.LogoPath)">
+                        @if (string.IsNullOrWhiteSpace(Model.LogoPath))
                         {
-                            <img src="@Model.LogoPath" alt="Логотип компанії" class="profile-avatar js-profile-image-preview" onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
-                            <div class="profile-avatar profile-avatar-placeholder js-profile-image-fallback d-none"><i class="ti ti-building"></i></div>
-                        }
-                        else
-                        {
-                            <div class="profile-avatar profile-avatar-placeholder js-profile-image-preview"><i class="ti ti-building"></i></div>
+                            <i class="ti ti-building"></i>
                         }
                     </div>
-                    <div class="profile-edit-heading">
-                        <h2 class="h4 mb-1">Редагування профілю роботодавця</h2>
-                        <div class="text-secondary">@(!string.IsNullOrWhiteSpace(Model.CompanyName) ? Model.CompanyName : "Заповніть інформацію про компанію")</div>
-                    </div>
                 </div>
 
-                <div class="profile-section">
-                    <h3 class="profile-section-title">Основна інформація</h3>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label asp-for="CompanyName" class="form-label">Назва компанії</label>
-                            <input asp-for="CompanyName" class="form-control" />
-                            <span asp-validation-for="CompanyName" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="LogoFile" class="form-label">Логотип компанії</label>
-                            @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
-                            {
-                                <div class="profile-file-state"><i class="ti ti-check"></i> Логотип уже додано. Виберіть новий файл, щоб замінити.</div>
-                            }
-                            <input asp-for="LogoFile" class="form-control js-profile-image-input" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
-                            <span asp-validation-for="LogoFile" class="text-danger"></span>
-                        </div>
-                        <div class="col-12">
-                            <div class="profile-crop-panel js-profile-crop-panel d-none">
-                                <div class="profile-crop-box"><img class="js-profile-crop-image" alt="Попередній перегляд логотипа" /></div>
-                                <div class="profile-crop-controls">
-                                    <label class="form-label">Масштаб</label>
-                                    <input class="form-range js-profile-crop-zoom" type="range" min="1" max="2.5" step="0.05" value="1" />
-                                    <label class="form-label">Положення по горизонталі</label>
-                                    <input class="form-range js-profile-crop-x" type="range" min="0" max="100" value="50" />
-                                    <label class="form-label">Положення по вертикалі</label>
-                                    <input class="form-range js-profile-crop-y" type="range" min="0" max="100" value="50" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="Industry" class="form-label">Галузь</label>
-                            <input asp-for="Industry" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="Website" class="form-label">Сайт</label>
-                            <input asp-for="Website" class="form-control" />
-                        </div>
-                        <div class="col-12">
-                            <label asp-for="Description" class="form-label">Опис компанії</label>
-                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
+                <div>
+                    <h2 class="h4 mb-1">Редагування профілю роботодавця</h2>
+                    <div class="text-secondary">
+                        @(!string.IsNullOrWhiteSpace(Model.CompanyName) ? Model.CompanyName : "Заповніть інформацію про компанію")
                     </div>
-                </div>
-
-                <div class="profile-section">
-                    <h3 class="profile-section-title">Параметри компанії</h3>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label asp-for="CompanySize" class="form-label">Розмір компанії</label>
-                            <input asp-for="CompanySize" class="form-control" placeholder="Наприклад: 50-100" />
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="FoundedYear" class="form-label">Рік заснування</label>
-                            <input asp-for="FoundedYear" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="City" class="form-label">Місто</label>
-                            <input asp-for="City" class="form-control" />
-                            <span asp-validation-for="City" class="text-danger"></span>
-                        </div>
-                        <div class="col-12">
-                            <label asp-for="Location" class="form-label">Локація</label>
-                            <input asp-for="Location" class="form-control" placeholder="Адреса або район офісу" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-actions">
-                    <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-1"></i>Зберегти зміни</button>
                 </div>
             </div>
-        </form>
-    </div>
-</div>
+
+            <div class="profile-section-fixed">
+                <h3 class="profile-section-title-fixed">Основна інформація</h3>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="CompanyName" class="form-label">Назва компанії</label>
+                        <input asp-for="CompanyName" class="form-control" />
+                        <span asp-validation-for="CompanyName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="LogoFile" class="form-label">Логотип компанії</label>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
+                        {
+                            <div class="profile-file-state">
+                                <i class="ti ti-check"></i>
+                                Логотип уже додано. Виберіть новий файл, щоб замінити.
+                            </div>
+                        }
+
+                        <input asp-for="LogoFile"
+                               class="form-control js-fixed-profile-image-input"
+                               type="file"
+                               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                        <span asp-validation-for="LogoFile" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="profile-crop-panel-fixed d-none js-fixed-profile-crop-panel">
+                            <div class="profile-crop-box-fixed">
+                                <img class="profile-crop-image-fixed js-fixed-profile-crop-image"
+                                     alt="Попередній перегляд логотипа" />
+                            </div>
+
+                            <div class="profile-crop-controls-fixed">
+                                <label class="form-label">Масштаб</label>
+                                <input class="form-range js-fixed-profile-crop-zoom"
+                                       type="range"
+                                       min="1"
+                                       max="2.5"
+                                       step="0.05"
+                                       value="1" />
+
+                                <label class="form-label">Положення по горизонталі</label>
+                                <input class="form-range js-fixed-profile-crop-x"
+                                       type="range"
+                                       min="0"
+                                       max="100"
+                                       value="50" />
+
+                                <label class="form-label">Положення по вертикалі</label>
+                                <input class="form-range js-fixed-profile-crop-y"
+                                       type="range"
+                                       min="0"
+                                       max="100"
+                                       value="50" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Industry" class="form-label">Галузь</label>
+                        <input asp-for="Industry" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Website" class="form-label">Сайт</label>
+                        <input asp-for="Website" class="form-control" />
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label">Опис компанії</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section-fixed">
+                <h3 class="profile-section-title-fixed">Параметри компанії</h3>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="CompanySize" class="form-label">Розмір компанії</label>
+                        <input asp-for="CompanySize" class="form-control" placeholder="Наприклад: 50-100" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="FoundedYear" class="form-label">Рік заснування</label>
+                        <input asp-for="FoundedYear" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="City" class="form-label">Місто</label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Location" class="form-label">Локація</label>
+                        <input asp-for="Location" class="form-control" placeholder="Адреса або район офісу" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions-fixed">
+                <button type="submit" class="btn btn-primary">
+                    <i class="ti ti-device-floppy me-1"></i>
+                    Зберегти зміни
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/profile-image-crop.js" asp-append-version="true"></script>
+
+    <script>
+        (() => {
+            const form = document.querySelector('.js-fixed-profile-image-form');
+            if (!form) return;
+
+            const input = form.querySelector('.js-fixed-profile-image-input');
+            const panel = form.querySelector('.js-fixed-profile-crop-panel');
+            const cropImage = form.querySelector('.js-fixed-profile-crop-image');
+            const avatar = form.querySelector('.js-fixed-profile-avatar');
+            const zoom = form.querySelector('.js-fixed-profile-crop-zoom');
+            const positionX = form.querySelector('.js-fixed-profile-crop-x');
+            const positionY = form.querySelector('.js-fixed-profile-crop-y');
+
+            let sourceImage = null;
+
+            const getNumber = (value, fallback) => {
+                const parsed = Number.parseFloat(value);
+                return Number.isFinite(parsed) ? parsed : fallback;
+            };
+
+            const getCropArea = () => {
+                const scale = getNumber(zoom.value, 1);
+                const width = sourceImage.naturalWidth;
+                const height = sourceImage.naturalHeight;
+                const size = Math.min(width, height) / scale;
+
+                const maxX = Math.max(0, width - size);
+                const maxY = Math.max(0, height - size);
+
+                return {
+                    sx: maxX * (getNumber(positionX.value, 50) / 100),
+                    sy: maxY * (getNumber(positionY.value, 50) / 100),
+                    size
+                };
+            };
+
+            const drawImage = () => {
+                if (!sourceImage) return null;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = 800;
+                canvas.height = 800;
+
+                const context = canvas.getContext('2d');
+                if (!context) return null;
+
+                const crop = getCropArea();
+
+                context.imageSmoothingEnabled = true;
+                context.imageSmoothingQuality = 'high';
+
+                context.drawImage(
+                    sourceImage,
+                    crop.sx,
+                    crop.sy,
+                    crop.size,
+                    crop.size,
+                    0,
+                    0,
+                    800,
+                    800
+                );
+
+                return canvas;
+            };
+
+            const updatePreview = () => {
+                const canvas = drawImage();
+                if (!canvas) return;
+
+                const url = canvas.toDataURL('image/jpeg', 0.9);
+
+                cropImage.src = url;
+                avatar.innerHTML = '';
+                avatar.style.backgroundImage = `url('${url}')`;
+            };
+
+            input?.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+
+                if (!file || !file.type.startsWith('image/')) return;
+
+                const objectUrl = URL.createObjectURL(file);
+                const image = new Image();
+
+                image.onload = () => {
+                    sourceImage = image;
+
+                    zoom.value = '1';
+                    positionX.value = '50';
+                    positionY.value = '50';
+
+                    panel.classList.remove('d-none');
+
+                    updatePreview();
+                    URL.revokeObjectURL(objectUrl);
+                };
+
+                image.src = objectUrl;
+            });
+
+            [zoom, positionX, positionY].forEach((control) => {
+                control?.addEventListener('input', updatePreview);
+                control?.addEventListener('change', updatePreview);
+            });
+
+            form.addEventListener('submit', (event) => {
+                if (!sourceImage || !input.files || input.files.length === 0) return;
+
+                event.preventDefault();
+
+                const canvas = drawImage();
+                if (!canvas) {
+                    form.submit();
+                    return;
+                }
+
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        form.submit();
+                        return;
+                    }
+
+                    const originalName = input.files[0].name.replace(/\.[^.]+$/, '');
+                    const croppedFile = new File([blob], `${originalName}-cropped.jpg`, {
+                        type: 'image/jpeg'
+                    });
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(croppedFile);
+                    input.files = transfer.files;
+
+                    form.submit();
+                }, 'image/jpeg', 0.92);
+            });
+        })();
+    </script>
 }
