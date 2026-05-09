@@ -13,12 +13,20 @@
                     <div class="d-flex align-items-center gap-3">
                         @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
                         {
-                            <img src="@Model.PhotoPath" alt="@Model.FullName" class="rounded-circle border" style="width: 88px; height: 88px; object-fit: cover;" onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
-                            <div class="profile-avatar profile-avatar-placeholder d-none"><i class="ti ti-user"></i></div>
+                            <img src="@Model.PhotoPath"
+                                 alt="@Model.FullName"
+                                 class="img-thumbnail border profile-details-photo"
+                                 onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
+
+                            <div class="profile-avatar profile-avatar-placeholder d-none">
+                                <i class="ti ti-user"></i>
+                            </div>
                         }
                         else
                         {
-                            <div class="profile-avatar profile-avatar-placeholder"><i class="ti ti-user"></i></div>
+                            <div class="profile-avatar profile-avatar-placeholder">
+                                <i class="ti ti-user"></i>
+                            </div>
                         }
                         <div>
                             <h2 class="h4 mb-1">@Model.FullName</h2>

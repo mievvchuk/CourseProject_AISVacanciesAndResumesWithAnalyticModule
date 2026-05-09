@@ -2844,3 +2844,61 @@ body {
     color: #475467;
     margin-bottom: 0.85rem;
   }
+.profile-details-photo {
+  border-radius: 8px;
+  height: 88px;
+  object-fit: cover;
+  width: 88px;
+}
+
+.profile-avatar {
+  overflow: hidden;
+}
+
+  .profile-avatar > img {
+    border-radius: inherit;
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+.profile-crop-panel {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+  margin-top: 0.5rem;
+}
+
+.profile-crop-box {
+  aspect-ratio: 1 / 1;
+  background: #eef2f7;
+  border: 1px dashed rgba(98, 105, 118, 0.32);
+  border-radius: 12px;
+  max-width: 18rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+  .profile-crop-box img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+.profile-crop-controls {
+  display: grid;
+  gap: 0.45rem;
+}
+
+@media (max-width: 768px) {
+  .profile-crop-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-crop-box {
+    max-width: 100%;
+  }
+}
