@@ -16,7 +16,8 @@
                     <div class="profile-avatar-wrap">
                         @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
                         {
-                            <img src="@Model.PhotoPath" alt="Фото профілю" class="profile-avatar js-profile-image-preview" />
+                            <img src="@Model.PhotoPath" alt="Фото профілю" class="profile-avatar js-profile-image-preview" onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
+                            <div class="profile-avatar profile-avatar-placeholder js-profile-image-fallback d-none"><i class="ti ti-user"></i></div>
                         }
                         else
                         {

@@ -106,10 +106,14 @@ else
 
                     @if (canModerate)
                     {
-                        <form asp-action="RejectVacancy" method="post" class="admin-reject-form">
+                        <form asp-action="RejectVacancy" method="post" class="admin-reject-form"
+                              data-confirm
+                              data-confirm-title="Відхилити вакансію?"
+                              data-confirm-message="Коментар буде надіслано роботодавцю, а вакансію буде позначено як відхилену."
+                              data-confirm-submit="Відхилити">
                             <input type="hidden" name="id" value="@item.Id" />
                             <textarea name="comment" class="form-control" rows="2" required placeholder="Коментар для роботодавця: що потрібно виправити"></textarea>
-                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Відхилити вакансію та надіслати коментар роботодавцю?');">
+                            <button type="submit" class="btn btn-outline-danger">
                                 <i class="bi bi-x-circle me-1"></i>Відхилити
                             </button>
                         </form>

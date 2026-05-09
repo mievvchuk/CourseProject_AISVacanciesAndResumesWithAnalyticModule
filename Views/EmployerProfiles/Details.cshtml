@@ -13,7 +13,8 @@
                     <div class="d-flex align-items-center gap-3">
                         @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
                         {
-                            <img src="@Model.LogoPath" alt="@Model.CompanyName" class="img-thumbnail border" style="width: 88px; height: 88px; object-fit: cover;" />
+                            <img src="@Model.LogoPath" alt="@Model.CompanyName" class="img-thumbnail border" style="width: 88px; height: 88px; object-fit: cover;" onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
+                            <div class="profile-avatar profile-avatar-placeholder d-none"><i class="ti ti-building"></i></div>
                         }
                         else
                         {

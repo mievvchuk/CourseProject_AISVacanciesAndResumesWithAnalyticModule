@@ -23,6 +23,9 @@
     const setPreviewImage = (url) => {
       image.src = url;
       if (preview) {
+        preview.classList.remove('d-none');
+        preview.nextElementSibling?.classList.add('d-none');
+
         if (preview.tagName === 'IMG') {
           preview.src = url;
         } else {

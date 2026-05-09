@@ -1,12 +1,26 @@
 @model VacancyDetailsViewModel
 
 @{
-    ViewData["Title"] = "Деталі вакансії";
     var location = !string.IsNullOrWhiteSpace(Model.Location) ? Model.Location : Model.City;
+    var seoLocation = !string.IsNullOrWhiteSpace(location) ? location : "Україна";
+    var seoTitle = $"{Model.Title} — {Model.CompanyName}, {seoLocation}";
+    var seoDescriptionSource = !string.IsNullOrWhiteSpace(Model.Description)
+        ? Model.Description
+        : $"Вакансія {Model.Title} у компанії {Model.CompanyName}, {seoLocation}.";
+    var seoDescription = seoDescriptionSource.Length > 155
+        ? seoDescriptionSource[..152] + "..."
+        : seoDescriptionSource;
     var isAdmin = User.IsInRole("Admin");
     var backController = isAdmin ? "Admin" : "Vacancies";
     var backAction = isAdmin ? "Vacancies" : "Index";
     var backText = isAdmin ? "Повернутися до модерації вакансій" : "Повернутися до списку вакансій";
+    ViewData["Title"] = seoTitle;
+    ViewData["MetaDescription"] = seoDescription;
+    ViewData["MetaKeywords"] = $"{Model.Title}, {Model.CompanyName}, вакансія, робота, {seoLocation}";
+    if (Model.IsActive && Model.Status == VacancyStatus.Published)
+    {
+        ViewData["CanonicalPath"] = $"/Vacancies/Details/{Model.Id}";
+    }
 }
 
 @functions {
@@ -82,6 +96,62 @@
         </div>
     </section>
 
+    @if (isAdmin)
+    {
+        var canModerate = Model.Status == VacancyStatus.UnderModeration;
+
+        <section class="card vacancy-admin-panel shadow-sm border-0">
+            <div class="card-body">
+                <div class="vacancy-admin-panel-head">
+                    <div>
+                        <span class="vacancy-admin-eyebrow"><i class="ti ti-shield-check"></i> Рішення модератора</span>
+                        <h2>Перевірка вакансії</h2>
+                        <p class="text-secondary mb-0">
+                            Перегляньте опис, вимоги та навички. Якщо все коректно, опублікуйте вакансію; якщо ні — залиште коментар роботодавцю.
+                        </p>
+                    </div>
+                    <span class="badge @(canModerate ? "bg-yellow-lt text-yellow" : "bg-green-lt text-green")">
+                        @Model.Status.GetDisplayName()
+                    </span>
+                </div>
+
+                @if (canModerate)
+                {
+                    <div class="vacancy-admin-actions">
+                        <form asp-controller="Admin" asp-action="ApproveVacancy" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-success">
+                                <i class="ti ti-check me-1"></i>
+                                Підтвердити
+                            </button>
+                        </form>
+
+                        <form asp-controller="Admin" asp-action="RejectVacancy" method="post" class="vacancy-admin-reject-form"
+                              data-confirm
+                              data-confirm-title="Відхилити вакансію?"
+                              data-confirm-message="Коментар буде надіслано роботодавцю, а вакансію буде позначено як відхилену."
+                              data-confirm-submit="Відхилити">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <label class="form-label" for="moderation-comment">Коментар для роботодавця</label>
+                            <textarea id="moderation-comment" name="comment" class="form-control" rows="3" required placeholder="Наприклад: уточніть вимоги або додайте більше деталей про умови роботи"></textarea>
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="ti ti-x me-1"></i>
+                                Відхилити
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="vacancy-admin-locked">
+                        <i class="ti ti-lock"></i>
+                        <span>Для цієї вакансії модераційне рішення вже прийнято.</span>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
     <section class="card vacancy-section shadow-sm border-0">
         <div class="card-body">
             <h2>Опис вакансії</h2>
@@ -115,68 +185,71 @@
         </div>
     </section>
 
-    <section class="card vacancy-section vacancy-apply-card shadow-sm border-0">
-        <div class="card-body">
-            <div class="vacancy-apply-card-head">
-                <div>
-                    <h2>Подати заявку</h2>
-                    <p class="text-secondary mb-0">Оберіть резюме і, за бажанням, додайте короткий супровідний лист.</p>
+    @if (!isAdmin)
+    {
+        <section class="card vacancy-section vacancy-apply-card shadow-sm border-0">
+            <div class="card-body">
+                <div class="vacancy-apply-card-head">
+                    <div>
+                        <h2>Подати заявку</h2>
+                        <p class="text-secondary mb-0">Оберіть резюме і, за бажанням, додайте короткий супровідний лист.</p>
+                    </div>
                 </div>
-            </div>
 
-            @if (User.Identity?.IsAuthenticated != true)
-            {
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    <p class="text-secondary mb-0">Увійдіть як кандидат, щоб подати заявку на вакансію.</p>
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
-                </div>
-            }
-            else if (User.IsInRole("Candidate"))
-            {
-                @if (Model.HasApplied)
-                {
-                    <div class="alert alert-info mb-0">Ви вже подали заявку на цю вакансію.</div>
-                }
-                else if (Model.ResumeOptions.Count == 0)
+                @if (User.Identity?.IsAuthenticated != true)
                 {
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                        <p class="text-secondary mb-0">Спочатку створіть резюме, щоб роботодавець міг переглянути ваш досвід.</p>
-                        <a asp-controller="Resumes" asp-action="Create" class="btn btn-primary">
-                            <i class="ti ti-file-plus me-1"></i>
-                            Створити резюме
-                        </a>
+                        <p class="text-secondary mb-0">Увійдіть як кандидат, щоб подати заявку на вакансію.</p>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
                     </div>
+                }
+                else if (User.IsInRole("Candidate"))
+                {
+                    @if (Model.HasApplied)
+                    {
+                        <div class="alert alert-info mb-0">Ви вже подали заявку на цю вакансію.</div>
+                    }
+                    else if (Model.ResumeOptions.Count == 0)
+                    {
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <p class="text-secondary mb-0">Спочатку створіть резюме, щоб роботодавець міг переглянути ваш досвід.</p>
+                            <a asp-controller="Resumes" asp-action="Create" class="btn btn-primary">
+                                <i class="ti ti-file-plus me-1"></i>
+                                Створити резюме
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-controller="Applications" asp-action="Apply" method="post" class="vacancy-details-apply-form">
+                            <div>
+                                <label class="form-label" for="resumeId">Резюме</label>
+                                <select id="resumeId" name="resumeId" class="form-select">
+                                    @foreach (var resume in Model.ResumeOptions)
+                                    {
+                                        <option value="@resume.Value">@resume.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="coverLetter">Супровідний лист</label>
+                                <textarea id="coverLetter" name="coverLetter" class="form-control" rows="4" placeholder="Коротко поясніть, чому вас зацікавила вакансія"></textarea>
+                            </div>
+                            <input type="hidden" name="vacancyId" value="@Model.Id" />
+                            <div class="vacancy-details-apply-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-send me-1"></i>
+                                    Подати заявку
+                                </button>
+                            </div>
+                        </form>
+                    }
                 }
                 else
                 {
-                    <form asp-controller="Applications" asp-action="Apply" method="post" class="vacancy-details-apply-form">
-                        <div>
-                            <label class="form-label" for="resumeId">Резюме</label>
-                            <select id="resumeId" name="resumeId" class="form-select">
-                                @foreach (var resume in Model.ResumeOptions)
-                                {
-                                    <option value="@resume.Value">@resume.Text</option>
-                                }
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="coverLetter">Супровідний лист</label>
-                            <textarea id="coverLetter" name="coverLetter" class="form-control" rows="4" placeholder="Коротко поясніть, чому вас зацікавила вакансія"></textarea>
-                        </div>
-                        <input type="hidden" name="vacancyId" value="@Model.Id" />
-                        <div class="vacancy-details-apply-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ti ti-send me-1"></i>
-                                Подати заявку
-                            </button>
-                        </div>
-                    </form>
+                    <p class="text-secondary mb-0">Подача заявки доступна для кандидатів.</p>
                 }
-            }
-            else
-            {
-                <p class="text-secondary mb-0">Подача заявки доступна для кандидатів.</p>
-            }
-        </div>
-    </section>
+            </div>
+        </section>
+    }
 </section>

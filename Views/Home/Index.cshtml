@@ -1,65 +1,143 @@
 @{
     ViewData["Title"] = "Головна";
+    ViewData["MetaDescription"] = "АІС вакансій та резюме з аналітичним модулем для пошуку роботи, перегляду актуальних вакансій і підбору персоналу.";
+    ViewData["CanonicalPath"] = "/";
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
 @if (isAuthenticated && User.IsInRole("Candidate"))
 {
-    <div class="row row-deck row-cards">
-        <div class="col-12">
-            <div class="card card-lg border-0 hero-card">
-                <div class="card-body p-4 p-md-5">
-                    <h1 class="display-5 mb-3">Кабінет кандидата</h1>
-                    <p class="fs-4 text-secondary mb-4">Керуйте резюме, відстежуйте заявки та переглядайте рекомендації вакансій.</p>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-primary btn-lg" asp-controller="Resumes" asp-action="Index"><i class="ti ti-file-text me-2"></i>Мої резюме</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Recommendations" asp-action="Index"><i class="ti ti-stars me-2"></i>Рекомендації</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Applications" asp-action="MyApplications"><i class="ti ti-send me-2"></i>Мої заявки</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Portfolio" asp-action="Index"><i class="ti ti-layout-grid me-2"></i>Портфоліо</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Notifications" asp-action="Index"><i class="ti ti-bell me-2"></i>Сповіщення</a>
-                    </div>
+    <div class="workspace-home">
+        <section class="workspace-hero workspace-hero-candidate">
+            <div class="workspace-hero-content">
+                <span class="workspace-eyebrow"><i class="ti ti-user-circle"></i> Кабінет кандидата</span>
+                <h1>Керуйте пошуком роботи з одного місця</h1>
+                <p>Оновіть резюме, відстежуйте заявки, переглядайте рекомендації та збирайте портфоліо для роботодавців.</p>
+                <div class="workspace-actions">
+                    <a class="btn btn-primary btn-lg" asp-controller="Resumes" asp-action="Index"><i class="ti ti-file-text me-2"></i>Мої резюме</a>
+                    <a class="btn btn-outline-primary btn-lg" asp-controller="Recommendations" asp-action="Index"><i class="ti ti-stars me-2"></i>Рекомендації</a>
                 </div>
             </div>
-        </div>
+            <div class="workspace-hero-panel">
+                <div class="workspace-panel-title">Наступні кроки</div>
+                <a asp-controller="Resumes" asp-action="Create"><i class="ti ti-circle-plus"></i><span>Створити або оновити резюме</span></a>
+                <a asp-controller="Applications" asp-action="MyApplications"><i class="ti ti-send"></i><span>Переглянути мої заявки</span></a>
+                <a asp-controller="Portfolio" asp-action="Index"><i class="ti ti-layout-grid"></i><span>Доповнити портфоліо</span></a>
+            </div>
+        </section>
+
+        <section class="workspace-grid">
+            <a class="workspace-tile" asp-controller="Resumes" asp-action="Index">
+                <i class="ti ti-file-text"></i>
+                <strong>Резюме</strong>
+                <span>Керуйте версіями резюме та файлами.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="Applications" asp-action="MyApplications">
+                <i class="ti ti-send"></i>
+                <strong>Заявки</strong>
+                <span>Перевіряйте статуси відгуків.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="SavedSearches" asp-action="Index">
+                <i class="ti ti-bookmark"></i>
+                <strong>Пошуки</strong>
+                <span>Повертайтесь до збережених фільтрів.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="Notifications" asp-action="Index">
+                <i class="ti ti-bell"></i>
+                <strong>Сповіщення</strong>
+                <span>Не пропускайте відповіді роботодавців.</span>
+            </a>
+        </section>
     </div>
 }
 else if (isAuthenticated && User.IsInRole("Employer"))
 {
-    <div class="row row-deck row-cards">
-        <div class="col-12">
-            <div class="card card-lg border-0 hero-card">
-                <div class="card-body p-4 p-md-5">
-                    <h1 class="display-5 mb-3">Кабінет роботодавця</h1>
-                    <p class="fs-4 text-secondary mb-4">Створюйте вакансії, переглядайте заявки кандидатів і аналізуйте результати підбору.</p>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-primary btn-lg" asp-controller="Vacancies" asp-action="My"><i class="ti ti-briefcase me-2"></i>Мої вакансії</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Vacancies" asp-action="Create"><i class="ti ti-circle-plus me-2"></i>Створити вакансію</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Applications" asp-action="EmployerApplications"><i class="ti ti-inbox me-2"></i>Заявки кандидатів</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="EmployerCandidates" asp-action="Search"><i class="ti ti-users-group me-2"></i>Пошук кандидатів</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Analytics" asp-action="Index"><i class="ti ti-chart-bar me-2"></i>Аналітика</a>
-                    </div>
+    <div class="workspace-home">
+        <section class="workspace-hero workspace-hero-employer">
+            <div class="workspace-hero-content">
+                <span class="workspace-eyebrow"><i class="ti ti-building-skyscraper"></i> Кабінет роботодавця</span>
+                <h1>Підбір кандидатів без зайвого хаосу</h1>
+                <p>Створюйте вакансії, розбирайте заявки, шукайте резюме та аналізуйте активність прямо з головної сторінки.</p>
+                <div class="workspace-actions">
+                    <a class="btn btn-primary btn-lg" asp-controller="Vacancies" asp-action="Create"><i class="ti ti-circle-plus me-2"></i>Створити вакансію</a>
+                    <a class="btn btn-outline-primary btn-lg" asp-controller="EmployerCandidates" asp-action="Search"><i class="ti ti-users-group me-2"></i>Пошук кандидатів</a>
                 </div>
             </div>
-        </div>
+            <div class="workspace-hero-panel">
+                <div class="workspace-panel-title">Швидкий маршрут</div>
+                <a asp-controller="Vacancies" asp-action="My"><i class="ti ti-briefcase"></i><span>Перевірити мої вакансії</span></a>
+                <a asp-controller="Applications" asp-action="EmployerApplications"><i class="ti ti-inbox"></i><span>Опрацювати заявки кандидатів</span></a>
+                <a asp-controller="Analytics" asp-action="Index"><i class="ti ti-chart-bar"></i><span>Подивитися аналітику підбору</span></a>
+            </div>
+        </section>
+
+        <section class="workspace-grid">
+            <a class="workspace-tile" asp-controller="Vacancies" asp-action="My">
+                <i class="ti ti-briefcase"></i>
+                <strong>Вакансії</strong>
+                <span>Редагуйте публікації та терміни актуальності.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="Applications" asp-action="EmployerApplications">
+                <i class="ti ti-inbox"></i>
+                <strong>Заявки</strong>
+                <span>Переглядайте кандидатів, які відгукнулися.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="EmployerCandidates" asp-action="Search">
+                <i class="ti ti-users-group"></i>
+                <strong>Кандидати</strong>
+                <span>Шукайте резюме за категоріями та навичками.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="Analytics" asp-action="Index">
+                <i class="ti ti-chart-bar"></i>
+                <strong>Аналітика</strong>
+                <span>Оцініть попит, відгуки та результативність.</span>
+            </a>
+        </section>
     </div>
 }
 else if (isAuthenticated && User.IsInRole("Admin"))
 {
-    <div class="row row-deck row-cards">
-        <div class="col-12">
-            <div class="card card-lg border-0 hero-card">
-                <div class="card-body p-4 p-md-5">
-                    <h1 class="display-5 mb-3">Адміністративна панель</h1>
-                    <p class="fs-4 text-secondary mb-4">Модеруйте вакансії й резюме, керуйте користувачами та переглядайте журнал дій.</p>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-primary btn-lg" asp-controller="Admin" asp-action="Dashboard"><i class="ti ti-shield-lock me-2"></i>Адмін-панель</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Admin" asp-action="Vacancies"><i class="ti ti-briefcase me-2"></i>Модерація вакансій</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Admin" asp-action="Users"><i class="ti ti-users me-2"></i>Користувачі</a>
-                        <a class="btn btn-outline-primary btn-lg" asp-controller="Admin" asp-action="ModerationLog"><i class="ti ti-history me-2"></i>Журнал дій</a>
-                    </div>
+    <div class="workspace-home">
+        <section class="workspace-hero workspace-hero-admin">
+            <div class="workspace-hero-content">
+                <span class="workspace-eyebrow"><i class="ti ti-shield-lock"></i> Адміністративна панель</span>
+                <h1>Контроль якості платформи</h1>
+                <p>Модеруйте вакансії та резюме, переглядайте користувачів і тримайте журнал дій під рукою.</p>
+                <div class="workspace-actions">
+                    <a class="btn btn-primary btn-lg" asp-controller="Admin" asp-action="Dashboard"><i class="ti ti-shield-lock me-2"></i>Адмін-панель</a>
+                    <a class="btn btn-outline-primary btn-lg" asp-controller="Admin" asp-action="ModerationLog"><i class="ti ti-history me-2"></i>Журнал дій</a>
                 </div>
             </div>
-        </div>
+            <div class="workspace-hero-panel">
+                <div class="workspace-panel-title">Модерація</div>
+                <a asp-controller="Admin" asp-action="Vacancies"><i class="ti ti-briefcase"></i><span>Перевірити вакансії</span></a>
+                <a asp-controller="Admin" asp-action="Resumes"><i class="ti ti-file-text"></i><span>Перевірити резюме</span></a>
+                <a asp-controller="Admin" asp-action="Users"><i class="ti ti-users"></i><span>Керувати користувачами</span></a>
+            </div>
+        </section>
+
+        <section class="workspace-grid">
+            <a class="workspace-tile" asp-controller="Admin" asp-action="Vacancies">
+                <i class="ti ti-briefcase"></i>
+                <strong>Вакансії</strong>
+                <span>Схвалення, відхилення та перегляд деталей.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="Admin" asp-action="Resumes">
+                <i class="ti ti-file-text"></i>
+                <strong>Резюме</strong>
+                <span>Перевірка профілів кандидатів.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="Admin" asp-action="Users">
+                <i class="ti ti-users"></i>
+                <strong>Користувачі</strong>
+                <span>Огляд ролей та облікових записів.</span>
+            </a>
+            <a class="workspace-tile" asp-controller="Admin" asp-action="ModerationLog">
+                <i class="ti ti-history"></i>
+                <strong>Журнал</strong>
+                <span>Історія рішень модерації.</span>
+            </a>
+        </section>
     </div>
 }
 else

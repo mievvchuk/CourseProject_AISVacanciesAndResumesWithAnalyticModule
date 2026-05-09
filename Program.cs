@@ -74,6 +74,14 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IExportService, ExportService>();
+builder.Services.Configure<SiteSettings>(builder.Configuration.GetSection(SiteSettings.SectionName));
+builder.Services.AddScoped<SitemapService>();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<DevLiveReloadService>();
+    builder.Services.AddHostedService(provider => provider.GetRequiredService<DevLiveReloadService>());
+}
 
 builder.Services
     .AddIdentity<User, IdentityRole>(options =>
@@ -146,6 +154,38 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllers();
+
+app.MapGet("/sitemap.xml", async (SitemapService sitemapService, CancellationToken cancellationToken) =>
+{
+    var sitemap = await sitemapService.GenerateAsync(cancellationToken);
+    return Results.Content(sitemap, "application/xml; charset=utf-8");
+});
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/__dev/live-reload", async (
+        HttpContext context,
+        DevLiveReloadService liveReloadService,
+        CancellationToken cancellationToken) =>
+    {
+        context.Response.Headers.CacheControl = "no-cache";
+        context.Response.Headers.Connection = "keep-alive";
+        context.Response.ContentType = "text/event-stream";
+
+        var lastEventId = context.Request.Headers["Last-Event-ID"].ToString();
+        _ = long.TryParse(lastEventId, out var knownVersion);
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var version = await liveReloadService.WaitForChangeAsync(knownVersion, cancellationToken);
+            knownVersion = version;
+            await context.Response.WriteAsync($"id: {version}\n", cancellationToken);
+            await context.Response.WriteAsync("event: reload\n", cancellationToken);
+            await context.Response.WriteAsync("data: reload\n\n", cancellationToken);
+            await context.Response.Body.FlushAsync(cancellationToken);
+        }
+    });
+}
 
 if (!app.Environment.IsEnvironment("Testing"))
 {

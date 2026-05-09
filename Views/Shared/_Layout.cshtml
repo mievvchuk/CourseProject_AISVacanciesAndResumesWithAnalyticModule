@@ -1,15 +1,40 @@
 @using AisVacanciesAndResumes.Services
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Options
 @inject INotificationService NotificationService
 @inject IMessageService MessageService
 @inject UserManager<AisVacanciesAndResumes.Models.User> UserManager
+@inject IOptions<AisVacanciesAndResumes.Models.SiteSettings> SiteSettings
+@{
+    var defaultTitle = "АІС вакансій та резюме";
+    var pageTitle = ViewData["Title"] as string;
+    var fullTitle = string.IsNullOrWhiteSpace(pageTitle)
+        ? defaultTitle
+        : $"{pageTitle} - {defaultTitle}";
+    var metaDescription = ViewData["MetaDescription"] as string
+        ?? "АІС вакансій та резюме з аналітичним модулем: пошук роботи, перегляд актуальних вакансій, подання заявок і підбір персоналу.";
+    var metaKeywords = ViewData["MetaKeywords"] as string
+        ?? "вакансії, резюме, робота, пошук роботи, підбір персоналу, аналітика вакансій";
+    var canonicalPath = ViewData["CanonicalPath"] as string;
+    var baseUrl = (SiteSettings.Value.BaseUrl ?? string.Empty).Trim().TrimEnd('/');
+    var canonicalUrl = !string.IsNullOrWhiteSpace(canonicalPath) && !string.IsNullOrWhiteSpace(baseUrl)
+        ? $"{baseUrl}/{canonicalPath.TrimStart('/')}"
+        : null;
+}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - АІС вакансій та резюме</title>
+    <title>@fullTitle</title>
+    <meta name="description" content="@metaDescription" />
+    <meta name="keywords" content="@metaKeywords" />
+    @if (!string.IsNullOrWhiteSpace(canonicalUrl))
+    {
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+    <link rel="icon" type="image/png" href="~/favicon.png" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.4.0/dist/css/tabler.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css" />
@@ -58,9 +83,9 @@
                 </button>
 
                 <h1 class="navbar-brand navbar-brand-autodark pe-0">
-                    <a asp-controller="Home" asp-action="Index" class="text-reset text-decoration-none">
-                        <span class="brand-mark me-2"><i class="ti ti-briefcase"></i></span>
-                        АІС вакансій
+                    <a asp-controller="Home" asp-action="Index" class="text-reset text-decoration-none d-flex align-items-center">
+                        <img src="~/images/site-logo.png" alt="АІС вакансій та резюме" class="site-logo" asp-append-version="true" />
+                        <span class="ms-2">АІС вакансій</span>
                     </a>
                 </h1>
 
@@ -199,9 +224,38 @@
         </main>
     </div>
 
+    <div class="modal modal-blur fade" id="app-confirm-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-status bg-danger"></div>
+                <div class="modal-body text-center py-4">
+                    <i class="ti ti-alert-triangle text-danger mb-2 app-confirm-icon"></i>
+                    <h3 id="app-confirm-title">Підтвердити дію?</h3>
+                    <div id="app-confirm-message" class="text-secondary">Цю дію потрібно підтвердити.</div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="row g-2">
+                            <div class="col">
+                                <button type="button" class="btn w-100" data-bs-dismiss="modal">Скасувати</button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="btn btn-danger w-100" id="app-confirm-submit">Підтвердити</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+    {
+        <script src="~/js/dev-live-reload.js" asp-append-version="true"></script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

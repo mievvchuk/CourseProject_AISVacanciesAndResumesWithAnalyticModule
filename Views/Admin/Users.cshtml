@@ -88,7 +88,11 @@
                                 <td class="text-end">
                                     @if (item.IsActive)
                                     {
-                                        <form asp-action="DeactivateUser" method="post" class="admin-inline-action" onsubmit="return confirm('Деактивувати користувача?');">
+                                        <form asp-action="DeactivateUser" method="post" class="admin-inline-action"
+                                              data-confirm
+                                              data-confirm-title="Деактивувати користувача?"
+                                              data-confirm-message="Користувач втратить доступ до облікового запису, доки його знову не активують."
+                                              data-confirm-submit="Деактивувати">
                                             <input type="hidden" name="id" value="@item.Id" />
                                             <input type="text" name="comment" class="form-control form-control-sm" placeholder="Коментар" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger">
@@ -98,7 +102,12 @@
                                     }
                                     else
                                     {
-                                        <form asp-action="ActivateUser" method="post" class="admin-inline-action" onsubmit="return confirm('Активувати користувача?');">
+                                        <form asp-action="ActivateUser" method="post" class="admin-inline-action"
+                                              data-confirm
+                                              data-confirm-title="Активувати користувача?"
+                                              data-confirm-message="Користувач знову отримає доступ до облікового запису."
+                                              data-confirm-submit="Активувати"
+                                              data-confirm-variant="success">
                                             <input type="hidden" name="id" value="@item.Id" />
                                             <input type="text" name="comment" class="form-control form-control-sm" placeholder="Коментар" />
                                             <button type="submit" class="btn btn-sm btn-outline-success">
