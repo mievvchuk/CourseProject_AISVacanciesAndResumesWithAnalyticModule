@@ -105,12 +105,15 @@ public class VacancyServiceTests
             SalaryTo = 40000,
             EmploymentType = EmploymentType.FullTime,
             ExperienceLevel = ExperienceLevel.Junior,
-            Location = "Kyiv"
+            Location = "Kyiv",
+            ClosingDate = new DateTime(2026, 6, 1)
         });
 
         var vacancy = await context.Vacancies.SingleAsync();
         Assert.Equal(VacancyStatus.UnderModeration, vacancy.Status);
         Assert.False(vacancy.IsActive);
+        Assert.Equal(DateTimeKind.Utc, vacancy.ClosingDate!.Value.Kind);
+        Assert.Equal(new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc), vacancy.ClosingDate);
     }
 
 }

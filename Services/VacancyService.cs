@@ -257,7 +257,7 @@ public class VacancyService : IVacancyService
             Status = VacancyStatus.UnderModeration,
             IsActive = false,
             Location = model.Location ?? string.Empty,
-            ClosingDate = model.ClosingDate
+            ClosingDate = NormalizeClosingDate(model.ClosingDate)
         };
 
         _context.Vacancies.Add(vacancy);
@@ -284,7 +284,7 @@ public class VacancyService : IVacancyService
         vacancy.Status = VacancyStatus.UnderModeration;
         vacancy.IsActive = false;
         vacancy.Location = model.Location ?? string.Empty;
-        vacancy.ClosingDate = model.ClosingDate;
+        vacancy.ClosingDate = NormalizeClosingDate(model.ClosingDate);
         vacancy.UpdatedAt = DateTime.UtcNow;
 
         await SyncSkillsAsync(vacancy.Id, model.SelectedSkillIds, model.SkillsText);
@@ -438,5 +438,12 @@ public class VacancyService : IVacancyService
     {
         return string.Join(" ", (value ?? string.Empty)
             .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+    }
+
+    private static DateTime? NormalizeClosingDate(DateTime? closingDate)
+    {
+        return closingDate.HasValue
+            ? DateTime.SpecifyKind(closingDate.Value.Date, DateTimeKind.Utc)
+            : null;
     }
 }
