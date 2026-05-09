@@ -209,7 +209,7 @@ app.Use(async (context, next) =>
 
         if (!isCompleted)
         {
-            context.Response.Redirect("/CandidateProfiles/Edit");
+            context.Response.Redirect("/CandidateProfiles/Edit?profileRequired=true");
             return;
         }
     }
@@ -224,7 +224,7 @@ app.Use(async (context, next) =>
 
         if (!isCompleted)
         {
-            context.Response.Redirect("/EmployerProfiles/Edit");
+            context.Response.Redirect("/EmployerProfiles/Edit?profileRequired=true");
             return;
         }
     }

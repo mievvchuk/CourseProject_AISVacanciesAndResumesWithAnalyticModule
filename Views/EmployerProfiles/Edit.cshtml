@@ -11,6 +11,16 @@
             <div class="profile-cover employer-profile-cover"></div>
             <div class="card-body">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                @if (Context.Request.Query["profileRequired"] == "true")
+                {
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+                        <i class="ti ti-alert-circle fs-3"></i>
+                        <div>
+                            <strong>Заповніть профіль роботодавця.</strong>
+                            <div>Поки профіль компанії не налаштований, ви не зможете створювати вакансії, переглядати заявки та працювати з кандидатами.</div>
+                        </div>
+                    </div>
+                }
                 <div class="profile-edit-header">
                     <div class="profile-avatar-wrap">
                         @if (!string.IsNullOrWhiteSpace(Model.LogoPath))

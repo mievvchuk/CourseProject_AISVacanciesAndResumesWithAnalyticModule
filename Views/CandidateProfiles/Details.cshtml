@@ -32,15 +32,18 @@
                             <img src="@Model.PhotoPath"
                                  alt="@Model.FullName"
                                  class="profile-show-avatar-image"
+                                 style="width: 108px; height: 108px; min-width: 108px; max-width: 108px; min-height: 108px; max-height: 108px; object-fit: cover; border-radius: 10px; display: block;"
                                  onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
 
-                            <div class="profile-show-avatar-placeholder d-none">
+                            <div class="profile-show-avatar-placeholder d-none"
+                                 style="width: 108px; height: 108px; min-width: 108px; max-width: 108px; min-height: 108px; max-height: 108px;">
                                 <i class="ti ti-user"></i>
                             </div>
                         }
                         else
                         {
-                            <div class="profile-show-avatar-placeholder">
+                            <div class="profile-show-avatar-placeholder"
+                                 style="width: 108px; height: 108px; min-width: 108px; max-width: 108px; min-height: 108px; max-height: 108px;">
                                 <i class="ti ti-user"></i>
                             </div>
                         }
