@@ -2,6 +2,7 @@
   document.querySelectorAll('.js-profile-image-form').forEach((form) => {
     const input = form.querySelector('.js-profile-image-input');
     const panel = form.querySelector('.js-profile-crop-panel');
+    const cropBox = form.querySelector('.profile-crop-box');
     const cropImage = form.querySelector('.js-profile-crop-image');
     const preview = form.querySelector('.js-profile-image-preview');
     const zoom = form.querySelector('.js-profile-crop-zoom');
@@ -10,9 +11,32 @@
 
     let sourceImage = null;
 
-    if (!input || !panel || !cropImage || !zoom || !positionX || !positionY) {
+    if (!input || !panel || !cropBox || !cropImage || !zoom || !positionX || !positionY) {
       return;
     }
+
+    const lockCropLayout = () => {
+      panel.style.display = 'grid';
+      panel.style.gridTemplateColumns = '240px minmax(0, 1fr)';
+      panel.style.gap = '1rem';
+      panel.style.alignItems = 'start';
+      panel.style.marginTop = '0.75rem';
+
+      cropBox.style.width = '240px';
+      cropBox.style.height = '240px';
+      cropBox.style.maxWidth = '240px';
+      cropBox.style.maxHeight = '240px';
+      cropBox.style.overflow = 'hidden';
+      cropBox.style.position = 'relative';
+      cropBox.style.borderRadius = '12px';
+
+      cropImage.style.display = 'block';
+      cropImage.style.width = '100%';
+      cropImage.style.height = '100%';
+      cropImage.style.maxWidth = '100%';
+      cropImage.style.maxHeight = '100%';
+      cropImage.style.objectFit = 'cover';
+    };
 
     const getCropArea = () => {
       const scale = Number.parseFloat(zoom.value) || 1;
@@ -44,6 +68,7 @@
       canvas.height = outputSize;
 
       const context = canvas.getContext('2d');
+
       if (!context) {
         return null;
       }
@@ -86,12 +111,19 @@
       const img = document.createElement('img');
       img.src = url;
       img.alt = 'Попередній перегляд фото';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.display = 'block';
 
       preview.appendChild(img);
     };
 
     const updatePreview = () => {
+      lockCropLayout();
+
       const canvas = drawCroppedImage(800);
+
       if (!canvas) {
         return;
       }
@@ -114,6 +146,7 @@
 
       sourceImage.onload = () => {
         panel.classList.remove('d-none');
+        lockCropLayout();
 
         zoom.value = '1';
         positionX.value = '50';
