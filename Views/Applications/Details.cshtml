@@ -218,6 +218,15 @@
                                 <i class="ti ti-file-text me-1"></i>
                                 Резюме
                             </a>
+
+                            <a asp-controller="EmployerCandidates"
+                               asp-action="Details"
+                               asp-route-id="@Model.ResumeId"
+                               asp-fragment="portfolio"
+                               class="btn btn-outline-primary">
+                                <i class="ti ti-briefcase me-1"></i>
+                                Портфоліо
+                            </a>
                         }
                         else
                         {

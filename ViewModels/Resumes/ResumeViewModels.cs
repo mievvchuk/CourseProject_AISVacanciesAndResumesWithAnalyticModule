@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
-
+using AisVacanciesAndResumes.ViewModels.Portfolio;
 namespace AisVacanciesAndResumes.ViewModels.Resumes;
 
 public class ResumeDetailsViewModel
@@ -31,6 +31,7 @@ public class ResumeDetailsViewModel
     public long? FileSize { get; set; }
     public DateTime? UploadedAt { get; set; }
     public List<string> SkillNames { get; set; } = new();
+    public List<PortfolioItemListItemViewModel> PortfolioItems { get; set; } = new();
 }
 
 public class ResumeFormViewModel

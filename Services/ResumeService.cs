@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using AisVacanciesAndResumes.Enums;
-
+using AisVacanciesAndResumes.ViewModels.Portfolio;
 namespace AisVacanciesAndResumes.Services;
 
 public class ResumeService : IResumeService
@@ -271,6 +271,8 @@ public class ResumeService : IResumeService
             .AsNoTracking()
             .Include(x => x.CandidateProfile)
             .ThenInclude(x => x!.User)
+            .Include(x => x.CandidateProfile)
+            .ThenInclude(x => x!.PortfolioItems)
             .Include(x => x.Category)
             .Include(x => x.ResumeSkills)
             .ThenInclude(x => x.Skill)
@@ -290,6 +292,8 @@ public class ResumeService : IResumeService
             .AsNoTracking()
             .Include(x => x.CandidateProfile)
             .ThenInclude(x => x!.User)
+            .Include(x => x.CandidateProfile)
+            .ThenInclude(x => x!.PortfolioItems)
             .Include(x => x.Category)
             .Include(x => x.ResumeSkills)
             .ThenInclude(x => x.Skill)
@@ -511,6 +515,7 @@ public class ResumeService : IResumeService
         var resume = await _context.Resumes
             .AsNoTracking()
             .Include(x => x.CandidateProfile)
+            .ThenInclude(x => x!.PortfolioItems)
             .Include(x => x.Category)
             .Include(x => x.ResumeSkills)
             .ThenInclude(x => x.Skill)
@@ -619,7 +624,18 @@ public class ResumeService : IResumeService
             SkillNames = resume.ResumeSkills
                 .Select(x => x.Skill != null ? x.Skill.Name : string.Empty)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
-                .ToList()
+                .ToList(),
+            PortfolioItems = resume.CandidateProfile?.PortfolioItems
+                .OrderByDescending(x => x.Id)
+                .Select(x => new PortfolioItemListItemViewModel
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Description = x.Description,
+                    Url = x.Url,
+                    ImagePath = x.ImagePath
+                })
+                .ToList() ?? new List<PortfolioItemListItemViewModel>()
         };
     }
 

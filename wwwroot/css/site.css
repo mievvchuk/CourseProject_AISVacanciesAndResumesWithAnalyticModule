@@ -2808,3 +2808,39 @@ body {
     font-size: 1.1rem;
   }
 }
+.candidate-portfolio-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.candidate-portfolio-card {
+  background: #ffffff;
+  border: 1px solid rgba(98, 105, 118, 0.16);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.candidate-portfolio-image {
+  background: #eef2f7;
+  display: block;
+  height: 150px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.candidate-portfolio-body {
+  padding: 1rem;
+}
+
+  .candidate-portfolio-body h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .candidate-portfolio-body p {
+    color: #475467;
+    margin-bottom: 0.85rem;
+  }

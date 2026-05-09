@@ -18,6 +18,28 @@
     {
         return string.IsNullOrWhiteSpace(value) ? fallback : value;
     }
+    private static bool HasImage(string? imagePath)
+    {
+        return !string.IsNullOrWhiteSpace(imagePath) && imagePath.Trim() != "-";
+    }
+
+    private static bool HasUrl(string? url)
+    {
+        return !string.IsNullOrWhiteSpace(url) && url.Trim() != "-";
+    }
+
+    private static string NormalizeExternalUrl(string url)
+    {
+        var value = url.Trim();
+
+        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        return $"https://{value}";
+    }
 }
 
 <section class="employer-candidate-details-page">
@@ -101,6 +123,50 @@
                 else if (string.IsNullOrWhiteSpace(Model.SkillsDescription))
                 {
                     <p class="text-secondary mb-0">Навички не вказано.</p>
+                }
+            </section>
+            <section id="portfolio" class="candidate-detail-section">
+                <div class="candidate-detail-section-head">
+                    <h2>Портфоліо</h2>
+                    <span>Проєкти кандидата</span>
+                </div>
+
+                @if (Model.PortfolioItems.Any())
+                {
+                    <div class="candidate-portfolio-grid">
+                        @foreach (var item in Model.PortfolioItems)
+                        {
+                            <article class="candidate-portfolio-card">
+                                @if (HasImage(item.ImagePath))
+                                {
+                                    <img src="@NormalizeExternalUrl(item.ImagePath)"
+                                         alt="@item.Title"
+                                         class="candidate-portfolio-image"
+                                         loading="lazy" />
+                                }
+
+                                <div class="candidate-portfolio-body">
+                                    <h3>@item.Title</h3>
+                                    <p>@item.Description</p>
+
+                                    @if (HasUrl(item.Url))
+                                    {
+                                        <a href="@NormalizeExternalUrl(item.Url)"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="ti ti-external-link me-1"></i>
+                                            Відкрити проєкт
+                                        </a>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-secondary mb-0">Кандидат ще не додав проєкти в портфоліо.</p>
                 }
             </section>
         </div>
