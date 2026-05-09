@@ -62,7 +62,7 @@
             ? currentUser.FullName
             : "користувачу";
         var profileController = User.IsInRole("Employer") ? "EmployerProfiles" : User.IsInRole("Admin") ? "Admin" : "CandidateProfiles";
-        var profileAction = User.IsInRole("Admin") ? "Dashboard" : "Edit";
+        var profileAction = User.IsInRole("Admin") ? "Dashboard" : "Details";
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
         var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
         Func<string, string?, string> activeNav = (controllerName, actionName) =>

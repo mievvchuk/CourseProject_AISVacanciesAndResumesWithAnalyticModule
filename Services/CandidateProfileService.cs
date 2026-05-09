@@ -22,7 +22,14 @@ public class CandidateProfileService : ICandidateProfileService
     {
         return await _context.CandidateProfiles.AnyAsync(x => x.UserId == userId);
     }
-
+    public async Task<bool> IsCompletedAsync(string userId)
+    {
+        return await _context.CandidateProfiles.AnyAsync(x =>
+            x.UserId == userId &&
+            !string.IsNullOrWhiteSpace(x.Headline) &&
+            !string.IsNullOrWhiteSpace(x.Summary) &&
+            !string.IsNullOrWhiteSpace(x.City));
+    }
     public async Task<CandidateProfileFormViewModel> GetOrCreateFormAsync(string userId)
     {
         var profile = await EnsureProfileAsync(userId);

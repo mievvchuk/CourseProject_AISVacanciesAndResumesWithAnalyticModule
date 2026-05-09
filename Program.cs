@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using System.Security.Claims;
+
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -160,7 +162,76 @@ app.MapGet("/sitemap.xml", async (SitemapService sitemapService, CancellationTok
     var sitemap = await sitemapService.GenerateAsync(cancellationToken);
     return Results.Content(sitemap, "application/xml; charset=utf-8");
 });
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated != true)
+    {
+        await next();
+        return;
+    }
 
+    var path = context.Request.Path.Value ?? string.Empty;
+
+    var isAllowedPath =
+        path.StartsWith("/Account", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/CandidateProfiles", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/EmployerProfiles", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/css", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/js", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/images", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/uploads", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/favicon", StringComparison.OrdinalIgnoreCase);
+
+    if (isAllowedPath)
+    {
+        await next();
+        return;
+    }
+
+    var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        await next();
+        return;
+    }
+
+    var dbContext = context.RequestServices.GetRequiredService<ApplicationDbContext>();
+
+    if (context.User.IsInRole("Candidate"))
+    {
+        var isCompleted = await dbContext.CandidateProfiles.AnyAsync(x =>
+            x.UserId == userId &&
+            !string.IsNullOrWhiteSpace(x.Headline) &&
+            !string.IsNullOrWhiteSpace(x.Summary) &&
+            !string.IsNullOrWhiteSpace(x.City));
+
+        if (!isCompleted)
+        {
+            context.Response.Redirect("/CandidateProfiles/Edit");
+            return;
+        }
+    }
+
+    if (context.User.IsInRole("Employer"))
+    {
+        var isCompleted = await dbContext.EmployerProfiles.AnyAsync(x =>
+            x.UserId == userId &&
+            !string.IsNullOrWhiteSpace(x.CompanyName) &&
+            !string.IsNullOrWhiteSpace(x.Description) &&
+            !string.IsNullOrWhiteSpace(x.City));
+
+        if (!isCompleted)
+        {
+            context.Response.Redirect("/EmployerProfiles/Edit");
+            return;
+        }
+    }
+
+    await next();
+});
+app.UseAuthorization();
 if (app.Environment.IsDevelopment())
 {
     app.MapGet("/__dev/live-reload", async (

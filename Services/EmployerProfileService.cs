@@ -16,7 +16,14 @@ public class EmployerProfileService : IEmployerProfileService
         _context = context;
         _environment = environment;
     }
-
+    public async Task<bool> IsCompletedAsync(string userId)
+    {
+        return await _context.EmployerProfiles.AnyAsync(x =>
+            x.UserId == userId &&
+            !string.IsNullOrWhiteSpace(x.CompanyName) &&
+            !string.IsNullOrWhiteSpace(x.Description) &&
+            !string.IsNullOrWhiteSpace(x.City));
+    }
     public async Task<bool> ExistsAsync(string userId)
     {
         return await _context.EmployerProfiles.AnyAsync(x => x.UserId == userId);

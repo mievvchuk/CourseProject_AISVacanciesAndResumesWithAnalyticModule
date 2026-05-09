@@ -92,6 +92,7 @@ public class VacanciesControllerTests
         public string? RequestedUserId { get; private set; }
 
         public Task<bool> HasCandidateProfileAsync(string userId) => Task.FromResult(true);
+        public Task<bool> HasAnyResumeAsync(string userId) => Task.FromResult(true);
         public Task<List<ResumeListItemViewModel>> GetUserResumesAsync(string userId) => Task.FromResult(new List<ResumeListItemViewModel>());
 
         public Task<List<SelectListItem>> GetResumeOptionsAsync(string userId)

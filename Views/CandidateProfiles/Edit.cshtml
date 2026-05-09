@@ -83,7 +83,13 @@
                         </div>
                         <div class="col-md-4">
                             <label asp-for="DesiredSalary" class="form-label">Бажана зарплата</label>
-                            <input asp-for="DesiredSalary" class="form-control" />
+                            <input asp-for="DesiredSalary"
+                                   asp-format="{0:0}"
+                                   class="form-control"
+                                   type="number"
+                                   min="0"
+                                   step="1"
+                                   inputmode="numeric" />
                             <span asp-validation-for="DesiredSalary" class="text-danger"></span>
                         </div>
                         <div class="col-md-4">

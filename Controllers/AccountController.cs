@@ -12,7 +12,6 @@ public class AccountController : Controller
     private readonly SignInManager<User> _signInManager;
     private readonly ICandidateProfileService _candidateProfileService;
     private readonly IEmployerProfileService _employerProfileService;
-
     public AccountController(
     UserManager<User> userManager,
     SignInManager<User> signInManager,
@@ -143,18 +142,18 @@ public class AccountController : Controller
 
         if (await _userManager.IsInRoleAsync(user, UserRoleType.Employer.ToString()))
         {
-            var hasProfile = await _employerProfileService.ExistsAsync(user.Id);
+            var isProfileCompleted = await _employerProfileService.IsCompletedAsync(user.Id);
 
-            return hasProfile
+            return isProfileCompleted
                 ? RedirectToAction("Index", "Home")
                 : RedirectToAction("Edit", "EmployerProfiles");
         }
 
         if (await _userManager.IsInRoleAsync(user, UserRoleType.Candidate.ToString()))
         {
-            var hasProfile = await _candidateProfileService.ExistsAsync(user.Id);
+            var isProfileCompleted = await _candidateProfileService.IsCompletedAsync(user.Id);
 
-            return hasProfile
+            return isProfileCompleted
                 ? RedirectToAction("Index", "Home")
                 : RedirectToAction("Edit", "CandidateProfiles");
         }

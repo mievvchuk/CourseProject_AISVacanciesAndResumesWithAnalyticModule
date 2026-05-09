@@ -1,227 +1,130 @@
-@model ResumeDetailsViewModel
+@model EmployerProfileDetailsViewModel
 
 @{
-    ViewData["Title"] = "Деталі резюме";
-    var candidateName = string.IsNullOrWhiteSpace(Model.FullName) ? "Кандидат" : Model.FullName;
-    var desiredPosition = string.IsNullOrWhiteSpace(Model.DesiredPosition) ? Model.Title : Model.DesiredPosition;
-    var city = string.IsNullOrWhiteSpace(Model.City) ? "Місто не вказано" : Model.City;
-    var salary = Model.DesiredSalary.HasValue ? $"{Model.DesiredSalary:N0} грн" : "Зарплату не вказано";
-    var experienceYears = Model.ExperienceYears == 1
-        ? "1 рік"
-        : Model.ExperienceYears is >= 2 and <= 4
-            ? $"{Model.ExperienceYears} роки"
-            : $"{Model.ExperienceYears} років";
-}
+    ViewData["Title"] = "Профіль роботодавця";
 
-@functions {
-    private static string ShowText(string? value, string fallback = "Не вказано")
+    string Show(string? value, string fallback = "Не вказано")
     {
         return string.IsNullOrWhiteSpace(value) ? fallback : value;
     }
-    private static bool HasImage(string? imagePath)
-    {
-        return !string.IsNullOrWhiteSpace(imagePath) && imagePath.Trim() != "-";
-    }
 
-    private static bool HasUrl(string? url)
-    {
-        return !string.IsNullOrWhiteSpace(url) && url.Trim() != "-";
-    }
-
-    private static string NormalizeExternalUrl(string url)
-    {
-        var value = url.Trim();
-
-        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-        return $"https://{value}";
-    }
+    var companyName = Show(Model.CompanyName, "Компанія");
 }
 
-<section class="employer-candidate-details-page">
-    <a asp-action="Search" class="vacancy-back-link">
-        <i class="ti ti-arrow-left"></i>
-        Назад до пошуку кандидатів
-    </a>
+<section class="profile-show-page">
+    <div class="profile-show-card card shadow-sm border-0">
+        <div class="profile-show-cover profile-show-cover-employer"></div>
 
-    <div class="candidate-detail-layout">
-        <div class="candidate-detail-main">
-            <section class="candidate-detail-hero">
-                <div class="candidate-detail-avatar" aria-hidden="true">
-                    @candidateName.Trim()[0]
-                </div>
-                <div class="candidate-detail-heading">
-                    <div class="candidate-detail-eyebrow">@Model.CategoryName</div>
-                    <h1>@desiredPosition</h1>
-                    <div class="candidate-detail-name">
-                        <i class="ti ti-user"></i>
-                        <span>@candidateName</span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="candidate-detail-metrics">
-                <div class="candidate-detail-metric">
-                    <i class="ti ti-map-pin"></i>
-                    <span>Локація</span>
-                    <strong>@city</strong>
-                </div>
-                <div class="candidate-detail-metric">
-                    <i class="ti ti-briefcase"></i>
-                    <span>Зайнятість</span>
-                    <strong>@Model.EmploymentType.GetDisplayName()</strong>
-                </div>
-                <div class="candidate-detail-metric">
-                    <i class="ti ti-chart-bar"></i>
-                    <span>Досвід</span>
-                    <strong>@Model.ExperienceLevel.GetDisplayName() · @experienceYears</strong>
-                </div>
-                <div class="candidate-detail-metric">
-                    <i class="ti ti-currency-hryvnia"></i>
-                    <span>Очікування</span>
-                    <strong>@salary</strong>
-                </div>
-            </section>
-
-            <section class="candidate-detail-section">
-                <h2>Короткий опис</h2>
-                <p>@ShowText(Model.Summary, "Кандидат поки не додав короткий опис.")</p>
-            </section>
-
-            <section class="candidate-detail-section">
-                <h2>Досвід</h2>
-                <p>@ShowText(Model.Experience, "Досвід не описано.")</p>
-            </section>
-
-            <section class="candidate-detail-section">
-                <h2>Освіта</h2>
-                <p>@ShowText(Model.Education, "Освіту не вказано.")</p>
-            </section>
-
-            <section class="candidate-detail-section">
-                <div class="candidate-detail-section-head">
-                    <h2>Навички</h2>
-                    @if (!string.IsNullOrWhiteSpace(Model.SkillsDescription))
-                    {
-                        <span>@Model.SkillsDescription</span>
-                    }
-                </div>
-
-                @if (Model.SkillNames.Any())
-                {
-                    <div class="candidate-detail-skills">
-                        @foreach (var skill in Model.SkillNames)
+        <div class="card-body">
+            <div class="profile-show-head">
+                <div class="profile-show-identity">
+                    <div class="profile-show-avatar-wrap">
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
                         {
-                            <span class="badge bg-muted-lt text-secondary border">@skill</span>
+                            <img src="@Model.LogoPath"
+                                 alt="@companyName"
+                                 class="profile-show-avatar-image"
+                                 onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
+
+                            <div class="profile-show-avatar-placeholder d-none">
+                                <i class="ti ti-building"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="profile-show-avatar-placeholder">
+                                <i class="ti ti-building"></i>
+                            </div>
                         }
                     </div>
-                }
-                else if (string.IsNullOrWhiteSpace(Model.SkillsDescription))
-                {
-                    <p class="text-secondary mb-0">Навички не вказано.</p>
-                }
-            </section>
-            <section id="portfolio" class="candidate-detail-section">
-                <div class="candidate-detail-section-head">
-                    <h2>Портфоліо</h2>
-                    <span>Проєкти кандидата</span>
+
+                    <div>
+                        <div class="profile-show-eyebrow">Профіль роботодавця</div>
+                        <h1>@companyName</h1>
+                        <div class="profile-show-subtitle">
+                            <i class="ti ti-user"></i>
+                            <span>@Show(Model.FullName)</span>
+                            <span class="profile-show-dot">•</span>
+                            <span>@Show(Model.Email)</span>
+                        </div>
+                    </div>
                 </div>
 
-                @if (Model.PortfolioItems.Any())
-                {
-                    <div class="candidate-portfolio-grid">
-                        @foreach (var item in Model.PortfolioItems)
-                        {
-                            <article class="candidate-portfolio-card">
-                                @if (HasImage(item.ImagePath))
-                                {
-                                    <img src="@NormalizeExternalUrl(item.ImagePath)"
-                                         alt="@item.Title"
-                                         class="candidate-portfolio-image"
-                                         loading="lazy" />
-                                }
-
-                                <div class="candidate-portfolio-body">
-                                    <h3>@item.Title</h3>
-                                    <p>@item.Description</p>
-
-                                    @if (HasUrl(item.Url))
-                                    {
-                                        <a href="@NormalizeExternalUrl(item.Url)"
-                                           target="_blank"
-                                           rel="noopener noreferrer"
-                                           class="btn btn-outline-primary btn-sm">
-                                            <i class="ti ti-external-link me-1"></i>
-                                            Відкрити проєкт
-                                        </a>
-                                    }
-                                </div>
-                            </article>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p class="text-secondary mb-0">Кандидат ще не додав проєкти в портфоліо.</p>
-                }
-            </section>
-        </div>
-
-        <aside class="candidate-detail-sidebar">
-            <section class="candidate-action-panel">
-                <h2>Дії з кандидатом</h2>
-                <p>Збережіть контекст перегляду або одразу напишіть кандидату щодо релевантної вакансії.</p>
-
-                @if (!string.IsNullOrWhiteSpace(Model.CandidateUserId))
-                {
-                    <a asp-controller="Messages"
-                       asp-action="Create"
-                       asp-route-receiverId="@Model.CandidateUserId"
-                       class="btn btn-primary w-100">
-                        <i class="ti ti-message-circle me-1"></i>
-                        Написати кандидату
-                    </a>
-                }
-
-                <a asp-action="Search" class="btn btn-outline-secondary w-100">
-                    <i class="ti ti-search me-1"></i>
-                    До пошуку кандидатів
+                <a asp-action="Edit" class="btn btn-primary">
+                    <i class="ti ti-edit me-1"></i>
+                    Редагувати
                 </a>
-            </section>
+            </div>
 
-            <section class="candidate-side-card">
-                <h2>Профіль резюме</h2>
-                <dl>
-                    <dt>Назва резюме</dt>
-                    <dd>@ShowText(Model.Title)</dd>
-                    <dt>Освіта</dt>
-                    <dd>@Model.EducationLevel.GetDisplayName()</dd>
-                    <dt>Статус</dt>
-                    <dd>@Model.Status.GetDisplayName()</dd>
-                </dl>
-            </section>
+            <div class="profile-show-metrics">
+                <div class="profile-show-metric">
+                    <i class="ti ti-building"></i>
+                    <span>Компанія</span>
+                    <strong>@companyName</strong>
+                </div>
 
-            <section class="candidate-side-card">
-                <h2>Файл резюме</h2>
-                @if (!string.IsNullOrWhiteSpace(Model.FilePath))
-                {
-                    <a href="@Model.FilePath" target="_blank" class="candidate-file-link">
-                        <i class="ti ti-file-text"></i>
-                        <span>@ShowText(Model.OriginalFileName, "Відкрити файл")</span>
-                    </a>
-                }
-                else
-                {
-                    <div class="candidate-file-empty">
-                        <i class="ti ti-file-off"></i>
-                        <span>Файл не завантажено</span>
-                    </div>
-                }
-            </section>
-        </aside>
+                <div class="profile-show-metric">
+                    <i class="ti ti-users"></i>
+                    <span>Розмір компанії</span>
+                    <strong>@Show(Model.CompanySize)</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-world"></i>
+                    <span>Сайт</span>
+                    <strong>@Show(Model.Website)</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-map-pin"></i>
+                    <span>Місто</span>
+                    <strong>@Show(Model.City)</strong>
+                </div>
+            </div>
+
+            <div class="profile-show-content">
+                <section class="profile-show-section">
+                    <h2>Опис компанії</h2>
+                    <p>@Show(Model.Description, "Роботодавець ще не додав опис компанії.")</p>
+                </section>
+
+                <section class="profile-show-section">
+                    <h2>Контактна інформація</h2>
+
+                    <dl class="profile-show-list">
+                        <div>
+                            <dt>Представник</dt>
+                            <dd>@Show(Model.FullName)</dd>
+                        </div>
+
+                        <div>
+                            <dt>Email</dt>
+                            <dd>@Show(Model.Email)</dd>
+                        </div>
+
+                        <div>
+                            <dt>Сайт</dt>
+                            <dd>
+                                @if (!string.IsNullOrWhiteSpace(Model.Website))
+                                {
+                                    <a href="@Model.Website" target="_blank" rel="noopener noreferrer">
+                                        @Model.Website
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span>Не вказано</span>
+                                }
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Місто</dt>
+                            <dd>@Show(Model.City)</dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>
+        </div>
     </div>
 </section>

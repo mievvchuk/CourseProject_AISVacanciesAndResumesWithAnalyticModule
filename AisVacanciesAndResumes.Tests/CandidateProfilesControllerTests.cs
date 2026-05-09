@@ -69,6 +69,7 @@ public class CandidateProfilesControllerTests
         }
 
         public Task<bool> ExistsAsync(string userId) => Task.FromResult(_exists);
+        public Task<bool> IsCompletedAsync(string userId) => Task.FromResult(_exists);
         public Task<CandidateProfileFormViewModel> GetOrCreateFormAsync(string userId) => Task.FromResult(new CandidateProfileFormViewModel());
         public Task<CandidateProfileDetailsViewModel?> GetDetailsAsync(string userId, string fullName, string email) => Task.FromResult<CandidateProfileDetailsViewModel?>(null);
         public Task SaveAsync(string userId, CandidateProfileFormViewModel model) => Task.CompletedTask;
