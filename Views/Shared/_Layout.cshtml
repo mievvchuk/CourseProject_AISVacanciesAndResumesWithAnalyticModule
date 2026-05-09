@@ -222,6 +222,73 @@
                 </div>
             </footer>
         </main>
+                @if (isAuthenticated)
+        {
+            <nav class="mobile-bottom-nav d-md-none" aria-label="Мобільна навігація">
+                <a class="mobile-bottom-nav-link @activeNav("Home", "Index")"
+                   asp-controller="Home"
+                   asp-action="Index">
+                    <i class="ti ti-home"></i>
+                    <span>Головна</span>
+                </a>
+
+                <a class="mobile-bottom-nav-link @activeNav("Vacancies", "Index")"
+                   asp-controller="Vacancies"
+                   asp-action="Index">
+                    <i class="ti ti-search"></i>
+                    <span>Вакансії</span>
+                </a>
+
+                @if (User.IsInRole("Candidate"))
+                {
+                    <a class="mobile-bottom-nav-link @activeNav("Resumes", null)"
+                       asp-controller="Resumes"
+                       asp-action="Index">
+                        <i class="ti ti-file-text"></i>
+                        <span>Резюме</span>
+                    </a>
+
+                    <a class="mobile-bottom-nav-link @activeNav("Applications", "MyApplications")"
+                       asp-controller="Applications"
+                       asp-action="MyApplications">
+                        <i class="ti ti-send"></i>
+                        <span>Заявки</span>
+                    </a>
+                }
+                else if (User.IsInRole("Employer"))
+                {
+                    <a class="mobile-bottom-nav-link @activeNav("Applications", "EmployerApplications")"
+                       asp-controller="Applications"
+                       asp-action="EmployerApplications">
+                        <i class="ti ti-inbox"></i>
+                        <span>Заявки</span>
+                    </a>
+
+                    <a class="mobile-bottom-nav-link @activeNav("EmployerCandidates", null)"
+                       asp-controller="EmployerCandidates"
+                       asp-action="Search">
+                        <i class="ti ti-users-group"></i>
+                        <span>Кандидати</span>
+                    </a>
+                }
+                else if (User.IsInRole("Admin"))
+                {
+                    <a class="mobile-bottom-nav-link @activeNav("Admin", null)"
+                       asp-controller="Admin"
+                       asp-action="Dashboard">
+                        <i class="ti ti-shield-lock"></i>
+                        <span>Адмінка</span>
+                    </a>
+                }
+
+                <a class="mobile-bottom-nav-link @activeNav(profileController, profileAction)"
+                   asp-controller="@profileController"
+                   asp-action="@profileAction">
+                    <i class="ti ti-user-circle"></i>
+                    <span>Профіль</span>
+                </a>
+            </nav>
+        }
     </div>
 
     <div class="modal modal-blur fade" id="app-confirm-modal" tabindex="-1" aria-hidden="true">
