@@ -49,13 +49,61 @@
 
         return "recommendation-match-low";
     }
-}
 
+    private static string GetReasonClass(int match)
+    {
+        if (match >= 80)
+        {
+            return "recommendation-reason-high";
+        }
+
+        if (match >= 50)
+        {
+            return "recommendation-reason-medium";
+        }
+
+        return "recommendation-reason-low";
+    }
+
+    private static string GetReasonIcon(int match)
+    {
+        if (match >= 80)
+        {
+            return "ti ti-sparkles";
+        }
+
+        if (match >= 50)
+        {
+            return "ti ti-info-circle";
+        }
+
+        return "ti ti-alert-triangle";
+    }
+
+    private static string GetRecommendationReason(AisVacanciesAndResumes.ViewModels.Recommendations.RecommendedVacancyViewModel item)
+    {
+        var categoryText = string.IsNullOrWhiteSpace(item.CategoryName)
+            ? string.Empty
+            : $" у категорії “{item.CategoryName}”";
+
+        if (item.MatchPercentage >= 80)
+        {
+            return $"Добре підходить до резюме “{item.ResumeTitle}”{categoryText}.";
+        }
+
+        if (item.MatchPercentage >= 50)
+        {
+            return $"Може підійти до резюме “{item.ResumeTitle}”{categoryText}, але варто перевірити вимоги вакансії.";
+        }
+
+        return $"Низька відповідність до резюме “{item.ResumeTitle}”. Перед подачею заявки перегляньте вимоги вакансії.";
+    }
+}
 <section class="recommendations-page">
     <div class="recommendations-hero">
         <div>
             <h1 class="h3 mb-1">Рекомендації</h1>
-            <p class="text-secondary mb-0">Добірка вакансій, які найкраще підходять до ваших резюме.</p>
+            <p class="text-secondary mb-0">Добірка вакансій, відсортованих за відповідністю до ваших резюме.</p>
         </div>
         <a asp-controller="Vacancies" asp-action="Index" class="btn btn-outline-secondary">
             <i class="ti ti-list-search me-1"></i>
@@ -135,13 +183,10 @@
                                 <span><i class="ti ti-chart-bar"></i>@item.ExperienceLevel.GetDisplayName()</span>
                             </div>
 
-                            <div class="recommendation-reason">
-                                <i class="ti ti-sparkles"></i>
-                                <span>Найкраще підходить до резюме “@item.ResumeTitle” у категорії “@item.CategoryName”.</span>
-                            </div>
-                        </div>
-
-                        <div class="recommendation-actions">
+                            <div class="recommendation-reason @GetReasonClass(item.MatchPercentage)">
+                                <i class="@GetReasonIcon(item.MatchPercentage)"></i>
+                                <span>@GetRecommendationReason(item)</span>
+                            </div>                        <div class="recommendation-actions">
                             <a asp-controller="Vacancies" asp-action="Details" asp-route-id="@item.VacancyId" class="btn btn-outline-primary">
                                 Деталі
                             </a>
@@ -157,6 +202,7 @@
                                 </form>
                             }
                         </div>
+                    </div>
                     </div>
                 </article>
             }

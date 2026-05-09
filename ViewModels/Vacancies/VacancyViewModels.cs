@@ -26,6 +26,7 @@ public class VacancyDetailsViewModel
     public bool HasApplied { get; set; }
     public List<string> SkillNames { get; set; } = new();
     public List<SelectListItem> ResumeOptions { get; set; } = new();
+    public bool HasAnyResume { get; set; }
 }
 
 public class VacancyFilterViewModel
@@ -107,6 +108,7 @@ public class VacancyIndexViewModel
     public List<VacancyListItemViewModel> Items { get; set; } = new();
     public List<SelectListItem> ResumeOptions { get; set; } = new();
     public List<SelectListItem> CategoryOptions { get; set; } = new();
+    public bool HasAnyResume { get; set; }
 }
 
 public class VacancyListItemViewModel
@@ -125,4 +127,5 @@ public class VacancyListItemViewModel
     public bool CanManage { get; set; }
     public bool HasApplied { get; set; }
     public List<string> Skills { get; set; } = new();
+    public bool HasAnyResume { get; set; }
 }

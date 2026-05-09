@@ -19,4 +19,5 @@ public interface IResumeService
     Task UpdateAsync(string userId, ResumeFormViewModel model);
     Task DeleteAsync(string userId, int id);
     Task<List<SelectListItem>> GetCategoriesAsync();
+    Task<bool> HasAnyResumeAsync(string userId);
 }

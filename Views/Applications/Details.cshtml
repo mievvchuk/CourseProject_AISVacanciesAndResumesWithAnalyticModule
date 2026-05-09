@@ -42,6 +42,20 @@
             _ => false
         };
     }
+    private static string GetMatchRingClass(int match)
+    {
+        if (match >= 80)
+        {
+            return "match-ring-high";
+        }
+
+        if (match >= 50)
+        {
+            return "match-ring-medium";
+        }
+
+        return "match-ring-low";
+    }
 }
 
 <section class="application-details-page">
@@ -183,7 +197,7 @@
             <section class="card application-details-card shadow-sm border-0 text-center">
                 <div class="card-body">
                     <div class="text-secondary text-uppercase small mb-2">Відповідність</div>
-                    <div class="match-ring mx-auto mb-3" style="--match-value: @matchPercent%;">
+                    <div class="match-ring @GetMatchRingClass(matchPercent) mx-auto mb-3" style="--match-value: @matchPercent%;">
                         <strong>@matchPercent%</strong>
                     </div>
                     <p class="text-secondary mb-0">Показує, наскільки резюме збігається з вимогами вакансії.</p>

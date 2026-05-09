@@ -24,7 +24,12 @@ public class ResumeService : IResumeService
     {
         return await _context.CandidateProfiles.AnyAsync(x => x.UserId == userId);
     }
-
+    public async Task<bool> HasAnyResumeAsync(string userId)
+    {
+        return await _context.Resumes
+            .AsNoTracking()
+            .AnyAsync(x => x.CandidateProfile != null && x.CandidateProfile.UserId == userId);
+    }
     public async Task<List<ResumeListItemViewModel>> GetUserResumesAsync(string userId)
     {
         return await _context.Resumes

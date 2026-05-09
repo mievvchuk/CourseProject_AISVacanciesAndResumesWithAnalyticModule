@@ -23,7 +23,10 @@ public class VacanciesController : Controller
         var model = await _vacancyService.SearchAsync(filter, GetUserIdOrNull(), User.IsInRole("Employer"));
         if (User.Identity?.IsAuthenticated == true && User.IsInRole("Candidate"))
         {
-            model.ResumeOptions = await _resumeService.GetResumeOptionsAsync(GetUserId());
+            var userId = GetUserId();
+
+            model.ResumeOptions = await _resumeService.GetResumeOptionsAsync(userId);
+            model.HasAnyResume = await _resumeService.HasAnyResumeAsync(userId);
         }
 
         return View(model);
@@ -48,7 +51,10 @@ public class VacanciesController : Controller
         var model = await _vacancyService.GetDetailsModelAsync(id, GetUserIdOrNull(), User.IsInRole("Employer"), User.IsInRole("Admin"));
         if (model is not null && User.Identity?.IsAuthenticated == true && User.IsInRole("Candidate"))
         {
-            model.ResumeOptions = await _resumeService.GetResumeOptionsAsync(GetUserId());
+            var userId = GetUserId();
+
+            model.ResumeOptions = await _resumeService.GetResumeOptionsAsync(userId);
+            model.HasAnyResume = await _resumeService.HasAnyResumeAsync(userId);
         }
 
         return model is null ? NotFound() : View(model);

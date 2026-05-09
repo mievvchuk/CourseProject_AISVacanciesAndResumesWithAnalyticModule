@@ -539,18 +539,35 @@ body {
 
 .match-ring {
   --match-value: 0%;
+  --match-color: #206bc4;
+  --match-soft-color: #edf4ff;
   align-items: center;
-  background:
-    radial-gradient(circle closest-side, #fff 72%, transparent 73%),
-    conic-gradient(#2fb344 var(--match-value), #e9eef5 0);
+  background: radial-gradient(circle closest-side, #fff 72%, transparent 73%), conic-gradient(var(--match-color) var(--match-value), #e9eef5 0);
   border-radius: 50%;
+  box-shadow: inset 0 0 0 .55rem var(--match-soft-color);
   display: inline-flex;
   height: 8rem;
   justify-content: center;
   width: 8rem;
 }
 
+.match-ring-high {
+  --match-color: #2fb344;
+  --match-soft-color: #e9f7ef;
+}
+
+.match-ring-medium {
+  --match-color: #f59f00;
+  --match-soft-color: #fff4de;
+}
+
+.match-ring-low {
+  --match-color: #d63939;
+  --match-soft-color: #fff1f1;
+}
+
 .match-ring strong {
+  color: var(--match-color);
   font-size: 1.65rem;
 }
 
@@ -870,6 +887,36 @@ body {
   min-width: 0;
 }
 
+.recommendation-reason-high {
+  background: #f0fdf4;
+  border-color: rgba(47, 179, 68, 0.22);
+  color: #166534;
+}
+
+  .recommendation-reason-high i {
+    color: #2fb344;
+  }
+
+.recommendation-reason-medium {
+  background: #fff8e6;
+  border-color: rgba(245, 159, 0, 0.25);
+  color: #92400e;
+}
+
+  .recommendation-reason-medium i {
+    color: #f59f00;
+  }
+
+.recommendation-reason-low {
+  background: #fff1f1;
+  border-color: rgba(214, 57, 57, 0.22);
+  color: #991b1b;
+}
+
+  .recommendation-reason-low i {
+    color: #d63939;
+  }
+
 .recommendation-meta i,
 .recommendation-reason i,
 .vacancy-details-company i {
@@ -884,6 +931,36 @@ body {
   color: #475467;
   padding: 0.65rem 0.75rem;
 }
+
+.recommendation-reason-high {
+  background: #f0fdf4;
+  border-color: rgba(47, 179, 68, 0.22);
+  color: #166534;
+}
+
+  .recommendation-reason-high i {
+    color: #2fb344;
+  }
+
+.recommendation-reason-medium {
+  background: #fff8e6;
+  border-color: rgba(245, 159, 0, 0.25);
+  color: #92400e;
+}
+
+  .recommendation-reason-medium i {
+    color: #f59f00;
+  }
+
+.recommendation-reason-low {
+  background: #fff1f1;
+  border-color: rgba(214, 57, 57, 0.22);
+  color: #991b1b;
+}
+
+  .recommendation-reason-low i {
+    color: #d63939;
+  }
 
 .recommendation-actions {
   display: grid;
