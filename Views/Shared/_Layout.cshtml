@@ -78,10 +78,15 @@
     <div class="page">
         <header class="navbar navbar-expand-md d-print-none app-header">
             <div class="container-xl">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation" aria-controls="main-navigation" aria-expanded="false" aria-label="Перемкнути навігацію">
+                <button class="navbar-toggler d-none d-md-block"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#main-navigation"
+                        aria-controls="main-navigation"
+                        aria-expanded="false"
+                        aria-label="Перемкнути навігацію">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <h1 class="navbar-brand navbar-brand-autodark pe-0">
                     <a asp-controller="Home" asp-action="Index" class="text-reset text-decoration-none d-flex align-items-center">
                         <img src="~/images/site-logo.png" alt="АІС вакансій та резюме" class="site-logo" asp-append-version="true" />
@@ -92,44 +97,116 @@
                 <div class="navbar-nav flex-row order-md-last align-items-center gap-2">
                     @if (isAuthenticated)
                     {
-                        <div class="nav-item text-secondary small d-none d-lg-block">
-                            @greeting, @displayName
-                        </div>
+                        <nav class="mobile-bottom-nav d-md-none" aria-label="Мобільна навігація">
+                            <div class="mobile-bottom-nav-scroll">
+                                <a class="mobile-bottom-nav-link @activeNav("Home", "Index")"
+                                   asp-controller="Home"
+                                   asp-action="Index">
+                                    <i class="ti ti-home"></i>
+                                    <span>Головна</span>
+                                </a>
 
-                        <a class="btn btn-icon btn-ghost-secondary position-relative" asp-controller="Messages" asp-action="Inbox" title="Повідомлення">
-                            <i class="ti ti-mail fs-2"></i>
-                            @if (unreadMessageCount > 0)
-                            {
-                                <span class="badge bg-red text-white badge-notification">@unreadMessageCount</span>
-                            }
-                        </a>
+                                <a class="mobile-bottom-nav-link @activeNav("Vacancies", "Index")"
+                                   asp-controller="Vacancies"
+                                   asp-action="Index">
+                                    <i class="ti ti-search"></i>
+                                    <span>Вакансії</span>
+                                </a>
 
-                        <a class="btn btn-icon btn-ghost-secondary position-relative" asp-controller="Notifications" asp-action="Index" title="Сповіщення">
-                            <i class="ti ti-bell fs-2"></i>
-                            @if (unreadNotificationCount > 0)
-                            {
-                                <span class="badge bg-red text-white badge-notification">@unreadNotificationCount</span>
-                            }
-                        </a>
+                                @if (User.IsInRole("Candidate"))
+                                {
+                                    <a class="mobile-bottom-nav-link @activeNav("Resumes", null)"
+                                       asp-controller="Resumes"
+                                       asp-action="Index">
+                                        <i class="ti ti-file-text"></i>
+                                        <span>Резюме</span>
+                                    </a>
 
-                        <a class="btn btn-icon btn-primary" asp-controller="@profileController" asp-action="@profileAction" title="Мій профіль">
-                            <i class="ti ti-user-circle fs-2"></i>
-                        </a>
+                                    <a class="mobile-bottom-nav-link @activeNav("Applications", "MyApplications")"
+                                       asp-controller="Applications"
+                                       asp-action="MyApplications">
+                                        <i class="ti ti-send"></i>
+                                        <span>Заявки</span>
+                                    </a>
 
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="nav-item">
-                            <button type="submit" class="btn btn-outline-primary">
-                                <i class="ti ti-logout me-1"></i>Вийти
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">
-                            <i class="ti ti-login-2 me-1"></i>Увійти
-                        </a>
-                        <a class="btn btn-primary" asp-controller="Account" asp-action="Register">
-                            <i class="ti ti-user-plus me-1"></i>Реєстрація
-                        </a>
+                                    <a class="mobile-bottom-nav-link @activeNav("SavedSearches", null)"
+                                       asp-controller="SavedSearches"
+                                       asp-action="Index">
+                                        <i class="ti ti-bookmark"></i>
+                                        <span>Пошуки</span>
+                                    </a>
+
+                                    <a class="mobile-bottom-nav-link @activeNav("Portfolio", null)"
+                                       asp-controller="Portfolio"
+                                       asp-action="Index">
+                                        <i class="ti ti-layout-grid"></i>
+                                        <span>Портфоліо</span>
+                                    </a>
+
+                                    <a class="mobile-bottom-nav-link @activeNav("Recommendations", null)"
+                                       asp-controller="Recommendations"
+                                       asp-action="Index">
+                                        <i class="ti ti-stars"></i>
+                                        <span>Рекоменд.</span>
+                                    </a>
+                                }
+
+                                @if (User.IsInRole("Employer"))
+                                {
+                                    <a class="mobile-bottom-nav-link @activeNav("Vacancies", "My")"
+                                       asp-controller="Vacancies"
+                                       asp-action="My">
+                                        <i class="ti ti-briefcase"></i>
+                                        <span>Мої вакансії</span>
+                                    </a>
+
+                                    <a class="mobile-bottom-nav-link @activeNav("Vacancies", "Create")"
+                                       asp-controller="Vacancies"
+                                       asp-action="Create">
+                                        <i class="ti ti-circle-plus"></i>
+                                        <span>Створити</span>
+                                    </a>
+
+                                    <a class="mobile-bottom-nav-link @activeNav("Applications", "EmployerApplications")"
+                                       asp-controller="Applications"
+                                       asp-action="EmployerApplications">
+                                        <i class="ti ti-inbox"></i>
+                                        <span>Заявки</span>
+                                    </a>
+
+                                    <a class="mobile-bottom-nav-link @activeNav("EmployerCandidates", null)"
+                                       asp-controller="EmployerCandidates"
+                                       asp-action="Search">
+                                        <i class="ti ti-users-group"></i>
+                                        <span>Кандидати</span>
+                                    </a>
+
+                                    <a class="mobile-bottom-nav-link @activeNav("Analytics", null)"
+                                       asp-controller="Analytics"
+                                       asp-action="Index">
+                                        <i class="ti ti-chart-bar"></i>
+                                        <span>Аналітика</span>
+                                    </a>
+                                }
+
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a class="mobile-bottom-nav-link @activeNav("Admin", null)"
+                                       asp-controller="Admin"
+                                       asp-action="Dashboard">
+                                        <i class="ti ti-shield-lock"></i>
+                                        <span>Адмінка</span>
+                                    </a>
+                                }
+
+                                <a class="mobile-bottom-nav-link @activeNav(profileController, profileAction)"
+                                   asp-controller="@profileController"
+                                   asp-action="@profileAction">
+                                    <i class="ti ti-user-circle"></i>
+                                    <span>Профіль</span>
+                                </a>
+                            </div>
+                        </nav>
                     }
                 </div>
             </div>
@@ -222,7 +299,7 @@
                 </div>
             </footer>
         </main>
-                @if (isAuthenticated)
+        @if (isAuthenticated)
         {
             <nav class="mobile-bottom-nav d-md-none" aria-label="Мобільна навігація">
                 <a class="mobile-bottom-nav-link @activeNav("Home", "Index")"
