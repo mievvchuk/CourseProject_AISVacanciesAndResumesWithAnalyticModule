@@ -3284,3 +3284,44 @@ body {
   object-fit: cover !important;
   overflow: hidden !important;
 }
+.profile-show-avatar-wrap-fixed {
+  align-items: center !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  box-shadow: 0 0.75rem 2rem rgba(15, 23, 42, 0.14) !important;
+  display: flex !important;
+  flex: 0 0 120px !important;
+  height: 120px !important;
+  justify-content: center !important;
+  max-height: 120px !important;
+  max-width: 120px !important;
+  min-height: 120px !important;
+  min-width: 120px !important;
+  overflow: hidden !important;
+  padding: 0.35rem !important;
+  width: 120px !important;
+}
+
+.profile-show-avatar-fixed {
+  align-items: center !important;
+  background-color: #eef4fb !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  border-radius: 10px !important;
+  color: #206bc4 !important;
+  display: flex !important;
+  font-size: 2.35rem !important;
+  height: 108px !important;
+  justify-content: center !important;
+  max-height: 108px !important;
+  max-width: 108px !important;
+  min-height: 108px !important;
+  min-width: 108px !important;
+  overflow: hidden !important;
+  width: 108px !important;
+}
+
+  .profile-show-avatar-fixed i {
+    line-height: 1 !important;
+  }
