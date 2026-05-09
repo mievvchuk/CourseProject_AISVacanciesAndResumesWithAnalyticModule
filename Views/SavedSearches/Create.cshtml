@@ -2,44 +2,346 @@
 
 @{
     ViewData["Title"] = "Збереження пошуку";
+
+    string ValueOrDefault(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
 }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h2 class="h4 mb-4">Зберегти поточний пошук вакансій</h2>
-                <form asp-action="Create" method="post">
-                    <div class="mb-3">
-                        <label asp-for="Query" class="form-label">Запит</label>
-                        <input asp-for="Query" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="City" class="form-label">Місто</label>
-                        <input asp-for="City" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="CategoryId" class="form-label">Категорія</label>
-                        <input asp-for="CategoryId" class="form-control" />
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="EmploymentType" class="form-label">Тип зайнятості</label>
-                            <select asp-for="EmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select">
-                                <option value="">Будь-який</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="ExperienceLevel" class="form-label">Рівень досвіду</label>
-                            <select asp-for="ExperienceLevel" asp-items="Html.GetEnumSelectList<ExperienceLevel>()" class="form-select">
-                                <option value="">Будь-який</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Зберегти пошук</button>
-                    <a asp-controller="Vacancies" asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
-                </form>
+<section class="saved-search-form-page">
+    <style>
+        .saved-search-form-page {
+            margin-inline: auto;
+            max-width: 76rem;
+        }
+
+        .saved-search-form-card {
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .saved-search-form-cover {
+            background: linear-gradient(90deg, rgba(32, 107, 196, 0.18), rgba(111, 66, 193, 0.12)), #eef4fb;
+            min-height: 5.5rem;
+        }
+
+        .saved-search-form-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .saved-search-form-head {
+            align-items: flex-start;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: -2.25rem;
+            padding-bottom: 1.25rem;
+        }
+
+        .saved-search-form-eyebrow {
+            color: #667085;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        .saved-search-form-head h1 {
+            color: #101828;
+            font-size: 1.45rem;
+            font-weight: 850;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .saved-search-form-head p {
+            color: #667085;
+            margin: 0.35rem 0 0;
+        }
+
+        .saved-search-form-grid {
+            align-items: flex-start;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: minmax(0, 1fr) 22rem;
+        }
+
+        .saved-search-form-main,
+        .saved-search-form-preview {
+            background: #ffffff;
+            border: 1px solid rgba(98, 105, 118, 0.13);
+            border-radius: 10px;
+            padding: 1.1rem;
+        }
+
+        .saved-search-preview-card {
+            background: #f8fafc;
+            border: 1px solid rgba(98, 105, 118, 0.13);
+            border-radius: 10px;
+            display: grid;
+            gap: 0.85rem;
+            padding: 1rem;
+        }
+
+        .saved-search-preview-icon {
+            align-items: center;
+            background: #e8f1ff;
+            border-radius: 10px;
+            color: #206bc4;
+            display: inline-flex;
+            font-size: 1.4rem;
+            height: 2.75rem;
+            justify-content: center;
+            width: 2.75rem;
+        }
+
+        .saved-search-preview-card h2 {
+            color: #101828;
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .saved-search-preview-list {
+            display: grid;
+            gap: 0.65rem;
+            margin: 0;
+        }
+
+            .saved-search-preview-list div {
+                border-bottom: 1px solid rgba(98, 105, 118, 0.1);
+                display: grid;
+                gap: 0.15rem;
+                padding-bottom: 0.65rem;
+            }
+
+                .saved-search-preview-list div:last-child {
+                    border-bottom: 0;
+                    padding-bottom: 0;
+                }
+
+            .saved-search-preview-list dt {
+                color: #667085;
+                font-size: 0.76rem;
+                font-weight: 800;
+                margin: 0;
+            }
+
+            .saved-search-preview-list dd {
+                color: #182433;
+                margin: 0;
+                word-break: break-word;
+            }
+
+        .saved-search-form-actions {
+            border-top: 1px solid rgba(98, 105, 118, 0.12);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        @@media (max-width: 992px) {
+            .saved-search-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .saved-search-form-card .card-body {
+                padding: 1rem;
+            }
+
+            .saved-search-form-head {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <div class="saved-search-form-card card shadow-sm border-0">
+        <div class="saved-search-form-cover"></div>
+
+        <div class="card-body">
+            <div class="saved-search-form-head">
+                <div>
+                    <div class="saved-search-form-eyebrow">Збережені пошуки</div>
+                    <h1>Зберегти пошук вакансій</h1>
+                    <p>Збережіть поточні фільтри, щоб швидко повертатися до потрібних вакансій.</p>
+                </div>
+
+                <a asp-controller="Vacancies" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="ti ti-arrow-left me-1"></i>
+                    До вакансій
+                </a>
             </div>
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="saved-search-form-grid">
+                    <div class="saved-search-form-main">
+                        <div class="mb-3">
+                            <label asp-for="Query" class="form-label">Пошуковий запит</label>
+                            <input asp-for="Query"
+                                   class="form-control js-saved-search-query"
+                                   placeholder="Наприклад: junior, frontend, C#" />
+                            <span asp-validation-for="Query" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="City" class="form-label">Місто</label>
+                            <input asp-for="City"
+                                   class="form-control js-saved-search-city"
+                                   placeholder="Наприклад: Вінниця, Київ або віддалено" />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label">Категорія</label>
+                            <input asp-for="CategoryId"
+                                   class="form-control js-saved-search-category"
+                                   type="number"
+                                   min="1"
+                                   step="1"
+                                   placeholder="ID категорії, якщо фільтр був застосований" />
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            <div class="form-hint">Поле можна залишити порожнім, якщо категорія не вибиралась.</div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="EmploymentType" class="form-label">Тип зайнятості</label>
+                                <select asp-for="EmploymentType"
+                                        asp-items="Html.GetEnumSelectList<EmploymentType>()"
+                                        class="form-select js-saved-search-employment">
+                                    <option value="">Будь-який</option>
+                                </select>
+                                <span asp-validation-for="EmploymentType" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ExperienceLevel" class="form-label">Рівень досвіду</label>
+                                <select asp-for="ExperienceLevel"
+                                        asp-items="Html.GetEnumSelectList<ExperienceLevel>()"
+                                        class="form-select js-saved-search-experience">
+                                    <option value="">Будь-який</option>
+                                </select>
+                                <span asp-validation-for="ExperienceLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="saved-search-form-preview">
+                        <div class="saved-search-preview-card">
+                            <div class="saved-search-preview-icon">
+                                <i class="ti ti-bookmark"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="js-saved-search-preview-title">
+                                    @ValueOrDefault(Model.Query, "Новий пошук вакансій")
+                                </h2>
+                                <div class="text-secondary">Так виглядатиме збережений пошук.</div>
+                            </div>
+
+                            <dl class="saved-search-preview-list">
+                                <div>
+                                    <dt>Запит</dt>
+                                    <dd class="js-saved-search-preview-query">
+                                        @ValueOrDefault(Model.Query, "Будь-які вакансії")
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt>Місто</dt>
+                                    <dd class="js-saved-search-preview-city">
+                                        @ValueOrDefault(Model.City, "Будь-яке місто")
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt>Категорія</dt>
+                                    <dd class="js-saved-search-preview-category">
+                                        @(Model.CategoryId.HasValue? Model.CategoryId.Value.ToString() : "Будь-яка категорія")
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt>Зайнятість</dt>
+                                    <dd class="js-saved-search-preview-employment">Будь-який тип</dd>
+                                </div>
+
+                                <div>
+                                    <dt>Досвід</dt>
+                                    <dd class="js-saved-search-preview-experience">Будь-який рівень</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </aside>
+                </div>
+
+                <div class="saved-search-form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy me-1"></i>
+                        Зберегти пошук
+                    </button>
+
+                    <a asp-controller="Vacancies" asp-action="Index" class="btn btn-outline-secondary">
+                        Скасувати
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
-</div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const queryInput = document.querySelector('.js-saved-search-query');
+            const cityInput = document.querySelector('.js-saved-search-city');
+            const categoryInput = document.querySelector('.js-saved-search-category');
+            const employmentSelect = document.querySelector('.js-saved-search-employment');
+            const experienceSelect = document.querySelector('.js-saved-search-experience');
+
+            const title = document.querySelector('.js-saved-search-preview-title');
+            const query = document.querySelector('.js-saved-search-preview-query');
+            const city = document.querySelector('.js-saved-search-preview-city');
+            const category = document.querySelector('.js-saved-search-preview-category');
+            const employment = document.querySelector('.js-saved-search-preview-employment');
+            const experience = document.querySelector('.js-saved-search-preview-experience');
+
+            const selectedText = (select, fallback) => {
+                const option = select?.selectedOptions?.[0];
+                return option && option.value ? option.textContent.trim() : fallback;
+            };
+
+            const updatePreview = () => {
+                const queryValue = queryInput?.value.trim() || '';
+                const cityValue = cityInput?.value.trim() || '';
+                const categoryValue = categoryInput?.value.trim() || '';
+
+                title.textContent = queryValue || 'Новий пошук вакансій';
+                query.textContent = queryValue || 'Будь-які вакансії';
+                city.textContent = cityValue || 'Будь-яке місто';
+                category.textContent = categoryValue || 'Будь-яка категорія';
+                employment.textContent = selectedText(employmentSelect, 'Будь-який тип');
+                experience.textContent = selectedText(experienceSelect, 'Будь-який рівень');
+            };
+
+            [queryInput, cityInput, categoryInput, employmentSelect, experienceSelect].forEach((control) => {
+                control?.addEventListener('input', updatePreview);
+                control?.addEventListener('change', updatePreview);
+            });
+
+            updatePreview();
+        })();
+    </script>
+}

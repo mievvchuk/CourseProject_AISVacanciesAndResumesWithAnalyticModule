@@ -37,7 +37,7 @@ public class SavedSearchesController : Controller
     public async Task<IActionResult> CreatePost([FromForm] SavedSearchFormViewModel model)
     {
         await _savedSearchService.CreateAsync(GetUserId(), model);
-        TempData["StatusMessage"] = "Search was saved.";
+        TempData["StatusMessage"] = "Пошук збережено.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -73,7 +73,7 @@ public class SavedSearchesController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await _savedSearchService.DeleteAsync(GetUserId(), id);
-        TempData["StatusMessage"] = "Saved search was deleted.";
+        TempData["StatusMessage"] = "Збережений пошук видалено.";
         return RedirectToAction(nameof(Index));
     }
 

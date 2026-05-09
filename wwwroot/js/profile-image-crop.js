@@ -1,4 +1,7 @@
 (function () {
+  const CROP_BOX_SIZE = 240;
+  const OUTPUT_SIZE = 800;
+
   document.querySelectorAll('.js-profile-image-form').forEach((form) => {
     const input = form.querySelector('.js-profile-image-input');
     const panel = form.querySelector('.js-profile-crop-panel');
@@ -15,31 +18,45 @@
       return;
     }
 
-    const lockCropLayout = () => {
+    const applyFixedLayout = () => {
       panel.style.display = 'grid';
-      panel.style.gridTemplateColumns = '240px minmax(0, 1fr)';
+      panel.style.gridTemplateColumns = `${CROP_BOX_SIZE}px minmax(0, 1fr)`;
       panel.style.gap = '1rem';
       panel.style.alignItems = 'start';
       panel.style.marginTop = '0.75rem';
+      panel.style.maxWidth = '100%';
+      panel.style.overflow = 'hidden';
 
-      cropBox.style.width = '240px';
-      cropBox.style.height = '240px';
-      cropBox.style.maxWidth = '240px';
-      cropBox.style.maxHeight = '240px';
+      cropBox.style.width = `${CROP_BOX_SIZE}px`;
+      cropBox.style.height = `${CROP_BOX_SIZE}px`;
+      cropBox.style.minWidth = `${CROP_BOX_SIZE}px`;
+      cropBox.style.minHeight = `${CROP_BOX_SIZE}px`;
+      cropBox.style.maxWidth = `${CROP_BOX_SIZE}px`;
+      cropBox.style.maxHeight = `${CROP_BOX_SIZE}px`;
       cropBox.style.overflow = 'hidden';
       cropBox.style.position = 'relative';
       cropBox.style.borderRadius = '12px';
+      cropBox.style.backgroundColor = '#eef2f7';
+      cropBox.style.border = '1px dashed rgba(98, 105, 118, 0.32)';
 
       cropImage.style.display = 'block';
       cropImage.style.width = '100%';
       cropImage.style.height = '100%';
+      cropImage.style.minWidth = '100%';
+      cropImage.style.minHeight = '100%';
       cropImage.style.maxWidth = '100%';
       cropImage.style.maxHeight = '100%';
       cropImage.style.objectFit = 'cover';
+      cropImage.style.borderRadius = '12px';
+    };
+
+    const getNumber = (value, fallback) => {
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
     };
 
     const getCropArea = () => {
-      const scale = Number.parseFloat(zoom.value) || 1;
+      const scale = getNumber(zoom.value, 1);
       const sourceWidth = sourceImage.naturalWidth;
       const sourceHeight = sourceImage.naturalHeight;
 
@@ -48,8 +65,8 @@
       const maxX = Math.max(0, sourceWidth - cropSize);
       const maxY = Math.max(0, sourceHeight - cropSize);
 
-      const sx = maxX * ((Number.parseFloat(positionX.value) || 50) / 100);
-      const sy = maxY * ((Number.parseFloat(positionY.value) || 50) / 100);
+      const sx = maxX * (getNumber(positionX.value, 50) / 100);
+      const sy = maxY * (getNumber(positionY.value, 50) / 100);
 
       return {
         sx,
@@ -93,7 +110,7 @@
       return canvas;
     };
 
-    const updateHeaderPreview = (url) => {
+    const setPreviewImage = (url) => {
       if (!preview) {
         return;
       }
@@ -103,6 +120,13 @@
 
       if (preview.tagName === 'IMG') {
         preview.src = url;
+        preview.style.width = '6.75rem';
+        preview.style.height = '6.75rem';
+        preview.style.maxWidth = '6.75rem';
+        preview.style.maxHeight = '6.75rem';
+        preview.style.objectFit = 'cover';
+        preview.style.display = 'block';
+        preview.style.borderRadius = '8px';
         return;
       }
 
@@ -115,14 +139,15 @@
       img.style.height = '100%';
       img.style.objectFit = 'cover';
       img.style.display = 'block';
+      img.style.borderRadius = '8px';
 
       preview.appendChild(img);
     };
 
     const updatePreview = () => {
-      lockCropLayout();
+      applyFixedLayout();
 
-      const canvas = drawCroppedImage(800);
+      const canvas = drawCroppedImage(OUTPUT_SIZE);
 
       if (!canvas) {
         return;
@@ -131,7 +156,7 @@
       const previewUrl = canvas.toDataURL('image/jpeg', 0.9);
 
       cropImage.src = previewUrl;
-      updateHeaderPreview(previewUrl);
+      setPreviewImage(previewUrl);
     };
 
     input.addEventListener('change', () => {
@@ -142,11 +167,13 @@
       }
 
       const objectUrl = URL.createObjectURL(file);
-      sourceImage = new Image();
+      const image = new Image();
 
-      sourceImage.onload = () => {
+      image.onload = () => {
+        sourceImage = image;
+
         panel.classList.remove('d-none');
-        lockCropLayout();
+        applyFixedLayout();
 
         zoom.value = '1';
         positionX.value = '50';
@@ -157,11 +184,12 @@
         URL.revokeObjectURL(objectUrl);
       };
 
-      sourceImage.src = objectUrl;
+      image.src = objectUrl;
     });
 
     [zoom, positionX, positionY].forEach((control) => {
       control.addEventListener('input', updatePreview);
+      control.addEventListener('change', updatePreview);
     });
 
     form.addEventListener('submit', (event) => {
@@ -171,7 +199,7 @@
 
       event.preventDefault();
 
-      const canvas = drawCroppedImage(800);
+      const canvas = drawCroppedImage(OUTPUT_SIZE);
 
       if (!canvas) {
         form.submit();

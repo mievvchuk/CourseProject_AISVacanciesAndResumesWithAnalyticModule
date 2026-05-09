@@ -2,76 +2,197 @@
 
 @{
     ViewData["Title"] = "Деталі резюме";
+
+    string Show(string? value, string fallback = "Не вказано")
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
+
+    var salary = Model.DesiredSalary.HasValue
+        ? $"{Model.DesiredSalary.Value:N0} грн"
+        : "Не вказано";
+
+    var skills = Model.SkillNames.Any()
+        ? Model.SkillNames
+        : new List<string>();
+
+    var fileSize = Model.FileSize.HasValue
+        ? $"{Math.Round(Model.FileSize.Value / 1024.0, 1)} КБ"
+        : "Розмір не вказано";
 }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="h4 mb-1">@Model.Title</h2>
-                        <div class="text-muted">@Model.FullName</div>
+<section class="resume-details-page">
+    <div class="resume-details-card card shadow-sm border-0">
+        <div class="resume-details-cover"></div>
+
+        <div class="card-body">
+            <div class="resume-details-head">
+                <div>
+                    <div class="resume-details-eyebrow">Моє резюме</div>
+                    <h1>@Show(Model.Title, "Резюме")</h1>
+                    <div class="resume-details-subtitle">
+                        <i class="ti ti-user"></i>
+                        <span>@Show(Model.FullName)</span>
                     </div>
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
                 </div>
 
-                <dl class="row mb-0">
-                    <dt class="col-sm-4">Категорія</dt>
-                    <dd class="col-sm-8">@Model.CategoryName</dd>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                    <i class="ti ti-edit me-1"></i>
+                    Редагувати
+                </a>
+            </div>
 
-                    <dt class="col-sm-4">Короткий опис</dt>
-                    <dd class="col-sm-8">@Model.Summary</dd>
+            <div class="resume-details-metrics">
+                <div class="resume-details-metric">
+                    <i class="ti ti-category"></i>
+                    <span>Категорія</span>
+                    <strong>@Show(Model.CategoryName)</strong>
+                </div>
 
-                    <dt class="col-sm-4">Бажана посада</dt>
-                    <dd class="col-sm-8">@Model.DesiredPosition</dd>
+                <div class="resume-details-metric">
+                    <i class="ti ti-briefcase"></i>
+                    <span>Бажана посада</span>
+                    <strong>@Show(Model.DesiredPosition)</strong>
+                </div>
 
-                    <dt class="col-sm-4">Освіта</dt>
-                    <dd class="col-sm-8">@Model.Education</dd>
+                <div class="resume-details-metric">
+                    <i class="ti ti-chart-bar"></i>
+                    <span>Досвід</span>
+                    <strong>@Model.ExperienceLevel.GetDisplayName() · @Model.ExperienceYears років</strong>
+                </div>
 
-                    <dt class="col-sm-4">Опис досвіду</dt>
-                    <dd class="col-sm-8">@Model.Experience</dd>
+                <div class="resume-details-metric">
+                    <i class="ti ti-currency-hryvnia"></i>
+                    <span>Бажана зарплата</span>
+                    <strong>@salary</strong>
+                </div>
+            </div>
 
-                    <dt class="col-sm-4">Опис навичок</dt>
-                    <dd class="col-sm-8">@Model.SkillsDescription</dd>
+            <div class="resume-details-status-row">
+                <span class="badge bg-blue-lt text-blue">
+                    Статус: @Model.Status.GetDisplayName()
+                </span>
 
-                    <dt class="col-sm-4">Тип зайнятості</dt>
-                    <dd class="col-sm-8">@Model.EmploymentType.GetDisplayName()</dd>
+                @if (Model.IsPublished)
+                {
+                    <span class="badge bg-green-lt text-green">
+                        <i class="ti ti-check me-1"></i>
+                        Опубліковано
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-yellow-lt text-yellow">
+                        <i class="ti ti-clock me-1"></i>
+                        Не опубліковано
+                    </span>
+                }
+            </div>
 
-                    <dt class="col-sm-4">Досвід</dt>
-                    <dd class="col-sm-8">@Model.ExperienceLevel.GetDisplayName() (@Model.ExperienceYears років)</dd>
+            <div class="resume-details-layout">
+                <div class="resume-details-main">
+                    <section class="resume-details-section">
+                        <h2>Короткий опис</h2>
+                        <p>@Show(Model.Summary, "Короткий опис ще не додано.")</p>
+                    </section>
 
-                    <dt class="col-sm-4">Рівень освіти</dt>
-                    <dd class="col-sm-8">@Model.EducationLevel.GetDisplayName()</dd>
+                    <section class="resume-details-section">
+                        <h2>Освіта</h2>
+                        <p>@Show(Model.Education, "Інформацію про освіту ще не додано.")</p>
+                    </section>
 
-                    <dt class="col-sm-4">Бажана зарплата</dt>
-                    <dd class="col-sm-8">@Model.DesiredSalary</dd>
+                    <section class="resume-details-section">
+                        <h2>Досвід роботи</h2>
+                        <p>@Show(Model.Experience, "Опис досвіду ще не додано.")</p>
+                    </section>
 
-                    <dt class="col-sm-4">Статус</dt>
-                    <dd class="col-sm-8">@Model.Status.GetDisplayName()</dd>
+                    <section class="resume-details-section">
+                        <h2>Навички</h2>
 
-                    <dt class="col-sm-4">Опубліковано</dt>
-                    <dd class="col-sm-8">@(Model.IsPublished ? "Так" : "Ні")</dd>
-
-                    <dt class="col-sm-4">Навички</dt>
-                    <dd class="col-sm-8">@string.Join(", ", Model.SkillNames)</dd>
-
-                    <dt class="col-sm-4">Завантажений файл</dt>
-                    <dd class="col-sm-8">
-                        @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                        @if (skills.Any())
                         {
-                            <a href="@Model.FilePath" target="_blank">@Model.OriginalFileName</a>
-                            <div class="text-muted small">
-                                @Model.ContentType, @Model.FileSize байт, завантажено @Model.UploadedAt.ToKyivString()
+                            <div class="resume-details-skills">
+                                @foreach (var skill in skills)
+                                {
+                                    <span class="badge bg-secondary-lt">@skill</span>
+                                }
                             </div>
                         }
                         else
                         {
-                            <span>Файл не завантажено</span>
+                            <p>Навички ще не додано.</p>
                         }
-                    </dd>
-                </dl>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.SkillsDescription))
+                        {
+                            <p class="mt-3">@Model.SkillsDescription</p>
+                        }
+                    </section>
+                </div>
+
+                <aside class="resume-details-sidebar">
+                    <section class="resume-details-section">
+                        <h2>Параметри</h2>
+
+                        <dl class="resume-details-list">
+                            <div>
+                                <dt>Тип зайнятості</dt>
+                                <dd>@Model.EmploymentType.GetDisplayName()</dd>
+                            </div>
+
+                            <div>
+                                <dt>Рівень досвіду</dt>
+                                <dd>@Model.ExperienceLevel.GetDisplayName()</dd>
+                            </div>
+
+                            <div>
+                                <dt>Роки досвіду</dt>
+                                <dd>@Model.ExperienceYears</dd>
+                            </div>
+
+                            <div>
+                                <dt>Рівень освіти</dt>
+                                <dd>@Model.EducationLevel.GetDisplayName()</dd>
+                            </div>
+
+                            <div>
+                                <dt>Бажана зарплата</dt>
+                                <dd>@salary</dd>
+                            </div>
+                        </dl>
+                    </section>
+
+                    <section class="resume-details-section">
+                        <h2>Завантажений файл</h2>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                        {
+                            <a href="@Model.FilePath"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="btn btn-outline-primary w-100">
+                                <i class="ti ti-file-download me-1"></i>
+                                Відкрити файл
+                            </a>
+
+                            <div class="text-secondary small mt-2">
+                                <div>@Show(Model.OriginalFileName)</div>
+                                <div>@Show(Model.ContentType)</div>
+                                <div>@fileSize</div>
+
+                                @if (Model.UploadedAt.HasValue)
+                                {
+                                    <div>Завантажено: @Model.UploadedAt.ToKyivString()</div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p>Файл не завантажено.</p>
+                        }
+                    </section>
+                </aside>
             </div>
         </div>
     </div>
-</div>
+</section>

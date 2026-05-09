@@ -4,42 +4,188 @@
     ViewData["Title"] = "Додавання проєкту";
 }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h2 class="h4 mb-4">Додати проєкт у портфоліо</h2>
-                <form asp-action="Create" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label">Назва</label>
-                        <input asp-for="Title" class="form-control" />
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label">Опис</label>
-                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Url" class="form-label">Посилання</label>
-                        <input asp-for="Url" class="form-control" />
-                        <span asp-validation-for="Url" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="ImagePath" class="form-label">Шлях до зображення</label>
-                        <input asp-for="ImagePath" class="form-control" />
-                        <div class="form-text">Вкажіть URL або локальний шлях до зображення.</div>
-                        <span asp-validation-for="ImagePath" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Зберегти</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
-                </form>
+<section class="portfolio-form-page">
+    <div class="portfolio-form-card card shadow-sm border-0">
+        <div class="portfolio-form-cover"></div>
+
+        <div class="card-body">
+            <div class="portfolio-form-head">
+                <div>
+                    <div class="portfolio-form-eyebrow">Портфоліо</div>
+                    <h1>Додавання проєкту</h1>
+                    <p>Додайте проєкт, який підтверджує ваш досвід, навички або практичні роботи.</p>
+                </div>
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="ti ti-arrow-left me-1"></i>
+                    Назад
+                </a>
             </div>
+
+            <form asp-action="Create" method="post" class="portfolio-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="portfolio-form-grid">
+                    <div class="portfolio-form-main">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Назва проєкту</label>
+                            <input asp-for="Title"
+                                   class="form-control js-portfolio-title"
+                                   placeholder="Наприклад: CRM-система для компанії" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Опис</label>
+                            <textarea asp-for="Description"
+                                      class="form-control js-portfolio-description"
+                                      rows="6"
+                                      placeholder="Коротко опишіть, що було зроблено, які задачі вирішувались і який результат отримано"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Url" class="form-label">Посилання на проєкт</label>
+                            <input asp-for="Url"
+                                   class="form-control js-portfolio-url"
+                                   placeholder="https://example.com/project" />
+                            <span asp-validation-for="Url" class="text-danger"></span>
+                            <div class="form-hint">
+                                Можна вставити посилання на сайт, GitHub, Behance або інший ресурс.
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="ImagePath" class="form-label">Посилання на зображення</label>
+                            <input asp-for="ImagePath"
+                                   class="form-control js-portfolio-image"
+                                   placeholder="https://example.com/image.jpg" />
+                            <span asp-validation-for="ImagePath" class="text-danger"></span>
+                            <div class="form-hint">
+                                Для прев’ю потрібне пряме посилання на файл картинки: .jpg, .png або .webp.
+                                Посилання на сторінку сайту як картинка не відкриється.
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="portfolio-form-preview">
+                        <h2>Попередній перегляд</h2>
+
+                        <article class="portfolio-preview-card">
+                            <div class="portfolio-preview-image-wrap js-portfolio-preview-image-wrap d-none">
+                                <img src=""
+                                     alt="Попередній перегляд зображення"
+                                     class="portfolio-preview-image js-portfolio-preview-image"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+
+                                <div class="portfolio-preview-image-fallback">
+                                    <i class="ti ti-photo-off"></i>
+                                    <span>Зображення не відкривається</span>
+                                </div>
+                            </div>
+
+                            <div class="portfolio-preview-image-fallback portfolio-preview-image-fallback-visible js-portfolio-empty-image">
+                                <i class="ti ti-photo"></i>
+                                <span>Зображення не додано</span>
+                            </div>
+
+                            <div class="portfolio-preview-body">
+                                <h3 class="js-portfolio-preview-title">Назва проєкту</h3>
+                                <p class="js-portfolio-preview-description">Опис проєкту буде показано тут.</p>
+
+                                <a href="#"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="btn btn-outline-primary btn-sm d-none js-portfolio-preview-link">
+                                    <i class="ti ti-external-link me-1"></i>
+                                    Відкрити проєкт
+                                </a>
+                            </div>
+                        </article>
+                    </aside>
+                </div>
+
+                <div class="portfolio-form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy me-1"></i>
+                        Зберегти
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Скасувати
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
-</div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const titleInput = document.querySelector('.js-portfolio-title');
+            const descriptionInput = document.querySelector('.js-portfolio-description');
+            const urlInput = document.querySelector('.js-portfolio-url');
+            const imageInput = document.querySelector('.js-portfolio-image');
+
+            const previewTitle = document.querySelector('.js-portfolio-preview-title');
+            const previewDescription = document.querySelector('.js-portfolio-preview-description');
+            const previewLink = document.querySelector('.js-portfolio-preview-link');
+            const previewImageWrap = document.querySelector('.js-portfolio-preview-image-wrap');
+            const previewImage = document.querySelector('.js-portfolio-preview-image');
+            const emptyImage = document.querySelector('.js-portfolio-empty-image');
+
+            const normalizeUrl = (value) => {
+                const trimmed = value.trim();
+
+                if (!trimmed || trimmed === '-') {
+                    return '';
+                }
+
+                if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+                    return trimmed;
+                }
+
+                return `https://${trimmed}`;
+            };
+
+            const updatePreview = () => {
+                const title = titleInput?.value.trim() || 'Назва проєкту';
+                const description = descriptionInput?.value.trim() || 'Опис проєкту буде показано тут.';
+                const projectUrl = normalizeUrl(urlInput?.value || '');
+                const imageUrl = normalizeUrl(imageInput?.value || '');
+
+                previewTitle.textContent = title;
+                previewDescription.textContent = description;
+
+                if (projectUrl) {
+                    previewLink.href = projectUrl;
+                    previewLink.classList.remove('d-none');
+                } else {
+                    previewLink.classList.add('d-none');
+                    previewLink.href = '#';
+                }
+
+                if (imageUrl) {
+                    previewImage.src = imageUrl;
+                    previewImage.style.display = 'block';
+                    previewImage.nextElementSibling.style.display = 'none';
+                    previewImageWrap.classList.remove('d-none');
+                    emptyImage.classList.add('d-none');
+                } else {
+                    previewImage.src = '';
+                    previewImageWrap.classList.add('d-none');
+                    emptyImage.classList.remove('d-none');
+                }
+            };
+
+            [titleInput, descriptionInput, urlInput, imageInput].forEach((input) => {
+                input?.addEventListener('input', updatePreview);
+            });
+
+            updatePreview();
+        })();
+    </script>
 }

@@ -88,7 +88,7 @@ public class CandidateProfileService : ICandidateProfileService
             Headline = profile.Headline,
             Summary = profile.Summary,
             City = profile.City,
-            PhotoPath = profile.PhotoPath,
+            PhotoPath = GetExistingPublicFilePath(profile.PhotoPath),
             ExperienceYears = profile.ExperienceYears,
             ExperienceLevel = profile.ExperienceLevel,
             EducationLevel = profile.EducationLevel,

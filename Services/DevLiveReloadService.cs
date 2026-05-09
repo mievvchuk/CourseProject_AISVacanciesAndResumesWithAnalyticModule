@@ -27,6 +27,7 @@ public sealed class DevLiveReloadService : BackgroundService
         }
 
         Task<long> waitTask;
+
         lock (_changeLock)
         {
             if (Version > knownVersion)
@@ -37,7 +38,14 @@ public sealed class DevLiveReloadService : BackgroundService
             waitTask = _changeSignal.Task;
         }
 
-        return await waitTask.WaitAsync(cancellationToken);
+        try
+        {
+            return await waitTask.WaitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return knownVersion;
+        }
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
