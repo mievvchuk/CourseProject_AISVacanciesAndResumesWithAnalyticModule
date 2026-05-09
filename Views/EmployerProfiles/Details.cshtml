@@ -2,42 +2,149 @@
 
 @{
     ViewData["Title"] = "Профіль роботодавця";
-    string Show(string? value) => string.IsNullOrWhiteSpace(value) ? "Не вказано" : value;
+
+    string Show(string? value, string fallback = "Не вказано")
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
+
+    string NormalizeUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return string.Empty;
+        }
+
+        var value = url.Trim();
+
+        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        return $"https://{value}";
+    }
+
+    var companyName = Show(Model.CompanyName, "Компанія");
+    var websiteUrl = NormalizeUrl(Model.Website);
 }
 
-<div class="row justify-content-center profile-details-page">
-    <div class="col-lg-8 col-xl-7">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4 profile-details-head">
-                    <div class="d-flex align-items-center gap-3">
+<section class="profile-show-page">
+    <div class="profile-show-card card shadow-sm border-0">
+        <div class="profile-show-cover profile-show-cover-employer"></div>
+
+        <div class="card-body">
+            <div class="profile-show-head">
+                <div class="profile-show-identity">
+                    <div class="profile-show-avatar-wrap">
                         @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
                         {
-                            <img src="@Model.LogoPath" alt="@Model.CompanyName" class="img-thumbnail border" style="width: 88px; height: 88px; object-fit: cover;" onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
-                            <div class="profile-avatar profile-avatar-placeholder d-none"><i class="ti ti-building"></i></div>
+                            <img src="@Model.LogoPath"
+                                 alt="@companyName"
+                                 class="profile-show-avatar-image"
+                                 onerror="this.classList.add('d-none'); this.nextElementSibling?.classList.remove('d-none');" />
+
+                            <div class="profile-show-avatar-placeholder d-none">
+                                <i class="ti ti-building"></i>
+                            </div>
                         }
                         else
                         {
-                            <div class="profile-avatar profile-avatar-placeholder"><i class="ti ti-building"></i></div>
+                            <div class="profile-show-avatar-placeholder">
+                                <i class="ti ti-building"></i>
+                            </div>
                         }
-                        <div>
-                            <h2 class="h4 mb-1">@Show(Model.CompanyName)</h2>
-                            <div class="text-muted">@Model.FullName - @Model.Email</div>
+                    </div>
+
+                    <div>
+                        <div class="profile-show-eyebrow">Профіль роботодавця</div>
+                        <h1>@companyName</h1>
+
+                        <div class="profile-show-subtitle">
+                            <i class="ti ti-user"></i>
+                            <span>@Show(Model.FullName)</span>
+                            <span class="profile-show-dot">•</span>
+                            <span>@Show(Model.Email)</span>
                         </div>
                     </div>
-                    <a asp-action="Edit" class="btn btn-primary">Редагувати</a>
                 </div>
-                <dl class="row mb-0">
-                    <dt class="col-sm-4">Опис</dt>
-                    <dd class="col-sm-8">@Show(Model.Description)</dd>
-                    <dt class="col-sm-4">Розмір компанії</dt>
-                    <dd class="col-sm-8">@Show(Model.CompanySize)</dd>
-                    <dt class="col-sm-4">Сайт</dt>
-                    <dd class="col-sm-8">@Show(Model.Website)</dd>
-                    <dt class="col-sm-4">Місто</dt>
-                    <dd class="col-sm-8">@Show(Model.City)</dd>
-                </dl>
+
+                <a asp-action="Edit" class="btn btn-primary">
+                    <i class="ti ti-edit me-1"></i>
+                    Редагувати
+                </a>
+            </div>
+
+            <div class="profile-show-metrics">
+                <div class="profile-show-metric">
+                    <i class="ti ti-building"></i>
+                    <span>Компанія</span>
+                    <strong>@companyName</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-users"></i>
+                    <span>Розмір компанії</span>
+                    <strong>@Show(Model.CompanySize)</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-world"></i>
+                    <span>Сайт</span>
+                    <strong>@Show(Model.Website)</strong>
+                </div>
+
+                <div class="profile-show-metric">
+                    <i class="ti ti-map-pin"></i>
+                    <span>Місто</span>
+                    <strong>@Show(Model.City)</strong>
+                </div>
+            </div>
+
+            <div class="profile-show-content">
+                <section class="profile-show-section">
+                    <h2>Опис компанії</h2>
+                    <p>@Show(Model.Description, "Роботодавець ще не додав опис компанії.")</p>
+                </section>
+
+                <section class="profile-show-section">
+                    <h2>Контактна інформація</h2>
+
+                    <dl class="profile-show-list">
+                        <div>
+                            <dt>Представник</dt>
+                            <dd>@Show(Model.FullName)</dd>
+                        </div>
+
+                        <div>
+                            <dt>Email</dt>
+                            <dd>@Show(Model.Email)</dd>
+                        </div>
+
+                        <div>
+                            <dt>Сайт</dt>
+                            <dd>
+                                @if (!string.IsNullOrWhiteSpace(websiteUrl))
+                                {
+                                    <a href="@websiteUrl" target="_blank" rel="noopener noreferrer">
+                                        @Model.Website
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span>Не вказано</span>
+                                }
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Місто</dt>
+                            <dd>@Show(Model.City)</dd>
+                        </div>
+                    </dl>
+                </section>
             </div>
         </div>
     </div>
-</div>
+</section>
