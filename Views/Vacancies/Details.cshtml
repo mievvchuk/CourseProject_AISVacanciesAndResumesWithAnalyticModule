@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = "Деталі вакансії";
     var location = !string.IsNullOrWhiteSpace(Model.Location) ? Model.Location : Model.City;
+    var isAdmin = User.IsInRole("Admin");
+    var backController = isAdmin ? "Admin" : "Vacancies";
+    var backAction = isAdmin ? "Vacancies" : "Index";
+    var backText = isAdmin ? "Повернутися до модерації вакансій" : "Повернутися до списку вакансій";
 }
 
 @functions {
@@ -23,9 +27,9 @@
 }
 
 <section class="vacancy-details-page vacancy-details-page-wide">
-    <a asp-action="Index" class="vacancy-back-link">
+    <a asp-controller="@backController" asp-action="@backAction" class="vacancy-back-link">
         <i class="ti ti-arrow-left"></i>
-        Повернутися до списку вакансій
+        @backText
     </a>
 
     <section class="card vacancy-overview-card shadow-sm border-0">
