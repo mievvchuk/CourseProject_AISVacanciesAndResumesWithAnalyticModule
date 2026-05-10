@@ -236,24 +236,48 @@ if (app.Environment.IsDevelopment())
 {
     app.MapGet("/__dev/live-reload", async (
         HttpContext context,
-        DevLiveReloadService liveReloadService,
-        CancellationToken cancellationToken) =>
+        DevLiveReloadService liveReloadService) =>
     {
-        context.Response.Headers.CacheControl = "no-cache";
-        context.Response.Headers.Connection = "keep-alive";
-        context.Response.ContentType = "text/event-stream";
+        var cancellationToken = context.RequestAborted;
 
-        var lastEventId = context.Request.Headers["Last-Event-ID"].ToString();
-        _ = long.TryParse(lastEventId, out var knownVersion);
-
-        while (!cancellationToken.IsCancellationRequested)
+        try
         {
-            var version = await liveReloadService.WaitForChangeAsync(knownVersion, cancellationToken);
-            knownVersion = version;
-            await context.Response.WriteAsync($"id: {version}\n", cancellationToken);
-            await context.Response.WriteAsync("event: reload\n", cancellationToken);
-            await context.Response.WriteAsync("data: reload\n\n", cancellationToken);
-            await context.Response.Body.FlushAsync(cancellationToken);
+            context.Response.Headers.CacheControl = "no-cache";
+            context.Response.Headers.Connection = "keep-alive";
+            context.Response.ContentType = "text/event-stream";
+
+            var lastEventId = context.Request.Headers["Last-Event-ID"].ToString();
+            _ = long.TryParse(lastEventId, out var knownVersion);
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var version = await liveReloadService.WaitForChangeAsync(knownVersion, cancellationToken);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                if (version <= knownVersion)
+                {
+                    continue;
+                }
+
+                knownVersion = version;
+
+                await context.Response.WriteAsync($"id: {version}\n", cancellationToken);
+                await context.Response.WriteAsync("event: reload\n", cancellationToken);
+                await context.Response.WriteAsync("data: reload\n\n", cancellationToken);
+                await context.Response.Body.FlushAsync(cancellationToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Браузер закрив live-reload з'єднання. Це нормальна ситуація в Development.
+        }
+        catch (IOException)
+        {
+            // Клієнт закрив з'єднання під час запису відповіді.
         }
     });
 }

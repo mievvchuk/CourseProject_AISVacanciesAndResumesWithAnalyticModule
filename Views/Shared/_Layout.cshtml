@@ -6,41 +6,303 @@
 @inject IMessageService MessageService
 @inject UserManager<AisVacanciesAndResumes.Models.User> UserManager
 @inject IOptions<AisVacanciesAndResumes.Models.SiteSettings> SiteSettings
+
 @{
     var defaultTitle = "АІС вакансій та резюме";
     var pageTitle = ViewData["Title"] as string;
     var fullTitle = string.IsNullOrWhiteSpace(pageTitle)
         ? defaultTitle
         : $"{pageTitle} - {defaultTitle}";
+
     var metaDescription = ViewData["MetaDescription"] as string
         ?? "АІС вакансій та резюме з аналітичним модулем: пошук роботи, перегляд актуальних вакансій, подання заявок і підбір персоналу.";
+
     var metaKeywords = ViewData["MetaKeywords"] as string
         ?? "вакансії, резюме, робота, пошук роботи, підбір персоналу, аналітика вакансій";
+
     var canonicalPath = ViewData["CanonicalPath"] as string;
     var baseUrl = (SiteSettings.Value.BaseUrl ?? string.Empty).Trim().TrimEnd('/');
+
     var canonicalUrl = !string.IsNullOrWhiteSpace(canonicalPath) && !string.IsNullOrWhiteSpace(baseUrl)
         ? $"{baseUrl}/{canonicalPath.TrimStart('/')}"
         : null;
 }
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>@fullTitle</title>
+
     <meta name="description" content="@metaDescription" />
     <meta name="keywords" content="@metaKeywords" />
+
     @if (!string.IsNullOrWhiteSpace(canonicalUrl))
     {
         <link rel="canonical" href="@canonicalUrl" />
     }
+
     <link rel="icon" type="image/png" href="~/favicon.png" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.4.0/dist/css/tabler.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/AisVacanciesAndResumes.styles.css" asp-append-version="true" />
+
+    <style>
+        @@media (max-width: 767.98px) {
+            body {
+                padding-bottom: 5.4rem;
+            }
+
+            .page-body {
+                padding-bottom: 5.9rem;
+            }
+
+            .footer {
+                padding-bottom: 5.4rem;
+            }
+
+            .app-header .container-xl {
+                align-items: center;
+                display: flex;
+                gap: 0.35rem;
+                justify-content: space-between;
+                min-height: 3.75rem;
+                padding-inline: 0.75rem;
+            }
+
+            .app-header .navbar-brand {
+                margin: 0;
+                min-width: 0;
+            }
+
+                .app-header .navbar-brand span {
+                    font-size: 0.82rem;
+                    max-width: 5.4rem;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+            .app-header .site-logo {
+                height: 1.9rem;
+                width: auto;
+            }
+
+            .app-header .navbar-nav {
+                gap: 0.2rem !important;
+            }
+
+            .app-header .btn-icon {
+                height: 2.15rem;
+                min-width: 2.15rem;
+                width: 2.15rem;
+            }
+
+                .app-header .btn-icon i {
+                    font-size: 1.1rem !important;
+                }
+
+            .app-header .btn-outline-primary {
+                height: 2.15rem;
+                min-width: 2.15rem;
+                padding-inline: 0.55rem;
+            }
+
+            .app-header .badge-notification {
+                font-size: 0.62rem;
+                min-width: 1rem;
+                padding: 0.1rem 0.28rem;
+                right: -0.1rem;
+                top: -0.25rem;
+            }
+
+            .mobile-user-strip {
+                border-top: 1px solid rgba(98, 105, 118, 0.12);
+                color: #667085;
+                font-size: 0.72rem;
+                padding: 0 1rem 0.6rem;
+                text-align: center;
+            }
+
+            .mobile-user-greeting {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+                .mobile-user-greeting strong {
+                    color: #182433;
+                }
+
+            #main-navigation,
+            .navbar-toggler {
+                display: none !important;
+            }
+
+            .mobile-bottom-nav {
+                background: rgba(255, 255, 255, 0.98);
+                border-top: 1px solid rgba(98, 105, 118, 0.16);
+                bottom: 0;
+                box-shadow: 0 -0.75rem 2rem rgba(15, 23, 42, 0.08);
+                left: 0;
+                padding: 0.35rem 0.45rem calc(0.35rem + env(safe-area-inset-bottom));
+                position: fixed;
+                right: 0;
+                z-index: 1040;
+            }
+
+            .mobile-bottom-nav-grid {
+                display: grid;
+                gap: 0.35rem;
+            }
+
+            .mobile-bottom-nav-grid-guest {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            .mobile-bottom-nav-grid-auth {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+
+            .mobile-bottom-nav-link,
+            .mobile-bottom-nav-button {
+                align-items: center;
+                background: transparent;
+                border: 0;
+                border-radius: 10px;
+                color: #667085;
+                display: flex;
+                flex-direction: column;
+                font-size: 0.62rem;
+                font-weight: 750;
+                gap: 0.15rem;
+                justify-content: center;
+                min-height: 3.25rem;
+                min-width: 0;
+                padding: 0.3rem 0.15rem;
+                text-align: center;
+                text-decoration: none;
+                width: 100%;
+            }
+
+                .mobile-bottom-nav-link i,
+                .mobile-bottom-nav-button i {
+                    font-size: 1.2rem;
+                    line-height: 1;
+                }
+
+                .mobile-bottom-nav-link span,
+                .mobile-bottom-nav-button span {
+                    max-width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .mobile-bottom-nav-link:hover,
+                .mobile-bottom-nav-button:hover {
+                    background: #eef4fb;
+                    color: #206bc4;
+                    text-decoration: none;
+                }
+
+                .mobile-bottom-nav-link.active {
+                    background: #e8f1ff;
+                    color: #0d5bb8;
+                }
+
+            .mobile-more-sheet {
+                border-radius: 18px 18px 0 0;
+                max-height: 78vh;
+            }
+
+                .mobile-more-sheet .offcanvas-body {
+                    padding-top: 0.25rem;
+                }
+
+            .mobile-more-grid {
+                display: grid;
+                gap: 0.65rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .mobile-more-link {
+                align-items: center;
+                background: #f8fafc;
+                border: 1px solid rgba(98, 105, 118, 0.14);
+                border-radius: 12px;
+                color: #182433;
+                display: flex;
+                gap: 0.55rem;
+                min-height: 3.25rem;
+                padding: 0.75rem;
+                position: relative;
+                text-decoration: none;
+                width: 100%;
+            }
+
+                .mobile-more-link i {
+                    align-items: center;
+                    background: #e8f1ff;
+                    border-radius: 10px;
+                    color: #206bc4;
+                    display: inline-flex;
+                    flex: 0 0 2.25rem;
+                    font-size: 1.15rem;
+                    height: 2.25rem;
+                    justify-content: center;
+                    width: 2.25rem;
+                }
+
+                .mobile-more-link span {
+                    font-size: 0.78rem;
+                    font-weight: 750;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .mobile-more-link strong {
+                    align-items: center;
+                    background: #d63939;
+                    border-radius: 999px;
+                    color: #ffffff;
+                    display: inline-flex;
+                    font-size: 0.7rem;
+                    height: 1.35rem;
+                    justify-content: center;
+                    margin-left: auto;
+                    min-width: 1.35rem;
+                    padding-inline: 0.35rem;
+                }
+
+                .mobile-more-link.active {
+                    background: #e8f1ff;
+                    border-color: rgba(32, 107, 196, 0.25);
+                    color: #0d5bb8;
+                }
+
+            .mobile-more-logout-form {
+                display: contents;
+            }
+
+            .mobile-more-logout {
+                color: #d63939;
+            }
+
+                .mobile-more-logout i {
+                    background: #ffecec;
+                    color: #d63939;
+                }
+        }
+    </style>
 </head>
+
 <body>
     @{
         var unreadNotificationCount = 0;
@@ -57,19 +319,35 @@
         var currentKyivTime = DateTime.UtcNow.ToKyivTime();
         var hour = currentKyivTime.Hour;
         var greeting = hour < 12 ? "Доброго ранку" : hour < 18 ? "Добрий день" : "Добрий вечір";
+
         var currentUser = isAuthenticated ? await UserManager.GetUserAsync(User) : null;
+
         var displayName = !string.IsNullOrWhiteSpace(currentUser?.FullName)
-            ? currentUser.FullName
-            : "користувачу";
-        var profileController = User.IsInRole("Employer") ? "EmployerProfiles" : User.IsInRole("Admin") ? "Admin" : "CandidateProfiles";
-        var profileAction = User.IsInRole("Admin") ? "Dashboard" : "Details";
+        ? currentUser.FullName
+        : "користувачу";
+
+        var profileController = User.IsInRole("Employer")
+        ? "EmployerProfiles"
+        : User.IsInRole("Admin")
+        ? "Admin"
+        : "CandidateProfiles";
+
+        var profileAction = User.IsInRole("Admin")
+        ? "Dashboard"
+        : "Details";
+
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
         var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
         Func<string, string?, string> activeNav = (controllerName, actionName) =>
-            string.Equals(currentController, controllerName, StringComparison.OrdinalIgnoreCase)
-            && (actionName is null || string.Equals(currentAction, actionName, StringComparison.OrdinalIgnoreCase))
-                ? "active"
-                : "";
+        string.Equals(currentController, controllerName, StringComparison.OrdinalIgnoreCase)
+        && (actionName is null || string.Equals(currentAction, actionName, StringComparison.OrdinalIgnoreCase))
+        ? "active"
+        : "";
+
+        var mobileGridClass = !isAuthenticated || User.IsInRole("Admin")
+        ? "mobile-bottom-nav-grid-guest"
+        : "mobile-bottom-nav-grid-auth";
     }
 
     <a class="visually-hidden-focusable" href="#main-content">Перейти до основного вмісту</a>
@@ -78,15 +356,6 @@
     <div class="page">
         <header class="navbar navbar-expand-md d-print-none app-header">
             <div class="container-xl">
-                <button class="navbar-toggler d-none d-md-block"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#main-navigation"
-                        aria-controls="main-navigation"
-                        aria-expanded="false"
-                        aria-label="Перемкнути навігацію">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
                 <h1 class="navbar-brand navbar-brand-autodark pe-0">
                     <a asp-controller="Home" asp-action="Index" class="text-reset text-decoration-none d-flex align-items-center">
                         <img src="~/images/site-logo.png" alt="АІС вакансій та резюме" class="site-logo" asp-append-version="true" />
@@ -97,160 +366,233 @@
                 <div class="navbar-nav flex-row order-md-last align-items-center gap-2">
                     @if (isAuthenticated)
                     {
-                        <nav class="mobile-bottom-nav d-md-none" aria-label="Мобільна навігація">
-                            <div class="mobile-bottom-nav-scroll">
-                                <a class="mobile-bottom-nav-link @activeNav("Home", "Index")"
-                                   asp-controller="Home"
-                                   asp-action="Index">
-                                    <i class="ti ti-home"></i>
-                                    <span>Головна</span>
-                                </a>
+                        <div class="nav-item text-secondary small d-none d-lg-block">
+                            @greeting, @displayName
+                        </div>
 
-                                <a class="mobile-bottom-nav-link @activeNav("Vacancies", "Index")"
-                                   asp-controller="Vacancies"
-                                   asp-action="Index">
-                                    <i class="ti ti-search"></i>
-                                    <span>Вакансії</span>
-                                </a>
+                        <a class="btn btn-icon btn-ghost-secondary position-relative"
+                           asp-controller="Messages"
+                           asp-action="Inbox"
+                           title="Повідомлення">
+                            <i class="ti ti-mail fs-2"></i>
 
-                                @if (User.IsInRole("Candidate"))
-                                {
-                                    <a class="mobile-bottom-nav-link @activeNav("Resumes", null)"
-                                       asp-controller="Resumes"
-                                       asp-action="Index">
-                                        <i class="ti ti-file-text"></i>
-                                        <span>Резюме</span>
-                                    </a>
+                            @if (unreadMessageCount > 0)
+                            {
+                                <span class="badge bg-red text-white badge-notification">@unreadMessageCount</span>
+                            }
+                        </a>
 
-                                    <a class="mobile-bottom-nav-link @activeNav("Applications", "MyApplications")"
-                                       asp-controller="Applications"
-                                       asp-action="MyApplications">
-                                        <i class="ti ti-send"></i>
-                                        <span>Заявки</span>
-                                    </a>
+                        <a class="btn btn-icon btn-ghost-secondary position-relative"
+                           asp-controller="Notifications"
+                           asp-action="Index"
+                           title="Сповіщення">
+                            <i class="ti ti-bell fs-2"></i>
 
-                                    <a class="mobile-bottom-nav-link @activeNav("SavedSearches", null)"
-                                       asp-controller="SavedSearches"
-                                       asp-action="Index">
-                                        <i class="ti ti-bookmark"></i>
-                                        <span>Пошуки</span>
-                                    </a>
+                            @if (unreadNotificationCount > 0)
+                            {
+                                <span class="badge bg-red text-white badge-notification">@unreadNotificationCount</span>
+                            }
+                        </a>
 
-                                    <a class="mobile-bottom-nav-link @activeNav("Portfolio", null)"
-                                       asp-controller="Portfolio"
-                                       asp-action="Index">
-                                        <i class="ti ti-layout-grid"></i>
-                                        <span>Портфоліо</span>
-                                    </a>
+                        <a class="btn btn-icon btn-primary"
+                           asp-controller="@profileController"
+                           asp-action="@profileAction"
+                           title="Мій профіль">
+                            <i class="ti ti-user-circle fs-2"></i>
+                        </a>
 
-                                    <a class="mobile-bottom-nav-link @activeNav("Recommendations", null)"
-                                       asp-controller="Recommendations"
-                                       asp-action="Index">
-                                        <i class="ti ti-stars"></i>
-                                        <span>Рекоменд.</span>
-                                    </a>
-                                }
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="nav-item">
+                            <button type="submit" class="btn btn-outline-primary" title="Вийти">
+                                <i class="ti ti-logout me-1"></i>
+                                <span class="d-none d-sm-inline">Вийти</span>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-primary d-none d-md-inline-flex"
+                           asp-controller="Account"
+                           asp-action="Login">
+                            <i class="ti ti-login-2 me-1"></i>
+                            Увійти
+                        </a>
 
-                                @if (User.IsInRole("Employer"))
-                                {
-                                    <a class="mobile-bottom-nav-link @activeNav("Vacancies", "My")"
-                                       asp-controller="Vacancies"
-                                       asp-action="My">
-                                        <i class="ti ti-briefcase"></i>
-                                        <span>Мої вакансії</span>
-                                    </a>
-
-                                    <a class="mobile-bottom-nav-link @activeNav("Vacancies", "Create")"
-                                       asp-controller="Vacancies"
-                                       asp-action="Create">
-                                        <i class="ti ti-circle-plus"></i>
-                                        <span>Створити</span>
-                                    </a>
-
-                                    <a class="mobile-bottom-nav-link @activeNav("Applications", "EmployerApplications")"
-                                       asp-controller="Applications"
-                                       asp-action="EmployerApplications">
-                                        <i class="ti ti-inbox"></i>
-                                        <span>Заявки</span>
-                                    </a>
-
-                                    <a class="mobile-bottom-nav-link @activeNav("EmployerCandidates", null)"
-                                       asp-controller="EmployerCandidates"
-                                       asp-action="Search">
-                                        <i class="ti ti-users-group"></i>
-                                        <span>Кандидати</span>
-                                    </a>
-
-                                    <a class="mobile-bottom-nav-link @activeNav("Analytics", null)"
-                                       asp-controller="Analytics"
-                                       asp-action="Index">
-                                        <i class="ti ti-chart-bar"></i>
-                                        <span>Аналітика</span>
-                                    </a>
-                                }
-
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <a class="mobile-bottom-nav-link @activeNav("Admin", null)"
-                                       asp-controller="Admin"
-                                       asp-action="Dashboard">
-                                        <i class="ti ti-shield-lock"></i>
-                                        <span>Адмінка</span>
-                                    </a>
-                                }
-
-                                <a class="mobile-bottom-nav-link @activeNav(profileController, profileAction)"
-                                   asp-controller="@profileController"
-                                   asp-action="@profileAction">
-                                    <i class="ti ti-user-circle"></i>
-                                    <span>Профіль</span>
-                                </a>
-                            </div>
-                        </nav>
+                        <a class="btn btn-primary d-none d-md-inline-flex"
+                           asp-controller="Account"
+                           asp-action="Register">
+                            <i class="ti ti-user-plus me-1"></i>
+                            Реєстрація
+                        </a>
                     }
                 </div>
             </div>
+
+            @if (isAuthenticated)
+            {
+                <div class="mobile-user-strip d-md-none">
+                    <div class="mobile-user-greeting">
+                        <span>@greeting,</span>
+                        <strong>@displayName</strong>
+                    </div>
+                </div>
+            }
         </header>
 
-        <div class="navbar-expand-md">
-            <div class="collapse navbar-collapse" id="main-navigation">
+        <div class="navbar-expand-md d-none d-md-block">
+            <div class="navbar-collapse" id="main-navigation">
                 <div class="navbar navbar-light">
                     <div class="container-xl app-nav-container">
                         <ul class="navbar-nav app-main-nav">
                             <li class="nav-item">
-                                <a class="nav-link @activeNav("Home", "Index")" asp-controller="Home" asp-action="Index">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-home"></i></span>
+                                <a class="nav-link @(activeNav("Home", "Index"))"
+                                   asp-controller="Home"
+                                   asp-action="Index">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                        <i class="ti ti-home"></i>
+                                    </span>
                                     <span class="nav-link-title">Головна</span>
                                 </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link @activeNav("Vacancies", "Index")" asp-controller="Vacancies" asp-action="Index">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-search"></i></span>
+                                <a class="nav-link @(activeNav("Vacancies", "Index"))"
+                                   asp-controller="Vacancies"
+                                   asp-action="Index">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                        <i class="ti ti-search"></i>
+                                    </span>
                                     <span class="nav-link-title">Вакансії</span>
                                 </a>
                             </li>
 
                             @if (isAuthenticated && User.IsInRole("Candidate"))
                             {
-                                <li class="nav-item"><a class="nav-link @activeNav("Resumes", null)" asp-controller="Resumes" asp-action="Index"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-file-text"></i></span><span class="nav-link-title">Мої резюме</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("Applications", "MyApplications")" asp-controller="Applications" asp-action="MyApplications"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-send"></i></span><span class="nav-link-title">Мої заявки</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("SavedSearches", null)" asp-controller="SavedSearches" asp-action="Index"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-bookmark"></i></span><span class="nav-link-title">Збережені пошуки</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("Portfolio", null)" asp-controller="Portfolio" asp-action="Index"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-layout-grid"></i></span><span class="nav-link-title">Портфоліо</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("Recommendations", null)" asp-controller="Recommendations" asp-action="Index"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-stars"></i></span><span class="nav-link-title">Рекомендації</span></a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Resumes", null))"
+                                       asp-controller="Resumes"
+                                       asp-action="Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-file-text"></i>
+                                        </span>
+                                        <span class="nav-link-title">Мої резюме</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Applications", "MyApplications"))"
+                                       asp-controller="Applications"
+                                       asp-action="MyApplications">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-send"></i>
+                                        </span>
+                                        <span class="nav-link-title">Мої заявки</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("SavedSearches", null))"
+                                       asp-controller="SavedSearches"
+                                       asp-action="Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-bookmark"></i>
+                                        </span>
+                                        <span class="nav-link-title">Збережені пошуки</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Portfolio", null))"
+                                       asp-controller="Portfolio"
+                                       asp-action="Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-layout-grid"></i>
+                                        </span>
+                                        <span class="nav-link-title">Портфоліо</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Recommendations", null))"
+                                       asp-controller="Recommendations"
+                                       asp-action="Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-stars"></i>
+                                        </span>
+                                        <span class="nav-link-title">Рекомендації</span>
+                                    </a>
+                                </li>
                             }
 
                             @if (isAuthenticated && User.IsInRole("Employer"))
                             {
-                                <li class="nav-item"><a class="nav-link @activeNav("Vacancies", "My")" asp-controller="Vacancies" asp-action="My"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-briefcase"></i></span><span class="nav-link-title">Мої вакансії</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("Vacancies", "Create")" asp-controller="Vacancies" asp-action="Create"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-circle-plus"></i></span><span class="nav-link-title">Створити вакансію</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("Applications", "EmployerApplications")" asp-controller="Applications" asp-action="EmployerApplications"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-inbox"></i></span><span class="nav-link-title">Усі заявки</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("EmployerCandidates", null)" asp-controller="EmployerCandidates" asp-action="Search"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-users-group"></i></span><span class="nav-link-title">Кандидати</span></a></li>
-                                <li class="nav-item"><a class="nav-link @activeNav("Analytics", null)" asp-controller="Analytics" asp-action="Index"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-chart-bar"></i></span><span class="nav-link-title">Аналітика</span></a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Vacancies", "My"))"
+                                       asp-controller="Vacancies"
+                                       asp-action="My">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-briefcase"></i>
+                                        </span>
+                                        <span class="nav-link-title">Мої вакансії</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Vacancies", "Create"))"
+                                       asp-controller="Vacancies"
+                                       asp-action="Create">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-circle-plus"></i>
+                                        </span>
+                                        <span class="nav-link-title">Створити вакансію</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Applications", "EmployerApplications"))"
+                                       asp-controller="Applications"
+                                       asp-action="EmployerApplications">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-inbox"></i>
+                                        </span>
+                                        <span class="nav-link-title">Усі заявки</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("EmployerCandidates", null))"
+                                       asp-controller="EmployerCandidates"
+                                       asp-action="Search">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-users-group"></i>
+                                        </span>
+                                        <span class="nav-link-title">Кандидати</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Analytics", null))"
+                                       asp-controller="Analytics"
+                                       asp-action="Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-chart-bar"></i>
+                                        </span>
+                                        <span class="nav-link-title">Аналітика</span>
+                                    </a>
+                                </li>
                             }
 
                             @if (isAuthenticated && User.IsInRole("Admin"))
                             {
-                                <li class="nav-item"><a class="nav-link @activeNav("Admin", null)" asp-controller="Admin" asp-action="Dashboard"><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-shield-lock"></i></span><span class="nav-link-title">Адмінка</span></a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(activeNav("Admin", null))"
+                                       asp-controller="Admin"
+                                       asp-action="Dashboard">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-shield-lock"></i>
+                                        </span>
+                                        <span class="nav-link-title">Адмінка</span>
+                                    </a>
+                                </li>
                             }
                         </ul>
                     </div>
@@ -265,6 +607,7 @@
                     {
                         <div class="alert alert-success" role="alert">@statusMessage</div>
                     }
+
                     @if (TempData["ErrorMessage"] is string errorMessage)
                     {
                         <div class="alert alert-danger" role="alert">@errorMessage</div>
@@ -288,83 +631,240 @@
                     <div class="row text-center align-items-center flex-row-reverse">
                         <div class="col-lg-auto ms-lg-auto">
                             <ul class="list-inline list-inline-dots mb-0">
-                                <li class="list-inline-item"><a asp-controller="Vacancies" asp-action="Index" class="link-secondary">Вакансії</a></li>
-                                <li class="list-inline-item"><a asp-controller="Home" asp-action="Privacy" class="link-secondary">Політика</a></li>
+                                <li class="list-inline-item">
+                                    <a asp-controller="Vacancies" asp-action="Index" class="link-secondary">Вакансії</a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a asp-controller="Home" asp-action="Privacy" class="link-secondary">Політика</a>
+                                </li>
                             </ul>
                         </div>
+
                         <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                            <span class="text-secondary">&copy; @currentKyivTime.Year АІС вакансій та резюме. Навчальний проєкт.</span>
+                            <span class="text-secondary">
+                                &copy; @currentKyivTime.Year АІС вакансій та резюме. Навчальний проєкт.
+                            </span>
                         </div>
                     </div>
                 </div>
             </footer>
         </main>
-        @if (isAuthenticated)
-        {
-            <nav class="mobile-bottom-nav d-md-none" aria-label="Мобільна навігація">
-                <a class="mobile-bottom-nav-link @activeNav("Home", "Index")"
+
+        <nav class="mobile-bottom-nav d-md-none" aria-label="Мобільна навігація">
+            <div class="mobile-bottom-nav-grid @mobileGridClass">
+                <a class="mobile-bottom-nav-link @(activeNav("Home", "Index"))"
                    asp-controller="Home"
                    asp-action="Index">
                     <i class="ti ti-home"></i>
                     <span>Головна</span>
                 </a>
 
-                <a class="mobile-bottom-nav-link @activeNav("Vacancies", "Index")"
+                <a class="mobile-bottom-nav-link @(activeNav("Vacancies", "Index"))"
                    asp-controller="Vacancies"
                    asp-action="Index">
                     <i class="ti ti-search"></i>
                     <span>Вакансії</span>
                 </a>
 
-                @if (User.IsInRole("Candidate"))
+                @if (!isAuthenticated)
                 {
-                    <a class="mobile-bottom-nav-link @activeNav("Resumes", null)"
+                    <a class="mobile-bottom-nav-link @(activeNav("Account", "Login"))"
+                       asp-controller="Account"
+                       asp-action="Login">
+                        <i class="ti ti-login-2"></i>
+                        <span>Увійти</span>
+                    </a>
+
+                    <a class="mobile-bottom-nav-link @(activeNav("Account", "Register"))"
+                       asp-controller="Account"
+                       asp-action="Register">
+                        <i class="ti ti-user-plus"></i>
+                        <span>Реєстрація</span>
+                    </a>
+                }
+                else if (User.IsInRole("Candidate"))
+                {
+                    <a class="mobile-bottom-nav-link @(activeNav("Resumes", null))"
                        asp-controller="Resumes"
                        asp-action="Index">
                         <i class="ti ti-file-text"></i>
                         <span>Резюме</span>
                     </a>
 
-                    <a class="mobile-bottom-nav-link @activeNav("Applications", "MyApplications")"
+                    <a class="mobile-bottom-nav-link @(activeNav("Applications", "MyApplications"))"
                        asp-controller="Applications"
                        asp-action="MyApplications">
                         <i class="ti ti-send"></i>
                         <span>Заявки</span>
                     </a>
+
+                    <button class="mobile-bottom-nav-link mobile-bottom-nav-button"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#mobileMoreMenu"
+                            aria-controls="mobileMoreMenu">
+                        <i class="ti ti-dots"></i>
+                        <span>Ще</span>
+                    </button>
                 }
                 else if (User.IsInRole("Employer"))
                 {
-                    <a class="mobile-bottom-nav-link @activeNav("Applications", "EmployerApplications")"
+                    <a class="mobile-bottom-nav-link @(activeNav("Vacancies", "My"))"
+                       asp-controller="Vacancies"
+                       asp-action="My">
+                        <i class="ti ti-briefcase"></i>
+                        <span>Вакансії</span>
+                    </a>
+
+                    <a class="mobile-bottom-nav-link @(activeNav("Applications", "EmployerApplications"))"
                        asp-controller="Applications"
                        asp-action="EmployerApplications">
                         <i class="ti ti-inbox"></i>
                         <span>Заявки</span>
                     </a>
 
-                    <a class="mobile-bottom-nav-link @activeNav("EmployerCandidates", null)"
-                       asp-controller="EmployerCandidates"
-                       asp-action="Search">
-                        <i class="ti ti-users-group"></i>
-                        <span>Кандидати</span>
-                    </a>
+                    <button class="mobile-bottom-nav-link mobile-bottom-nav-button"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#mobileMoreMenu"
+                            aria-controls="mobileMoreMenu">
+                        <i class="ti ti-dots"></i>
+                        <span>Ще</span>
+                    </button>
                 }
                 else if (User.IsInRole("Admin"))
                 {
-                    <a class="mobile-bottom-nav-link @activeNav("Admin", null)"
+                    <a class="mobile-bottom-nav-link @(activeNav("Admin", null))"
                        asp-controller="Admin"
                        asp-action="Dashboard">
                         <i class="ti ti-shield-lock"></i>
                         <span>Адмінка</span>
                     </a>
-                }
 
-                <a class="mobile-bottom-nav-link @activeNav(profileController, profileAction)"
-                   asp-controller="@profileController"
-                   asp-action="@profileAction">
-                    <i class="ti ti-user-circle"></i>
-                    <span>Профіль</span>
-                </a>
-            </nav>
+                    <button class="mobile-bottom-nav-link mobile-bottom-nav-button"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#mobileMoreMenu"
+                            aria-controls="mobileMoreMenu">
+                        <i class="ti ti-dots"></i>
+                        <span>Ще</span>
+                    </button>
+                }
+            </div>
+        </nav>
+
+        @if (isAuthenticated)
+        {
+            <div class="offcanvas offcanvas-bottom mobile-more-sheet d-md-none"
+                 tabindex="-1"
+                 id="mobileMoreMenu"
+                 aria-labelledby="mobileMoreMenuLabel">
+
+                <div class="offcanvas-header">
+                    <div>
+                        <h2 class="offcanvas-title h4 mb-1" id="mobileMoreMenuLabel">Меню</h2>
+                        <div class="text-secondary small">@greeting, @displayName</div>
+                    </div>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="offcanvas"
+                            aria-label="Закрити"></button>
+                </div>
+
+                <div class="offcanvas-body">
+                    <div class="mobile-more-grid">
+                        <a class="mobile-more-link @(activeNav(profileController, profileAction))"
+                           asp-controller="@profileController"
+                           asp-action="@profileAction">
+                            <i class="ti ti-user-circle"></i>
+                            <span>Мій профіль</span>
+                        </a>
+
+                        <a class="mobile-more-link @(activeNav("Messages", "Inbox"))"
+                           asp-controller="Messages"
+                           asp-action="Inbox">
+                            <i class="ti ti-mail"></i>
+                            <span>Повідомлення</span>
+
+                            @if (unreadMessageCount > 0)
+                            {
+                                <strong>@unreadMessageCount</strong>
+                            }
+                        </a>
+
+                        <a class="mobile-more-link @(activeNav("Notifications", null))"
+                           asp-controller="Notifications"
+                           asp-action="Index">
+                            <i class="ti ti-bell"></i>
+                            <span>Сповіщення</span>
+
+                            @if (unreadNotificationCount > 0)
+                            {
+                                <strong>@unreadNotificationCount</strong>
+                            }
+                        </a>
+
+                        @if (User.IsInRole("Candidate"))
+                        {
+                            <a class="mobile-more-link @(activeNav("SavedSearches", null))"
+                               asp-controller="SavedSearches"
+                               asp-action="Index">
+                                <i class="ti ti-bookmark"></i>
+                                <span>Збережені пошуки</span>
+                            </a>
+
+                            <a class="mobile-more-link @(activeNav("Portfolio", null))"
+                               asp-controller="Portfolio"
+                               asp-action="Index">
+                                <i class="ti ti-layout-grid"></i>
+                                <span>Портфоліо</span>
+                            </a>
+
+                            <a class="mobile-more-link @(activeNav("Recommendations", null))"
+                               asp-controller="Recommendations"
+                               asp-action="Index">
+                                <i class="ti ti-stars"></i>
+                                <span>Рекомендації</span>
+                            </a>
+                        }
+
+                        @if (User.IsInRole("Employer"))
+                        {
+                            <a class="mobile-more-link @(activeNav("Vacancies", "Create"))"
+                               asp-controller="Vacancies"
+                               asp-action="Create">
+                                <i class="ti ti-circle-plus"></i>
+                                <span>Створити вакансію</span>
+                            </a>
+
+                            <a class="mobile-more-link @(activeNav("EmployerCandidates", null))"
+                               asp-controller="EmployerCandidates"
+                               asp-action="Search">
+                                <i class="ti ti-users-group"></i>
+                                <span>Кандидати</span>
+                            </a>
+
+                            <a class="mobile-more-link @(activeNav("Analytics", null))"
+                               asp-controller="Analytics"
+                               asp-action="Index">
+                                <i class="ti ti-chart-bar"></i>
+                                <span>Аналітика</span>
+                            </a>
+                        }
+
+                        <form asp-controller="Account"
+                              asp-action="Logout"
+                              method="post"
+                              class="mobile-more-logout-form">
+                            <button type="submit" class="mobile-more-link mobile-more-logout">
+                                <i class="ti ti-logout"></i>
+                                <span>Вийти</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         }
     </div>
 
@@ -372,17 +872,22 @@
         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-status bg-danger"></div>
+
                 <div class="modal-body text-center py-4">
                     <i class="ti ti-alert-triangle text-danger mb-2 app-confirm-icon"></i>
                     <h3 id="app-confirm-title">Підтвердити дію?</h3>
-                    <div id="app-confirm-message" class="text-secondary">Цю дію потрібно підтвердити.</div>
+                    <div id="app-confirm-message" class="text-secondary">
+                        Цю дію потрібно підтвердити.
+                    </div>
                 </div>
+
                 <div class="modal-footer">
                     <div class="w-100">
                         <div class="row g-2">
                             <div class="col">
                                 <button type="button" class="btn w-100" data-bs-dismiss="modal">Скасувати</button>
                             </div>
+
                             <div class="col">
                                 <button type="button" class="btn btn-danger w-100" id="app-confirm-submit">Підтвердити</button>
                             </div>
@@ -396,10 +901,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
     {
         <script src="~/js/dev-live-reload.js" asp-append-version="true"></script>
     }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

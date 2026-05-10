@@ -3864,3 +3864,262 @@ body {
     display: none !important;
   }
 }
+/* FINAL MOBILE NAVIGATION FIX */
+
+@media (max-width: 767.98px) {
+  body {
+    padding-bottom: 5.4rem !important;
+  }
+
+  .page-body {
+    padding-bottom: 5.9rem !important;
+  }
+
+  .footer {
+    padding-bottom: 5.4rem !important;
+  }
+
+  .app-header .container-xl,
+  .app-header-container {
+    align-items: center !important;
+    display: flex !important;
+    gap: 0.35rem !important;
+    justify-content: space-between !important;
+    min-height: 3.75rem !important;
+    padding-inline: 0.75rem !important;
+  }
+
+  .app-header .navbar-brand {
+    margin: 0 !important;
+    min-width: 0 !important;
+  }
+
+    .app-header .navbar-brand span {
+      font-size: 0.82rem !important;
+      max-width: 5.4rem !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
+  .app-header .site-logo {
+    height: 1.9rem !important;
+    width: auto !important;
+  }
+
+  .app-header .navbar-nav {
+    gap: 0.2rem !important;
+  }
+
+  .app-header .btn-icon {
+    height: 2.15rem !important;
+    min-width: 2.15rem !important;
+    width: 2.15rem !important;
+  }
+
+    .app-header .btn-icon i {
+      font-size: 1.1rem !important;
+    }
+
+  .app-header .btn-outline-primary {
+    height: 2.15rem !important;
+    min-width: 2.15rem !important;
+    padding-inline: 0.55rem !important;
+  }
+
+  .app-header .badge-notification {
+    font-size: 0.62rem !important;
+    min-width: 1rem !important;
+    padding: 0.1rem 0.28rem !important;
+    right: -0.1rem !important;
+    top: -0.25rem !important;
+  }
+
+  .mobile-user-strip {
+    border-top: 1px solid rgba(98, 105, 118, 0.12) !important;
+    color: #667085 !important;
+    display: block !important;
+    font-size: 0.72rem !important;
+    padding: 0 1rem 0.6rem !important;
+    text-align: center !important;
+  }
+
+  .mobile-user-greeting {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+    .mobile-user-greeting strong {
+      color: #182433 !important;
+    }
+
+  #main-navigation,
+  .navbar-toggler {
+    display: none !important;
+  }
+
+  .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-top: 1px solid rgba(98, 105, 118, 0.16) !important;
+    bottom: 0 !important;
+    box-shadow: 0 -0.75rem 2rem rgba(15, 23, 42, 0.08) !important;
+    display: block !important;
+    left: 0 !important;
+    padding: 0.35rem 0.45rem calc(0.35rem + env(safe-area-inset-bottom)) !important;
+    position: fixed !important;
+    right: 0 !important;
+    z-index: 1040 !important;
+  }
+
+  .mobile-bottom-nav-grid {
+    display: grid !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+  }
+
+  .mobile-bottom-nav-grid-guest {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .mobile-bottom-nav-grid-auth {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .mobile-bottom-nav-link,
+  .mobile-bottom-nav-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    color: #667085 !important;
+    display: flex !important;
+    flex: none !important;
+    flex-direction: column !important;
+    font-size: 0.62rem !important;
+    font-weight: 750 !important;
+    gap: 0.15rem !important;
+    justify-content: center !important;
+    line-height: 1.1 !important;
+    min-height: 3.25rem !important;
+    min-width: 0 !important;
+    padding: 0.3rem 0.15rem !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    width: 100% !important;
+  }
+
+    .mobile-bottom-nav-link i,
+    .mobile-bottom-nav-button i {
+      display: block !important;
+      font-size: 1.2rem !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+    }
+
+    .mobile-bottom-nav-link span,
+    .mobile-bottom-nav-button span {
+      display: block !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
+    .mobile-bottom-nav-link:hover,
+    .mobile-bottom-nav-button:hover {
+      background: #eef4fb !important;
+      color: #206bc4 !important;
+      text-decoration: none !important;
+    }
+
+    .mobile-bottom-nav-link.active {
+      background: #e8f1ff !important;
+      color: #0d5bb8 !important;
+    }
+
+  .mobile-more-sheet {
+    border-radius: 18px 18px 0 0 !important;
+    max-height: 78vh !important;
+  }
+
+    .mobile-more-sheet .offcanvas-body {
+      padding-top: 0.25rem !important;
+    }
+
+  .mobile-more-grid {
+    display: grid !important;
+    gap: 0.65rem !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .mobile-more-link {
+    align-items: center !important;
+    background: #f8fafc !important;
+    border: 1px solid rgba(98, 105, 118, 0.14) !important;
+    border-radius: 12px !important;
+    color: #182433 !important;
+    display: flex !important;
+    gap: 0.55rem !important;
+    min-height: 3.25rem !important;
+    padding: 0.75rem !important;
+    position: relative !important;
+    text-decoration: none !important;
+    width: 100% !important;
+  }
+
+    .mobile-more-link i {
+      align-items: center !important;
+      background: #e8f1ff !important;
+      border-radius: 10px !important;
+      color: #206bc4 !important;
+      display: inline-flex !important;
+      flex: 0 0 2.25rem !important;
+      font-size: 1.15rem !important;
+      height: 2.25rem !important;
+      justify-content: center !important;
+      width: 2.25rem !important;
+    }
+
+    .mobile-more-link span {
+      font-size: 0.78rem !important;
+      font-weight: 750 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
+    .mobile-more-link strong {
+      align-items: center !important;
+      background: #d63939 !important;
+      border-radius: 999px !important;
+      color: #ffffff !important;
+      display: inline-flex !important;
+      font-size: 0.7rem !important;
+      height: 1.35rem !important;
+      justify-content: center !important;
+      margin-left: auto !important;
+      min-width: 1.35rem !important;
+      padding-inline: 0.35rem !important;
+    }
+
+    .mobile-more-link.active {
+      background: #e8f1ff !important;
+      border-color: rgba(32, 107, 196, 0.25) !important;
+      color: #0d5bb8 !important;
+    }
+
+  .mobile-more-logout-form {
+    display: contents !important;
+  }
+
+  .mobile-more-logout {
+    color: #d63939 !important;
+  }
+
+    .mobile-more-logout i {
+      background: #ffecec !important;
+      color: #d63939 !important;
+    }
+}
